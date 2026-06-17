@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="自宅トレ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>自宅トレ A/B</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#161c30; --card2:#1f2742; --txt:#eef1f8; --sub:#9aa3c0;
+    --accent:#4ade80; --accent2:#38bdf8; --warn:#fb7185; --line:#2a3354;
+    --safe-top:env(safe-area-inset-top); --safe-bot:env(safe-area-inset-bottom);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%;}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    padding:calc(var(--safe-top) + 8px) 14px calc(var(--safe-bot) + 14px);
+    -webkit-user-select:none; user-select:none; overflow-x:hidden;
+  }
+  .screen{display:none; max-width:560px; margin:0 auto;}
+  .screen.active{display:block;}
+  h1{font-size:22px; margin:6px 0 16px;}
+  .sub{color:var(--sub); font-size:13px;}
+  .big-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; border:none; border-radius:18px; color:#06210f; font-weight:800;
+    background:var(--accent); font-size:22px; padding:22px; margin:10px 0;
+    box-shadow:0 6px 0 #2fa15c; active:translateY(2px);
+  }
+  .big-btn:active{transform:translateY(3px); box-shadow:0 3px 0 #2fa15c;}
+  .big-btn.blue{background:var(--accent2); box-shadow:0 6px 0 #1f88b8; color:#04222e;}
+  .big-btn.ghost{background:var(--card2); color:var(--txt); box-shadow:0 6px 0 #0f1426;}
+  .big-btn.warn{background:var(--warn); box-shadow:0 6px 0 #b34a5b; color:#2a0810;}
+  .row{display:flex; gap:10px;}
+  .row>*{flex:1;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin:12px 0;}
+  .pill{display:inline-block; background:var(--card2); color:var(--sub); border-radius:999px; padding:4px 12px; font-size:13px; margin:2px 4px 2px 0;}
+  .ex-name{font-size:30px; font-weight:800; line-height:1.2; margin:8px 0;}
+  .progress{display:flex; justify-content:space-between; color:var(--sub); font-size:14px; margin-bottom:6px;}
+  .timer{font-size:84px; font-weight:800; text-align:center; letter-spacing:2px; margin:6px 0; font-variant-numeric:tabular-nums;}
+  .timer.urgent{color:var(--warn);}
+  .timer.done{color:var(--accent);}
+  .field{margin:10px 0;}
+  .field label{display:block; font-size:13px; color:var(--sub); margin-bottom:6px;}
+  .stepper{display:flex; align-items:stretch; gap:8px;}
+  .stepper button{width:64px; font-size:30px; font-weight:800; border:none; border-radius:14px; background:var(--card2); color:var(--txt);}
+  .stepper button:active{background:#2c3760;}
+  .stepper input{
+    flex:1; text-align:center; font-size:34px; font-weight:800; border-radius:14px;
+    border:2px solid var(--line); background:#0e1430; color:var(--txt); padding:10px; min-width:0;
+  }
+  .side-tag{font-size:14px; color:var(--accent2); font-weight:700; margin-bottom:4px;}
+  .note{color:var(--sub); font-size:13px; margin-top:8px; line-height:1.5;}
+  .small-row{display:flex; gap:8px; margin-top:8px;}
+  .small-row button{flex:1; border:none; border-radius:12px; background:var(--card2); color:var(--txt); font-size:14px; padding:12px; font-weight:700;}
+  .small-row button:active{background:#2c3760;}
+  .toast{
+    position:fixed; left:14px; right:14px; bottom:calc(var(--safe-bot) + 16px);
+    background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:540px; margin:0 auto;
+    box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:50;
+  }
+  .toast button{border:none; background:var(--warn); color:#2a0810; font-weight:800; border-radius:10px; padding:10px 14px; font-size:15px;}
+  textarea{width:100%; min-height:160px; background:#0e1430; color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; font-size:13px; font-family:ui-monospace,monospace; -webkit-user-select:text; user-select:text;}
+  .hist-item{display:flex; justify-content:space-between; align-items:center; padding:14px; border-bottom:1px solid var(--line);}
+  .hist-item:active{background:var(--card2);}
+  .muted{color:var(--sub); font-size:12px;}
+  .center{text-align:center;}
+  a.link{color:var(--accent2);}
+</style>
+</head>
+<body>
+
+<!-- ===== HOME ===== -->
+<div id="home" class="screen active">
+  <h1>🏋️ 自宅トレ A/B</h1>
+  <p class="sub">メニューを選ぶ。1セットずつ記録＆休憩タイマー。音はマナーモードでも鳴るよう細工していますが、画面ロック/別アプリ中は鳴りません。休憩中は画面をつけたまま使ってください。</p>
+  <button class="big-btn" onclick="startWorkout('A')">A メニュー（押す・脚）</button>
+  <button class="big-btn blue" onclick="startWorkout('B')">B メニュー（引く・脚）</button>
+  <button class="big-btn ghost" onclick="show('history'); renderHistory();">📒 トレ履歴</button>
+  <div id="resumeBox"></div>
+  <p class="muted center" id="verline"></p>
+</div>
+
+<!-- ===== READY (種目画面：チェックでセット開始) ===== -->
+<div id="ready" class="screen">
+  <div class="progress"><span id="r-prog"></span><span id="r-menu"></span></div>
+  <div class="card">
+    <div id="r-part" class="pill"></div>
+    <div class="ex-name" id="r-name"></div>
+    <div id="r-set" class="sub" style="font-size:18px;"></div>
+    <div class="note" id="r-note"></div>
+    <div class="note" id="r-last"></div>
+  </div>
+  <button class="big-btn" id="r-check" onclick="finishSet()">✓ このセット完了 → 記録＆休憩</button>
+  <div class="small-row">
+    <button onclick="goBack()">← 戻る</button>
+    <button onclick="skipExercise()">この種目をスキップ</button>
+  </div>
+</div>
+
+<!-- ===== RECORD (休憩カウントダウン＋入力) ===== -->
+<div id="record" class="screen">
+  <div class="progress"><span id="rec-prog"></span><span id="rec-menu"></span></div>
+  <div class="ex-name center" id="rec-name" style="font-size:22px;"></div>
+  <div class="sub center" id="rec-set" style="margin-bottom:4px;"></div>
+  <div class="timer" id="rec-timer">--</div>
+  <div class="small-row">
+    <button onclick="extendRest(30)">＋30秒</button>
+    <button onclick="skipRest()">休憩スキップ</button>
+  </div>
+
+  <div class="card">
+    <div id="rec-side-block"></div>
+  </div>
+  <div class="note center">数字は目安。実際の重量・回数に直して入力。</div>
+  <button class="big-btn ghost" onclick="nextManually()">記録OK → 次へ</button>
+  <div class="small-row">
+    <button onclick="goBack()">← 戻る</button>
+  </div>
+</div>
+
+<!-- ===== END ===== -->
+<div id="end" class="screen">
+  <h1>✅ 終了！おつかれさま</h1>
+  <p class="sub" id="end-summary-sub"></p>
+  <button class="big-btn" onclick="copyText(document.getElementById('end-text').value, this)">📋 まとめを全部コピー</button>
+  <textarea id="end-text" readonly></textarea>
+  <p class="note">このテキストをコピーして、Notionに貼るか、クロードに送れば記録します。履歴にも保存済み。</p>
+  <button class="big-btn ghost" onclick="show('home'); renderResume();">ホームに戻る</button>
+</div>
+
+<!-- ===== HISTORY ===== -->
+<div id="history" class="screen">
+  <h1>📒 トレ履歴</h1>
+  <button class="big-btn ghost" onclick="show('home'); renderResume();">← ホーム</button>
+  <div id="hist-list"></div>
+  <div id="hist-detail"></div>
+</div>
+
+<!-- toast (undo auto-advance) -->
+<div id="toast" class="toast" style="display:none;">
+  <span id="toast-msg">次へ進みます…</span>
+  <button onclick="cancelAutoNext()">取り消し</button>
+</div>
+
+<!-- silent audio to bypass iOS silent switch (Web Audio routes through media channel after this plays) -->
+<audio id="silent" loop playsinline preload="auto"></audio>
+
+<script>
+"use strict";
+
+/* ===================== MENU DATA (Claudeが更新) ===================== */
+const MENUS = {
+  A: { label:"自宅A（押す・脚）", exercises:[
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", sets:3, targetKg:15, rest:120, bodyweight:false, unilateral:false, note:"膝をつま先方向・浅〜中"},
+    {name:"インクラインDBプレス(30°)", part:"上部胸", sets:3, targetKg:8, rest:120, note:"息を吐く・潰れたらダンベルを体側へ"},
+    {name:"懸垂/チンアップ", part:"広背(広がり)", sets:3, targetKg:null, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
+    {name:"サイドレイズ", part:"側部三角(肩幅)", sets:3, targetKg:4, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで"},
+    {name:"三頭エクステンション", part:"上腕三頭", sets:3, targetKg:8, rest:90, note:"肘を顔の横で固定"},
+    {name:"カーフレイズ(加重)", part:"下腿", sets:3, targetKg:10, rest:75, note:"ダンベル持って・壁につかまる"},
+    {name:"腹・レッグレイズ", part:"腹直", sets:3, targetKg:null, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
+  ]},
+  B: { label:"自宅B（引く・脚）", exercises:[
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", sets:3, targetKg:15, rest:120, note:"膝をつま先方向・浅〜中"},
+    {name:"フラットDBプレス", part:"中下部胸", sets:3, targetKg:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
+    {name:"懸垂/チンアップ", part:"広背(広がり)", sets:3, targetKg:null, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
+    {name:"ワンハンドロウ", part:"背中の厚み", sets:3, targetKg:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
+    {name:"ヒップスラスト", part:"尻/ハム", sets:3, targetKg:null, rest:90, bodyweight:true, note:"肩をベンチに乗せ・尻で挙げる・頂点で1〜2秒"},
+    {name:"リアレイズ", part:"後部三角", sets:3, targetKg:4, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
+    {name:"二頭カール", part:"上腕二頭", sets:3, targetKg:5, rest:90, note:"肘を体側固定・振らない"},
+    {name:"ヒップアブダクション", part:"中臀筋(膝対策)", sets:3, targetKg:null, rest:60, unilateral:true, note:"立位・壁につかまる・左右交互"}
+  ]}
+};
+const APP_VERSION = "v1.0 (2026-06-17)";
+
+/* ===================== STATE ===================== */
+let S = null;            // current session
+let timer = { id:null, endAt:0, running:false, lastBeep:-1 };
+let autoNextTimer = null;
+let wakeLock = null;
+
+/* ===================== AUDIO ===================== */
+let actx = null, audioReady = false, silentUrl = null;
+function makeSilentWav(seconds){
+  const sr=8000, n=Math.floor(sr*seconds), b=new ArrayBuffer(44+n*2), v=new DataView(b);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+  w(0,"RIFF"); v.setUint32(4,36+n*2,true); w(8,"WAVE"); w(12,"fmt ");
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,"data"); v.setUint32(40,n*2,true); // samples are already 0 (silence)
+  return URL.createObjectURL(new Blob([b],{type:"audio/wav"}));
+}
+function unlockAudio(){
+  try{
+    if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state === "suspended") actx.resume();
+    const el = document.getElementById("silent");
+    if(!silentUrl){ silentUrl = makeSilentWav(0.5); el.src = silentUrl; }
+    el.play().catch(()=>{});
+    audioReady = true;
+  }catch(e){}
+}
+function beep(freq, dur, vol){
+  if(!actx) return;
+  try{
+    if(actx.state==="suspended") actx.resume();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type="sine"; o.frequency.value=freq;
+    g.gain.value = vol||0.5;
+    o.connect(g); g.connect(actx.destination);
+    const t = actx.currentTime;
+    o.start(t); o.stop(t + (dur||0.15));
+  }catch(e){}
+}
+
+/* ===================== SCREENS ===================== */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* ===================== STORAGE ===================== */
+const LS_CUR = "ht_current_v1";
+const LS_HIST = "ht_history_v1";
+function saveCurrent(){ try{ localStorage.setItem(LS_CUR, JSON.stringify(S)); }catch(e){} }
+function clearCurrent(){ try{ localStorage.removeItem(LS_CUR); }catch(e){} }
+function loadCurrent(){ try{ return JSON.parse(localStorage.getItem(LS_CUR)); }catch(e){ return null; } }
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){ return []; } }
+function saveHistory(arr){ try{ localStorage.setItem(LS_HIST, JSON.stringify(arr)); }catch(e){} }
+
+/* ===================== SESSION ===================== */
+function todayStr(){
+  const d=new Date(); const z=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate());
+}
+function startWorkout(menuKey){
+  unlockAudio();
+  const menu = MENUS[menuKey];
+  S = {
+    menuKey, label:menu.label, date: todayStr(), startedAt: Date.now(),
+    exIndex:0, setIndex:0, finished:false,
+    // snapshot menu so later edits don't change history
+    exercises: menu.exercises.map(e=>({
+      name:e.name, part:e.part, sets:e.sets, targetKg:e.targetKg, rest:e.rest,
+      bodyweight:!!e.bodyweight, unilateral:!!e.unilateral, note:e.note||"",
+      records: [] // records[setIdx] = {entries:[{side,kg,reps}], doneAt}
+    }))
+  };
+  saveCurrent();
+  requestWake();
+  renderReady();
+  show("ready");
+}
+function curEx(){ return S.exercises[S.exIndex]; }
+
+/* ===================== READY SCREEN ===================== */
+function renderReady(){
+  stopTimer();
+  const ex = curEx();
+  document.getElementById("r-prog").textContent = `種目 ${S.exIndex+1}/${S.exercises.length}`;
+  document.getElementById("r-menu").textContent = S.label;
+  document.getElementById("r-part").textContent = ex.part;
+  document.getElementById("r-name").textContent = ex.name;
+  document.getElementById("r-set").textContent = `${S.setIndex+1} セット目 / 全${ex.sets}セット`;
+  document.getElementById("r-note").textContent = "💡 " + ex.note;
+  // last session same exercise
+  const last = lastTimeFor(ex.name);
+  document.getElementById("r-last").textContent = last ? ("前回: "+last) : "";
+  document.getElementById("r-check").textContent = `✓ ${S.setIndex+1}セット目 完了 → 記録＆休憩`;
+}
+function lastTimeFor(name){
+  const h = loadHistory();
+  for(let i=h.length-1;i>=0;i--){
+    const ex = (h[i].exercises||[]).find(e=>e.name===name);
+    if(ex && ex.records && ex.records.length){
+      return ex.records.map(r=>fmtEntries(r.entries, true)).join(" / ");
+    }
+  }
+  return null;
+}
+
+/* ===================== finishSet -> RECORD ===================== */
+function finishSet(){
+  unlockAudio();
+  const ex = curEx();
+  document.getElementById("rec-prog").textContent = `種目 ${S.exIndex+1}/${S.exercises.length}`;
+  document.getElementById("rec-menu").textContent = S.label;
+  document.getElementById("rec-name").textContent = ex.name;
+  document.getElementById("rec-set").textContent = `${S.setIndex+1}セット目の記録`;
+  buildInputs(ex);
+  show("record");
+  startTimer(ex.rest);
+}
+function buildInputs(ex){
+  const wrap = document.getElementById("rec-side-block");
+  wrap.innerHTML = "";
+  const sides = ex.unilateral ? ["L","R"] : [null];
+  sides.forEach(side=>{
+    const block = document.createElement("div");
+    if(side) block.innerHTML = `<div class="side-tag">${side==="L"?"左 L":"右 R"}</div>`;
+    // weight (skip if bodyweight)
+    if(!ex.bodyweight){
+      block.appendChild(stepperField("重量(kg)", "kg", side, ex.targetKg!=null?ex.targetKg:0, 0.5));
+    }
+    block.appendChild(stepperField("回数", "reps", side, "", 1));
+    wrap.appendChild(block);
+  });
+}
+function stepperField(labelTxt, kind, side, initVal, step){
+  const f = document.createElement("div"); f.className="field";
+  const id = inputId(kind, side);
+  f.innerHTML = `<label>${labelTxt}</label>
+    <div class="stepper">
+      <button type="button" onclick="bump('${id}',${-step})">−</button>
+      <input id="${id}" inputmode="decimal" type="number" step="${step}" value="${initVal}" placeholder="${kind==='reps'?'回数':'kg'}" oninput="onInput()">
+      <button type="button" onclick="bump('${id}',${step})">＋</button>
+    </div>`;
+  return f;
+}
+function inputId(kind, side){ return "in_"+kind+(side||"X"); }
+function bump(id, delta){
+  const el = document.getElementById(id); if(!el) return;
+  let v = parseFloat(el.value); if(isNaN(v)) v=0;
+  v = Math.max(0, Math.round((v+delta)*100)/100);
+  el.value = v; onInput();
+}
+
+/* ===================== TIMER (end-time based) ===================== */
+function startTimer(sec){
+  timer.endAt = Date.now() + sec*1000;
+  timer.running = true; timer.lastBeep = -1;
+  beep(880,0.12,0.4); // start beep
+  tick();
+  if(timer.id) clearInterval(timer.id);
+  timer.id = setInterval(tick, 200);
+}
+function tick(){
+  if(!timer.running) return;
+  const remMs = timer.endAt - Date.now();
+  const rem = Math.max(0, Math.ceil(remMs/1000));
+  const el = document.getElementById("rec-timer");
+  el.textContent = rem>0 ? rem : "0";
+  el.className = "timer" + (rem<=3 && rem>0 ? " urgent" : (rem<=0 ? " done" : ""));
+  // beeps at 3,2,1 (once each) and end
+  if(rem>0 && rem<=3 && timer.lastBeep!==rem){ timer.lastBeep=rem; beep(660,0.12,0.45); }
+  if(remMs<=0){
+    if(timer.running){ beep(990,0.5,0.55); }
+    timer.running=false;
+    if(timer.id){ clearInterval(timer.id); timer.id=null; }
+    maybeAutoNext();
+  }
+}
+function stopTimer(){ timer.running=false; timer.endAt=0; timer.lastBeep=-1; if(timer.id){clearInterval(timer.id); timer.id=null;} }
+function extendRest(s){ if(timer.endAt < Date.now()) timer.endAt = Date.now(); timer.endAt += s*1000; timer.running=true; timer.lastBeep=-1; if(!timer.id) timer.id=setInterval(tick,200); tick(); }
+function skipRest(){ timer.endAt = Date.now(); tick(); }
+
+/* ===================== INPUT / AUTO-NEXT ===================== */
+function inputsFilled(){
+  const ex = curEx();
+  const sides = ex.unilateral ? ["L","R"] : [null];
+  for(const side of sides){
+    if(!ex.bodyweight){
+      const w = document.getElementById(inputId("kg",side));
+      if(!w || w.value==="" || isNaN(parseFloat(w.value))) return false;
+    }
+    const r = document.getElementById(inputId("reps",side));
+    if(!r || r.value==="" || isNaN(parseFloat(r.value)) || parseFloat(r.value)<=0) return false;
+  }
+  return true;
+}
+function onInput(){ /* hook: could trigger auto-next when timer already done */
+  if(!timer.running && (timer.endAt && Date.now()>=timer.endAt)) maybeAutoNext();
+}
+function typingNow(){
+  const a = document.activeElement;
+  return a && a.tagName==="INPUT";
+}
+function maybeAutoNext(){
+  // 折衷: countdown done + inputs filled + not typing -> 1.5s undo -> advance
+  if(!document.getElementById("record").classList.contains("active")) return;
+  if(timer.running) return;
+  if(!(timer.endAt && Date.now()>=timer.endAt)) return;
+  if(!inputsFilled()) return;
+  if(typingNow()) return;
+  if(autoNextTimer) return;
+  const t = document.getElementById("toast");
+  document.getElementById("toast-msg").textContent = "記録OK・休憩終了 → 次へ進みます";
+  t.style.display="flex";
+  autoNextTimer = setTimeout(()=>{ t.style.display="none"; autoNextTimer=null; commitAndAdvance(); }, 1500);
+}
+function cancelAutoNext(){
+  if(autoNextTimer){ clearTimeout(autoNextTimer); autoNextTimer=null; }
+  document.getElementById("toast").style.display="none";
+}
+function nextManually(){
+  // 記録OKボタン: require inputs filled
+  if(!inputsFilled()){ alert("重量と回数を入れてね（自重種目は回数だけ）"); return; }
+  cancelAutoNext();
+  commitAndAdvance();
+}
+
+/* ===================== COMMIT SET & ADVANCE ===================== */
+function readEntries(){
+  const ex = curEx();
+  const sides = ex.unilateral ? ["L","R"] : [null];
+  const entries = sides.map(side=>{
+    const kg = ex.bodyweight ? null : parseFloat((document.getElementById(inputId("kg",side))||{}).value);
+    const reps = parseFloat((document.getElementById(inputId("reps",side))||{}).value);
+    return { side: side, kg: (isNaN(kg)?null:kg), reps: (isNaN(reps)?0:reps) };
+  });
+  return entries;
+}
+function commitAndAdvance(){
+  const ex = curEx();
+  ex.records[S.setIndex] = { entries: readEntries(), doneAt: Date.now() };
+  // advance set / exercise
+  if(S.setIndex+1 < ex.sets){
+    S.setIndex++;
+  }else{
+    S.setIndex=0; S.exIndex++;
+  }
+  saveCurrent();
+  stopTimer();
+  if(S.exIndex >= S.exercises.length){ finishWorkout(); return; }
+  renderReady(); show("ready");
+}
+
+/* ===================== BACK / SKIP ===================== */
+function goBack(){
+  cancelAutoNext(); stopTimer();
+  // if on record screen -> back to ready of same set
+  if(document.getElementById("record").classList.contains("active")){ renderReady(); show("ready"); return; }
+  // on ready: go to previous set/exercise (to fix)
+  if(S.setIndex>0){ S.setIndex--; }
+  else if(S.exIndex>0){ S.exIndex--; S.setIndex = S.exercises[S.exIndex].sets-1; }
+  else { show("home"); renderResume(); return; }
+  // remove that set's record so it can be redone
+  curEx().records[S.setIndex] = undefined;
+  saveCurrent(); renderReady(); show("ready");
+}
+function skipExercise(){
+  if(!confirm("この種目をスキップする？")) return;
+  cancelAutoNext(); stopTimer();
+  S.setIndex=0; S.exIndex++;
+  saveCurrent();
+  if(S.exIndex>=S.exercises.length){ finishWorkout(); return; }
+  renderReady(); show("ready");
+}
+
+/* ===================== FINISH ===================== */
+function finishWorkout(){
+  stopTimer(); releaseWake();
+  S.finished=true; S.endedAt=Date.now();
+  // save to history (only exercises with at least 1 record)
+  const hist = loadHistory();
+  hist.push(JSON.parse(JSON.stringify(S)));
+  saveHistory(hist);
+  clearCurrent();
+  document.getElementById("end-summary-sub").textContent = `${S.date} ${S.label} ・ 全${S.exercises.length}種目`;
+  document.getElementById("end-text").value = sessionToText(S);
+  show("end");
+}
+
+/* ===================== TEXT FORMAT (Notion貼り付け用・1行1種目) ===================== */
+function fmtEntries(entries, compact){
+  // entries -> "8kg×10" or "L8kg×13 R8kg×17" ; bodyweight -> "自重×4"
+  return entries.map(e=>{
+    const w = (e.kg==null) ? "自重" : (e.kg+"kg");
+    const sidep = e.side ? (e.side+" ") : "";
+    return sidep + w + "×" + (e.reps||0);
+  }).join(" ");
+}
+function sessionToText(sess){
+  let out = `${sess.date} ${sess.label}\n`;
+  sess.exercises.forEach(ex=>{
+    const recs = (ex.records||[]).filter(r=>r);
+    if(!recs.length){ out += `${ex.name}: （未実施）\n`; return; }
+    const sets = recs.map(r=>fmtEntries(r.entries)).join(" / ");
+    out += `${ex.name}: ${sets}\n`;
+  });
+  return out.trim();
+}
+
+/* ===================== COPY ===================== */
+function copyText(txt, btn){
+  const done=()=>{ if(btn){ const o=btn.textContent; btn.textContent="✓ コピーした"; setTimeout(()=>btn.textContent=o,1500);} };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  }else{ fallbackCopy(txt,done); }
+}
+function fallbackCopy(txt, done){
+  const ta=document.createElement("textarea"); ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); done&&done(); }catch(e){ alert("コピーできなかった。テキストを長押しで選択してね"); }
+  document.body.removeChild(ta);
+}
+
+/* ===================== HISTORY ===================== */
+function renderHistory(){
+  const h = loadHistory();
+  const list = document.getElementById("hist-list");
+  document.getElementById("hist-detail").innerHTML="";
+  if(!h.length){ list.innerHTML='<p class="sub">まだ履歴がありません。</p>'; return; }
+  list.innerHTML="";
+  for(let i=h.length-1;i>=0;i--){
+    const s=h[i];
+    const div=document.createElement("div"); div.className="hist-item";
+    div.innerHTML=`<div><b>${s.date}</b> <span class="muted">${s.label}</span></div><div class="muted">▶</div>`;
+    div.onclick=()=>showHistDetail(i);
+    list.appendChild(div);
+  }
+}
+function showHistDetail(i){
+  const s=loadHistory()[i];
+  const txt=sessionToText(s);
+  const d=document.getElementById("hist-detail");
+  d.innerHTML=`<div class="card"><pre style="white-space:pre-wrap; font-size:13px; margin:0 0 10px;"></pre>
+    <button class="big-btn" id="hd-copy">📋 この日をコピー</button>
+    <button class="big-btn warn" id="hd-del">この履歴を削除</button></div>`;
+  d.querySelector("pre").textContent = txt;                       // textContentで安全に表示(インジェクション無し)
+  d.querySelector("#hd-copy").onclick = function(){ copyText(txt, this); };
+  d.querySelector("#hd-del").onclick = function(){ deleteHist(i); };
+}
+function deleteHist(i){
+  if(!confirm("この履歴を削除する？")) return;
+  const h=loadHistory(); h.splice(i,1); saveHistory(h); renderHistory();
+}
+function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+/* ===================== RESUME ===================== */
+function renderResume(){
+  const cur = loadCurrent();
+  const box = document.getElementById("resumeBox");
+  if(cur && !cur.finished){
+    box.innerHTML = `<div class="card"><b>途中のトレがあります</b><div class="muted">${cur.date} ${cur.label}・種目${cur.exIndex+1}/${cur.exercises.length}</div>
+      <button class="big-btn blue" onclick="resumeWorkout()">▶ 途中から再開</button>
+      <button class="big-btn warn" onclick="discardCurrent()">破棄して新規</button></div>`;
+  }else{ box.innerHTML=""; }
+}
+function resumeWorkout(){ unlockAudio(); S=loadCurrent(); requestWake(); renderReady(); show("ready"); }
+function discardCurrent(){ if(!confirm("途中のトレを破棄する？")) return; clearCurrent(); renderResume(); }
+
+/* ===================== WAKE LOCK ===================== */
+async function requestWake(){
+  try{ if("wakeLock" in navigator){ wakeLock = await navigator.wakeLock.request("screen"); } }catch(e){}
+}
+function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){} }
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible"){
+    if(S && !S.finished) requestWake();
+    if(timer.endAt && timer.running===false && Date.now()<timer.endAt){ /* was paused visually */ }
+    tick(); // refresh timer on return (end-time based, stays correct)
+    if(timer.endAt && Date.now()<timer.endAt && document.getElementById("record").classList.contains("active")){
+      timer.running=true; if(!timer.id) timer.id=setInterval(tick,200);
+    }
+  }
+});
+
+/* ===================== INIT ===================== */
+document.getElementById("verline").textContent = APP_VERSION;
+renderResume();
+// register service worker (offline)
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+// unlock audio on first touch anywhere
+document.addEventListener("touchend", unlockAudio, {once:true});
+</script>
+</body>
+</html>
