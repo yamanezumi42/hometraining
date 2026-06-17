@@ -32,7 +32,7 @@
     display:flex; align-items:center; justify-content:center;
     width:100%; border:none; border-radius:18px; color:#06210f; font-weight:800;
     background:var(--accent); font-size:22px; padding:22px; margin:10px 0;
-    box-shadow:0 6px 0 #2fa15c; active:translateY(2px);
+    box-shadow:0 6px 0 #2fa15c; transition:transform .06s ease, box-shadow .06s ease;
   }
   .big-btn:active{transform:translateY(3px); box-shadow:0 3px 0 #2fa15c;}
   .big-btn.blue{background:var(--accent2); box-shadow:0 6px 0 #1f88b8; color:#04222e;}
@@ -74,6 +74,11 @@
   .muted{color:var(--sub); font-size:12px;}
   .center{text-align:center;}
   a.link{color:var(--accent2);}
+  #r-check{ font-size:46px; padding:30px; }
+  #rec-next{ margin-top:12px; color:var(--accent2); font-weight:700; }
+  .flash{ position:fixed; inset:0; background:var(--accent); opacity:0; pointer-events:none; z-index:60; }
+  .flash.go{ animation:flashAnim .55s ease; }
+  @keyframes flashAnim{ 0%{opacity:0;} 18%{opacity:.75;} 100%{opacity:0;} }
 </style>
 </head>
 <body>
@@ -113,9 +118,11 @@
   <div class="sub center" id="rec-set" style="margin-bottom:4px;"></div>
   <div class="timer" id="rec-timer">--</div>
   <div class="small-row">
-    <button onclick="extendRest(30)">＋30秒</button>
-    <button onclick="skipRest()">休憩スキップ</button>
+    <button onclick="extendRest(-10)">−10秒</button>
+    <button onclick="extendRest(10)">＋10秒</button>
+    <button onclick="skipRest()">スキップ</button>
   </div>
+  <div id="rec-next" class="note center"></div>
 
   <div class="card">
     <div id="rec-side-block"></div>
@@ -151,6 +158,8 @@
   <button onclick="cancelAutoNext()">取り消し</button>
 </div>
 
+<div id="flash" class="flash"></div>
+
 <!-- silent audio to bypass iOS silent switch (Web Audio routes through media channel after this plays) -->
 <audio id="silent" loop playsinline preload="auto"></audio>
 
@@ -160,25 +169,27 @@
 /* ===================== MENU DATA (Claudeが更新) ===================== */
 const MENUS = {
   A: { label:"自宅A（押す・脚）", exercises:[
-    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", sets:3, targetKg:15, rest:120, bodyweight:false, unilateral:false, note:"膝をつま先方向・浅〜中"},
-    {name:"インクラインDBプレス(30°)", part:"上部胸", sets:3, targetKg:8, rest:120, note:"息を吐く・潰れたらダンベルを体側へ"},
-    {name:"懸垂/チンアップ", part:"広背(広がり)", sets:3, targetKg:null, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
-    {name:"サイドレイズ", part:"側部三角(肩幅)", sets:3, targetKg:4, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで"},
-    {name:"三頭エクステンション", part:"上腕三頭", sets:3, targetKg:8, rest:90, note:"肘を顔の横で固定"},
-    {name:"カーフレイズ(加重)", part:"下腿", sets:3, targetKg:10, rest:75, note:"ダンベル持って・壁につかまる"},
-    {name:"腹・レッグレイズ", part:"腹直", sets:3, targetKg:null, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:15, repMin:8, rest:120, note:"膝をつま先方向・浅〜中"},
+    {name:"インクラインDBプレス", part:"上部胸", angle:"ベンチ 30°", sets:3, targetKg:8, repMin:8, rest:120, note:"息を吐く・潰れたらダンベルを体側へ"},
+    {name:"懸垂/チンアップ", part:"広背(広がり)", angle:"懸垂機", sets:3, targetKg:null, repMin:3, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
+    {name:"サイドレイズ", part:"側部三角(肩幅)", angle:"立位 or 背もたれ75-80°", sets:3, targetKg:4, repMin:12, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで"},
+    {name:"三頭エクステンション", part:"上腕三頭", angle:"背もたれ80-90°(直立)", sets:3, targetKg:8, repMin:10, rest:90, note:"肘を顔の横で固定"},
+    {name:"カーフレイズ(加重)", part:"下腿", angle:"立って・壁につかまる", sets:3, targetKg:10, repMin:12, rest:75, note:"ダンベルを持って加重"},
+    {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", sets:3, targetKg:null, repMin:12, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
   ]},
   B: { label:"自宅B（引く・脚）", exercises:[
-    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", sets:3, targetKg:15, rest:120, note:"膝をつま先方向・浅〜中"},
-    {name:"フラットDBプレス", part:"中下部胸", sets:3, targetKg:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
-    {name:"懸垂/チンアップ", part:"広背(広がり)", sets:3, targetKg:null, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
-    {name:"ワンハンドロウ", part:"背中の厚み", sets:3, targetKg:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
-    {name:"ヒップスラスト", part:"尻/ハム", sets:3, targetKg:null, rest:90, bodyweight:true, note:"肩をベンチに乗せ・尻で挙げる・頂点で1〜2秒"},
-    {name:"リアレイズ", part:"後部三角", sets:3, targetKg:4, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
-    {name:"二頭カール", part:"上腕二頭", sets:3, targetKg:5, rest:90, note:"肘を体側固定・振らない"},
-    {name:"ヒップアブダクション", part:"中臀筋(膝対策)", sets:3, targetKg:null, rest:60, unilateral:true, note:"立位・壁につかまる・左右交互"}
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:15, repMin:8, rest:120, note:"膝をつま先方向・浅〜中"},
+    {name:"フラットDBプレス", part:"中下部胸", angle:"ベンチ 0°(フラット)", sets:3, targetKg:8, repMin:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
+    {name:"懸垂/チンアップ", part:"広背(広がり)", angle:"懸垂機", sets:3, targetKg:null, repMin:3, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
+    {name:"ワンハンドロウ", part:"背中の厚み", angle:"ベンチに片膝・片手", sets:3, targetKg:8, repMin:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
+    {name:"ヒップスラスト", part:"尻/ハム", angle:"肩をベンチ0°に乗せる", sets:3, targetKg:null, repMin:12, rest:90, bodyweight:true, note:"尻で挙げる・頂点で1〜2秒"},
+    {name:"リアレイズ", part:"後部三角", angle:"うつ伏せ・ベンチ30-45°", sets:3, targetKg:4, repMin:12, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
+    {name:"二頭カール", part:"上腕二頭", angle:"立位 or インクライン75-85°", sets:3, targetKg:5, repMin:10, rest:90, note:"肘を体側固定・振らない"},
+    {name:"ヒップアブダクション", part:"中臀筋(膝対策)", angle:"立位・壁につかまる", sets:3, targetKg:null, repMin:15, rest:60, unilateral:true, note:"骨盤を捻らない・左右交互"}
   ]}
 };
+const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
+function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
 const APP_VERSION = "v1.0 (2026-06-17)";
 
 /* ===================== STATE ===================== */
@@ -186,6 +197,7 @@ let S = null;            // current session
 let timer = { id:null, endAt:0, running:false, lastBeep:-1 };
 let autoNextTimer = null;
 let wakeLock = null;
+let dirty = false; // このセットで±/入力を一度でも触ったか（記録OKの確認ポップアップ用）
 
 /* ===================== AUDIO ===================== */
 let actx = null, audioReady = false, silentUrl = null;
@@ -250,7 +262,8 @@ function startWorkout(menuKey){
     exIndex:0, setIndex:0, finished:false,
     // snapshot menu so later edits don't change history
     exercises: menu.exercises.map(e=>({
-      name:e.name, part:e.part, sets:e.sets, targetKg:e.targetKg, rest:e.rest,
+      name:e.name, part:e.part, angle:e.angle||"", sets:e.sets, targetKg:e.targetKg,
+      repMin:(e.repMin!=null?e.repMin:8), rest:e.rest,
       bodyweight:!!e.bodyweight, unilateral:!!e.unilateral, note:e.note||"",
       records: [] // records[setIdx] = {entries:[{side,kg,reps}], doneAt}
     }))
@@ -271,11 +284,11 @@ function renderReady(){
   document.getElementById("r-part").textContent = ex.part;
   document.getElementById("r-name").textContent = ex.name;
   document.getElementById("r-set").textContent = `${S.setIndex+1} セット目 / 全${ex.sets}セット`;
-  document.getElementById("r-note").textContent = "💡 " + ex.note;
+  document.getElementById("r-note").textContent = "📐 " + (ex.angle||"") + " ／ 💡 " + ex.note;
   // last session same exercise
   const last = lastTimeFor(ex.name);
   document.getElementById("r-last").textContent = last ? ("前回: "+last) : "";
-  document.getElementById("r-check").textContent = `✓ ${S.setIndex+1}セット目 完了 → 記録＆休憩`;
+  document.getElementById("r-check").textContent = "✓";
 }
 function lastTimeFor(name){
   const h = loadHistory();
@@ -291,27 +304,51 @@ function lastTimeFor(name){
 /* ===================== finishSet -> RECORD ===================== */
 function finishSet(){
   unlockAudio();
+  beep(520,0.08,0.45);                                   // 押した「ポン」
+  try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}  // iPhoneは無効(無害)
   const ex = curEx();
   document.getElementById("rec-prog").textContent = `種目 ${S.exIndex+1}/${S.exercises.length}`;
   document.getElementById("rec-menu").textContent = S.label;
-  document.getElementById("rec-name").textContent = ex.name;
+  document.getElementById("rec-name").textContent = ex.name + (ex.angle?("（"+ex.angle+"）"):"");
   document.getElementById("rec-set").textContent = `${S.setIndex+1}セット目の記録`;
+  renderNextPrep(ex);
   buildInputs(ex);
   show("record");
   startTimer(ex.rest);
 }
+function renderNextPrep(ex){
+  const el = document.getElementById("rec-next");
+  if(S.setIndex+1 < ex.sets){ el.textContent=""; return; } // 最終セットの休憩中だけ次の準備を出す
+  const nx = S.exercises[S.exIndex+1];
+  if(nx){
+    const kg = nx.bodyweight ? "自重" : ("目安"+(nx.targetKg!=null?nx.targetKg:"")+"kg");
+    el.textContent = `▶ 次の準備：${nx.name} ／ ${nx.angle||""} ／ ${kg}`;
+  }else{
+    el.textContent = "▶ これがラスト → 終わったら終了です";
+  }
+}
+function flashScreen(){
+  const f=document.getElementById("flash"); if(!f) return;
+  f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+}
 function buildInputs(ex){
   const wrap = document.getElementById("rec-side-block");
   wrap.innerHTML = "";
+  dirty = false;
+  // 2セット目以降は直前セットの値を初期表示。1セット目は目安kg・推奨最低回数。
+  const prev = (S.setIndex>0 && ex.records[S.setIndex-1]) ? ex.records[S.setIndex-1].entries : null;
   const sides = ex.unilateral ? ["L","R"] : [null];
   sides.forEach(side=>{
+    const pe = prev ? prev.find(e=>e.side===side) : null;
     const block = document.createElement("div");
     if(side) block.innerHTML = `<div class="side-tag">${side==="L"?"左 L":"右 R"}</div>`;
-    // weight (skip if bodyweight)
     if(!ex.bodyweight){
-      block.appendChild(stepperField("重量(kg)", "kg", side, ex.targetKg!=null?ex.targetKg:0, 0.5));
+      let kgInit = (pe && pe.kg!=null) ? pe.kg : (ex.targetKg!=null?ex.targetKg:KG_MIN);
+      kgInit = clampKg(kgInit);
+      block.appendChild(stepperField("重量(kg)", "kg", side, kgInit, KG_STEP));
     }
-    block.appendChild(stepperField("回数", "reps", side, "", 1));
+    let repInit = (pe && pe.reps) ? pe.reps : (ex.repMin!=null?ex.repMin:8);
+    block.appendChild(stepperField("回数", "reps", side, repInit, 1));
     wrap.appendChild(block);
   });
 }
@@ -330,8 +367,10 @@ function inputId(kind, side){ return "in_"+kind+(side||"X"); }
 function bump(id, delta){
   const el = document.getElementById(id); if(!el) return;
   let v = parseFloat(el.value); if(isNaN(v)) v=0;
-  v = Math.max(0, Math.round((v+delta)*100)/100);
-  el.value = v; onInput();
+  v = v + delta;
+  if(id.indexOf("in_kg")===0){ v = clampKg(v); }   // 重量は3〜32にクランプ
+  else { v = Math.max(0, Math.round(v)); }          // 回数は0以上の整数
+  el.value = v; dirty = true; onInput();
 }
 
 /* ===================== TIMER (end-time based) ===================== */
@@ -353,14 +392,19 @@ function tick(){
   // beeps at 3,2,1 (once each) and end
   if(rem>0 && rem<=3 && timer.lastBeep!==rem){ timer.lastBeep=rem; beep(660,0.12,0.45); }
   if(remMs<=0){
-    if(timer.running){ beep(990,0.5,0.55); }
+    if(timer.running){ beep(990,0.5,0.55); flashScreen(); }   // 終了音＋全画面フラッシュ(音が鳴らない場面の保険)
     timer.running=false;
     if(timer.id){ clearInterval(timer.id); timer.id=null; }
     maybeAutoNext();
   }
 }
 function stopTimer(){ timer.running=false; timer.endAt=0; timer.lastBeep=-1; if(timer.id){clearInterval(timer.id); timer.id=null;} }
-function extendRest(s){ if(timer.endAt < Date.now()) timer.endAt = Date.now(); timer.endAt += s*1000; timer.running=true; timer.lastBeep=-1; if(!timer.id) timer.id=setInterval(tick,200); tick(); }
+function extendRest(s){
+  if(timer.endAt < Date.now()) timer.endAt = Date.now();
+  timer.endAt = Math.max(Date.now()+1000, timer.endAt + s*1000); // −10連打でも過去に落とさない(最低1秒)
+  timer.running=true; timer.lastBeep=-1;
+  if(!timer.id) timer.id=setInterval(tick,200); tick();
+}
 function skipRest(){ timer.endAt = Date.now(); tick(); }
 
 /* ===================== INPUT / AUTO-NEXT ===================== */
@@ -377,7 +421,8 @@ function inputsFilled(){
   }
   return true;
 }
-function onInput(){ /* hook: could trigger auto-next when timer already done */
+function onInput(){
+  dirty = true;
   if(!timer.running && (timer.endAt && Date.now()>=timer.endAt)) maybeAutoNext();
 }
 function typingNow(){
@@ -404,6 +449,9 @@ function cancelAutoNext(){
 function nextManually(){
   // 記録OKボタン: require inputs filled
   if(!inputsFilled()){ alert("重量と回数を入れてね（自重種目は回数だけ）"); return; }
+  if(!dirty){ // ±を一度も触らず進む時だけ確認
+    if(!confirm("この値（前回と同じ）で記録して次へ進む？")) return;
+  }
   cancelAutoNext();
   commitAndAdvance();
 }
