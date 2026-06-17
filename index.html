@@ -191,7 +191,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v1.2 (2026-06-17) スーパーセット";
+const APP_VERSION = "v1.3 (2026-06-18) SS休憩中まとめ記録";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -266,7 +266,7 @@ function startWorkout(menuKey){
     records: [] // records[setIdx] = {entries:[{side,kg,reps}], doneAt}
   }));
   S = {
-    menuKey, label:menu.label, date: todayStr(), startedAt: Date.now(),
+    v:3, menuKey, label:menu.label, date: todayStr(), startedAt: Date.now(),
     exercises: exs, steps: buildSteps(exs), stepIndex:0, finished:false
   };
   saveCurrent();
@@ -274,8 +274,8 @@ function startWorkout(menuKey){
   renderReady();
   show("ready");
 }
-// スーパーセット展開: 同じssの隣接2種目をラウンドごとに交互(A1,B1,休,A2,B2,休...)。
-// 1種目目(slot0)は休憩なし(restAfter=0)で相方へ、2種目目(slot1)の後に休憩。単独はそのまま。
+// スーパーセット展開: 同じssの隣接2種目をラウンドごとに交互(A1→B1→休憩でA・Bまとめて記録→A2→B2→…)。
+// step.showEx=準備/表示する種目。step.record=休憩中に記録する種目リスト[{exI,setNum}]（空=記録せず即相方へ）。
 function buildSteps(exs){
   const steps=[]; let i=0;
   while(i<exs.length){
@@ -284,19 +284,24 @@ function buildSteps(exs){
     if(pair){
       const a=i, b=i+1, n=Math.max(exs[a].sets, exs[b].sets);
       for(let s=1;s<=n;s++){
-        if(s<=exs[a].sets) steps.push({exI:a, setNum:s, restAfter:0,             ss:e.ss, slot:0});
-        if(s<=exs[b].sets) steps.push({exI:b, setNum:s, restAfter:exs[b].rest,  ss:e.ss, slot:1});
+        // A: 記録せず休まず相方Bへ
+        if(s<=exs[a].sets) steps.push({showEx:a, setNum:s, restAfter:0, ss:e.ss, record:[]});
+        // B: 休憩中にA・Bをまとめて記録
+        if(s<=exs[b].sets){
+          const rec=[]; if(s<=exs[a].sets) rec.push({exI:a,setNum:s}); rec.push({exI:b,setNum:s});
+          steps.push({showEx:b, setNum:s, restAfter:exs[b].rest, ss:e.ss, record:rec});
+        }
       }
       i+=2;
     }else{
-      for(let s=1;s<=e.sets;s++) steps.push({exI:i, setNum:s, restAfter:e.rest, ss:null, slot:0});
+      for(let s=1;s<=e.sets;s++) steps.push({showEx:i, setNum:s, restAfter:e.rest, ss:null, record:[{exI:i,setNum:s}]});
       i+=1;
     }
   }
   return steps;
 }
 function curStep(){ return S.steps[S.stepIndex]; }
-function curEx(){ return S.exercises[curStep().exI]; }
+function curEx(){ return S.exercises[curStep().showEx]; }
 function curSet(){ return curStep().setNum; }
 
 /* ===================== READY SCREEN ===================== */
@@ -308,10 +313,13 @@ function renderReady(){
   document.getElementById("r-part").textContent = ex.part + (st.ss?"（スーパーセット）":"");
   document.getElementById("r-name").textContent = ex.name;
   document.getElementById("r-set").textContent = `${curSet()} セット目 / 全${ex.sets}セット`;
-  document.getElementById("r-note").textContent = "📐 " + (ex.angle||"") + " ／ 💡 " + ex.note;
+  const tgt = ex.bodyweight ? `自重 × ${ex.repMin}回〜` : `${ex.targetKg}kg × ${ex.repMin}回〜`;
+  document.getElementById("r-note").textContent = "🎯 目安 " + tgt + "　📐 " + (ex.angle||"") + "　💡 " + ex.note;
   // last session same exercise
   const last = lastTimeFor(ex.name);
-  document.getElementById("r-last").textContent = last ? ("前回: "+last) : "";
+  let lastTxt = last ? ("前回: "+last) : "（このメニュー初回・上の目安でOK）";
+  if(st.record.length===0) lastTxt += "　▶ 終えたら✓で続けて相方へ（記録は休憩中にまとめて）";
+  document.getElementById("r-last").textContent = lastTxt;
   document.getElementById("r-check").textContent = "✓";
 }
 function lastTimeFor(name){
@@ -330,64 +338,73 @@ function finishSet(){
   unlockAudio();
   beep(520,0.08,0.45);                                   // 押した「ポン」
   try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}  // iPhoneは無効(無害)
-  const st = curStep(), ex = curEx();
+  const st = curStep();
+  if(st.record.length===0){
+    // スーパーセット1種目目: 記録せず休まず相方Bへ
+    S.stepIndex++; saveCurrent();
+    if(S.stepIndex>=S.steps.length){ finishWorkout(); return; }
+    renderReady(); show("ready");
+    return;
+  }
   document.getElementById("rec-prog").textContent = `${S.stepIndex+1}/${S.steps.length}` + (st.ss?`・${st.ss}`:"");
   document.getElementById("rec-menu").textContent = S.label;
-  document.getElementById("rec-name").textContent = ex.name + (ex.angle?("（"+ex.angle+"）"):"");
-  document.getElementById("rec-set").textContent = `${curSet()}セット目の記録`;
-  buildInputs(ex);
+  const names = st.record.map(rc=>S.exercises[rc.exI].name).join(" ＋ ");
+  document.getElementById("rec-name").textContent = names;
+  document.getElementById("rec-set").textContent = `${st.setNum}セット目の記録` + (st.record.length>1?"（まとめて）":"");
+  buildRecordInputs(st.record);
   renderNextPrep();
   show("record");
-  const restRow = document.getElementById("rest-row");
-  if(st.restAfter>0){
-    if(restRow) restRow.style.display="";
-    startTimer(st.restAfter);
-  }else{
-    // スーパーセットの1種目目: 休まず相方へ。カウントダウン無し→記録OKで進む。
-    stopTimer();
-    timer.endAt = Date.now()-1; timer.running=false; timer.lastBeep=-1;
-    const tEl=document.getElementById("rec-timer"); tEl.textContent="—"; tEl.className="timer done";
-    if(restRow) restRow.style.display="none";
-  }
+  document.getElementById("rest-row").style.display="";
+  startTimer(st.restAfter);
 }
 function renderNextPrep(){
   const el = document.getElementById("rec-next");
   const nx = S.steps[S.stepIndex+1];
   if(!nx){ el.textContent="▶ これがラスト → 終わったら終了です"; return; }
-  const nex = S.exercises[nx.exI];
+  const nex = S.exercises[nx.showEx];
   const kg = nex.bodyweight ? "自重" : ("目安"+(nex.targetKg!=null?nex.targetKg:"")+"kg");
-  const lead = (curStep().restAfter===0) ? "▶ 休まず続けて" : "▶ 次の準備";
-  el.textContent = `${lead}：${nex.name} ／ ${nex.angle||""} ／ ${kg}（${nx.setNum}セット目）`;
+  el.textContent = `▶ 次：${nex.name} ／ ${nex.angle||""} ／ ${kg}（${nx.setNum}セット目）`;
 }
 function flashScreen(){
   const f=document.getElementById("flash"); if(!f) return;
   f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
 }
-function buildInputs(ex){
+function buildRecordInputs(recs){
   const wrap = document.getElementById("rec-side-block");
   wrap.innerHTML = "";
   dirty = false;
-  // 2セット目以降は同じ種目の直前セット値を初期表示。1セット目は目安kg・推奨最低回数。
-  const setN = curSet();
-  const prev = (setN>1 && ex.records[setN-2]) ? ex.records[setN-2].entries : null;
-  const sides = ex.unilateral ? ["L","R"] : [null];
-  sides.forEach(side=>{
-    const pe = prev ? prev.find(e=>e.side===side) : null;
-    const block = document.createElement("div");
-    if(side) block.innerHTML = `<div class="side-tag">${side==="L"?"左 L":"右 R"}</div>`;
-    if(!ex.bodyweight){
-      let kgInit = (pe && pe.kg!=null) ? pe.kg : (ex.targetKg!=null?ex.targetKg:KG_MIN);
-      kgInit = clampKg(kgInit);
-      block.appendChild(stepperField("重量(kg)", "kg", side, kgInit, KG_STEP));
+  const multi = recs.length>1;
+  recs.forEach(rc=>{
+    const ex = S.exercises[rc.exI];
+    const setN = rc.setNum;
+    // 同じ種目の直前セット値を初期表示。無ければ目安kg・推奨最低回数。
+    const prev = (setN>1 && ex.records[setN-2]) ? ex.records[setN-2].entries : null;
+    const card = document.createElement("div");
+    if(multi){
+      const h = document.createElement("div"); h.className="side-tag"; h.style.fontSize="16px"; h.style.marginTop="6px";
+      h.textContent = "▼ " + ex.name + (ex.angle?("（"+ex.angle+"）"):"");
+      card.appendChild(h);
     }
-    let repInit = (pe && pe.reps) ? pe.reps : (ex.repMin!=null?ex.repMin:8);
-    block.appendChild(stepperField("回数", "reps", side, repInit, 1));
-    wrap.appendChild(block);
+    const sides = ex.unilateral ? ["L","R"] : [null];
+    sides.forEach(side=>{
+      const pe = prev ? prev.find(e=>e.side===side) : null;
+      const block = document.createElement("div");
+      if(side){ const s=document.createElement("div"); s.className="side-tag"; s.textContent=(side==="L"?"左 L":"右 R"); block.appendChild(s); }
+      if(!ex.bodyweight){
+        let kgInit = (pe && pe.kg!=null) ? pe.kg : (ex.targetKg!=null?ex.targetKg:KG_MIN);
+        kgInit = clampKg(kgInit);
+        block.appendChild(stepperField("重量(kg)", "kg", side, rc.exI, kgInit, KG_STEP));
+      }
+      let repInit = (pe && pe.reps) ? pe.reps : (ex.repMin!=null?ex.repMin:8);
+      block.appendChild(stepperField("回数", "reps", side, rc.exI, repInit, 1));
+      card.appendChild(block);
+    });
+    wrap.appendChild(card);
   });
 }
-function stepperField(labelTxt, kind, side, initVal, step){
+function stepperField(labelTxt, kind, side, exI, initVal, step){
   const f = document.createElement("div"); f.className="field";
-  const id = inputId(kind, side);
+  const id = inputId(kind, side, exI);
   f.innerHTML = `<label>${labelTxt}</label>
     <div class="stepper">
       <button type="button" onclick="bump('${id}',${-step})">−</button>
@@ -396,7 +413,7 @@ function stepperField(labelTxt, kind, side, initVal, step){
     </div>`;
   return f;
 }
-function inputId(kind, side){ return "in_"+kind+(side||"X"); }
+function inputId(kind, side, exI){ return "in_"+kind+"_"+exI+"_"+(side||"X"); }
 function bump(id, delta){
   const el = document.getElementById(id); if(!el) return;
   let v = parseFloat(el.value); if(isNaN(v)) v=0;
@@ -442,15 +459,17 @@ function skipRest(){ timer.endAt = Date.now(); tick(); }
 
 /* ===================== INPUT / AUTO-NEXT ===================== */
 function inputsFilled(){
-  const ex = curEx();
-  const sides = ex.unilateral ? ["L","R"] : [null];
-  for(const side of sides){
-    if(!ex.bodyweight){
-      const w = document.getElementById(inputId("kg",side));
-      if(!w || w.value==="" || isNaN(parseFloat(w.value))) return false;
+  for(const rc of curStep().record){
+    const ex = S.exercises[rc.exI];
+    const sides = ex.unilateral ? ["L","R"] : [null];
+    for(const side of sides){
+      if(!ex.bodyweight){
+        const w = document.getElementById(inputId("kg",side,rc.exI));
+        if(!w || w.value==="" || isNaN(parseFloat(w.value))) return false;
+      }
+      const r = document.getElementById(inputId("reps",side,rc.exI));
+      if(!r || r.value==="" || isNaN(parseFloat(r.value)) || parseFloat(r.value)<=0) return false;
     }
-    const r = document.getElementById(inputId("reps",side));
-    if(!r || r.value==="" || isNaN(parseFloat(r.value)) || parseFloat(r.value)<=0) return false;
   }
   return true;
 }
@@ -465,7 +484,6 @@ function typingNow(){
 function maybeAutoNext(){
   // 折衷: countdown done + inputs filled + not typing -> 1.5s undo -> advance
   if(!document.getElementById("record").classList.contains("active")) return;
-  if(curStep().restAfter===0) return; // 休憩なし(SS1種目目)は自動遷移せず記録OKで進む
   if(timer.running) return;
   if(!(timer.endAt && Date.now()>=timer.endAt)) return;
   if(!inputsFilled()) return;
@@ -491,19 +509,19 @@ function nextManually(){
 }
 
 /* ===================== COMMIT SET & ADVANCE ===================== */
-function readEntries(){
-  const ex = curEx();
+function readEntriesFor(exI){
+  const ex = S.exercises[exI];
   const sides = ex.unilateral ? ["L","R"] : [null];
-  const entries = sides.map(side=>{
-    const kg = ex.bodyweight ? null : parseFloat((document.getElementById(inputId("kg",side))||{}).value);
-    const reps = parseFloat((document.getElementById(inputId("reps",side))||{}).value);
+  return sides.map(side=>{
+    const kg = ex.bodyweight ? null : parseFloat((document.getElementById(inputId("kg",side,exI))||{}).value);
+    const reps = parseFloat((document.getElementById(inputId("reps",side,exI))||{}).value);
     return { side: side, kg: (isNaN(kg)?null:kg), reps: (isNaN(reps)?0:reps) };
   });
-  return entries;
 }
 function commitAndAdvance(){
-  const ex = curEx();
-  ex.records[curSet()-1] = { entries: readEntries(), doneAt: Date.now() };
+  curStep().record.forEach(rc=>{
+    S.exercises[rc.exI].records[rc.setNum-1] = { entries: readEntriesFor(rc.exI), doneAt: Date.now() };
+  });
   S.stepIndex++;
   saveCurrent();
   stopTimer();
@@ -519,14 +537,22 @@ function goBack(){
   // on ready: go to previous step (to fix)
   if(S.stepIndex>0){ S.stepIndex--; }
   else { show("home"); renderResume(); return; }
-  // remove that step's record so it can be redone
-  const st = curStep();
-  if(S.exercises[st.exI].records) S.exercises[st.exI].records[st.setNum-1] = undefined;
+  // remove this step's records so they can be redone
+  curStep().record.forEach(rc=>{
+    if(S.exercises[rc.exI].records) S.exercises[rc.exI].records[rc.setNum-1] = undefined;
+  });
   saveCurrent(); renderReady(); show("ready");
 }
 function skipStep(){
-  if(!confirm("このセットを飛ばす？")) return;
+  const st = curStep();
+  const pair = st.record.length>1;
+  if(!confirm(pair ? "このセットを飛ばす？（このラウンドのスーパーセット2種目とも記録しません）" : "このセットを飛ばす？")) return;
   cancelAutoNext(); stopTimer();
+  // A-step(記録なし)をskipしたら、相方B-stepの記録対象からAを外す（やってない種目を記録しない）
+  if(st.record.length===0 && st.ss){
+    const nx = S.steps[S.stepIndex+1];
+    if(nx && nx.record) nx.record = nx.record.filter(rc=>rc.exI!==st.showEx);
+  }
   S.stepIndex++;
   saveCurrent();
   if(S.stepIndex>=S.steps.length){ finishWorkout(); return; }
@@ -611,13 +637,12 @@ function deleteHist(i){
   if(!confirm("この履歴を削除する？")) return;
   const h=loadHistory(); h.splice(i,1); saveHistory(h); renderHistory();
 }
-function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
 /* ===================== RESUME ===================== */
 function renderResume(){
   const cur = loadCurrent();
   const box = document.getElementById("resumeBox");
-  if(cur && !cur.finished && cur.steps){
+  if(cur && !cur.finished && cur.v===3){
     box.innerHTML = `<div class="card"><b>途中のトレがあります</b><div class="muted">${cur.date} ${cur.label}・${(cur.stepIndex||0)+1}/${cur.steps.length}</div>
       <button class="big-btn blue" onclick="resumeWorkout()">▶ 途中から再開</button>
       <button class="big-btn warn" onclick="discardCurrent()">破棄して新規</button></div>`;
