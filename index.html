@@ -170,7 +170,7 @@
 /* ===================== MENU DATA (Claudeが更新) ===================== */
 const MENUS = {
   A: { label:"自宅A（押す・脚）", exercises:[
-    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:16, repMin:8, rest:120, note:"膝をつま先方向・浅〜中"},
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:17, repMin:8, rest:120, note:"膝をつま先方向・浅〜中・8-12回で止めて早めに+kg"},
     {name:"インクラインDBプレス", part:"上部胸", angle:"ベンチ 30°", ss:"SS1", sets:3, targetKg:9, repMin:8, rest:120, note:"息を吐く・潰れたらダンベルを体側へ"},
     {name:"懸垂/チンアップ", part:"広背(広がり)", angle:"懸垂機", ss:"SS1", sets:3, targetKg:null, repMin:3, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
     {name:"サイドレイズ", part:"側部三角(肩幅)", angle:"立位 or 背もたれ75-80°", ss:"SS2", sets:3, targetKg:4, repMin:12, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで"},
@@ -179,7 +179,7 @@ const MENUS = {
     {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS3", sets:3, targetKg:null, repMin:12, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
   ]},
   B: { label:"自宅B（引く・脚）", exercises:[
-    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:16, repMin:8, rest:120, note:"膝をつま先方向・浅〜中"},
+    {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:17, repMin:8, rest:120, note:"膝をつま先方向・浅〜中・8-12回で止めて早めに+kg"},
     {name:"フラットDBプレス", part:"中下部胸", angle:"ベンチ 0°(フラット)", ss:"SS1", sets:3, targetKg:8, repMin:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
     {name:"懸垂/チンアップ", part:"広背(広がり)", angle:"懸垂機", ss:"SS1", sets:3, targetKg:null, repMin:3, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
     {name:"ワンハンドロウ", part:"背中の厚み", angle:"ベンチに片膝・片手", ss:"SS2", sets:3, targetKg:8, repMin:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
@@ -192,7 +192,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v1.5 (2026-06-21) A漸進=ゴブレット16/インクライン9";
+const APP_VERSION = "v1.6 (2026-06-22) ゴブレット17(A/B)";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
