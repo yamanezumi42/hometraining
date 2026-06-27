@@ -180,11 +180,11 @@ const MENUS = {
   ]},
   B: { label:"自宅B（引く・脚）", exercises:[
     {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:17, repMin:8, rest:90, note:"膝をつま先方向・浅〜中・8-12回で止めて早めに+kg"},
-    {name:"フラットDBプレス", part:"中下部胸", angle:"ベンチ 0°(フラット)", ss:"SS1", sets:3, targetKg:8, repMin:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
+    {name:"フラットDBプレス", part:"中下部胸", angle:"ベンチ 0°(フラット)", ss:"SS1", sets:3, targetKg:9, repMin:8, rest:120, note:"潰れたらダンベルを体側へ・息を吐く"},
     {name:"懸垂/チンアップ", part:"広背(広がり)", angle:"懸垂機", ss:"SS1", sets:3, targetKg:null, repMin:3, rest:120, bodyweight:true, note:"肩甲骨を下げてから引く"},
-    {name:"ワンハンドロウ", part:"背中の厚み", angle:"ベンチに片膝・片手", ss:"SS2", sets:3, targetKg:8, repMin:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
-    {name:"ヒップスラスト", part:"尻/ハム", angle:"肩をベンチ0°に乗せる", ss:"SS2", sets:3, targetKg:null, repMin:12, rest:90, bodyweight:true, note:"尻で挙げる・頂点で1〜2秒"},
-    {name:"リアレイズ", part:"後部三角", angle:"うつ伏せ・ベンチ30-45°", ss:"SS3", sets:3, targetKg:4, repMin:12, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
+    {name:"ワンハンドロウ", part:"背中の厚み", angle:"ベンチに片膝・片手", ss:"SS2", sets:3, targetKg:9, repMin:8, rest:90, unilateral:true, note:"背中で引く(肩で引かない)・弱い側から"},
+    {name:"ヒップスラスト", part:"尻/ハム", angle:"肩をベンチ0°に乗せる", ss:"SS2", sets:3, targetKg:8, repMin:12, rest:90, note:"尻で挙げる・頂点で1〜2秒・膝上にダンベルで加重(自重卒業)"},
+    {name:"リアレイズ", part:"後部三角", angle:"うつ伏せ・ベンチ30-45°", ss:"SS3", sets:3, targetKg:5, repMin:12, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
     {name:"二頭カール", part:"上腕二頭", angle:"立位 or インクライン75-85°", ss:"SS3", sets:3, targetKg:5, repMin:10, rest:90, note:"肘を体側固定・振らない"},
     {name:"サイドレイズ", part:"側部三角(肩幅)", angle:"立位 or 背もたれ75-80°", ss:"SS4", sets:3, targetKg:4, repMin:12, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで【V字最優先】"},
     {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS4", sets:3, targetKg:null, repMin:12, rest:60, bodyweight:true, note:"骨盤を丸める(後傾)→腹直に効く・反らない"}
@@ -192,7 +192,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v1.8 (2026-06-25) ゴブレット休憩90秒";
+const APP_VERSION = "v1.9 (2026-06-28) B目安更新：プレス9/ロウ9/ヒップ加重8/リア5";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
