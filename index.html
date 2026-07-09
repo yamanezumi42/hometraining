@@ -176,7 +176,7 @@ const MENUS = {
     {name:"サイドレイズ", part:"側部三角(肩幅)", angle:"立位 or 背もたれ75-80°", ss:"SS2", sets:3, targetKg:4, repMin:12, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで"},
     {name:"三頭エクステンション", part:"上腕三頭", angle:"背もたれ80-90°(直立)", ss:"SS2", sets:3, targetKg:10, repMin:10, rest:90, note:"肘を顔の横で固定"},
     {name:"カーフレイズ(加重)", part:"下腿", angle:"立って・壁につかまる", ss:"SS3", sets:3, targetKg:12, repMin:12, rest:75, note:"ダンベルを持って加重・20回超えたら+kg"},
-    {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS3", sets:3, targetKg:null, repMin:12, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
+    {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS3", sets:3, targetKg:null, repMin:20, rest:60, bodyweight:true, note:"膝を曲げ骨盤を丸める(リバースクランチ)"}
   ]},
   B: { label:"自宅B（引く・脚）", exercises:[
     {name:"ゴブレットスクワット", part:"脚(四頭/臀)", angle:"立って・ダンベル胸前", sets:3, targetKg:20, repMin:8, rest:90, note:"膝をつま先方向・浅〜中・8-12回で止めて早めに+kg"},
@@ -187,12 +187,12 @@ const MENUS = {
     {name:"リアレイズ", part:"後部三角", angle:"うつ伏せ・ベンチ30-45°", ss:"SS3", sets:3, targetKg:5, repMin:12, rest:75, note:"胸をベンチに預け反動排除・親指側やや上"},
     {name:"二頭カール", part:"上腕二頭", angle:"立位 or インクライン75-85°", ss:"SS3", sets:3, targetKg:5, repMin:10, rest:90, note:"肘を体側固定・振らない"},
     {name:"サイドレイズ", part:"側部三角(肩幅)", angle:"立位 or 背もたれ75-80°", ss:"SS4", sets:3, targetKg:4, repMin:12, rest:75, note:"小指側やや上・肩をすくめない・限界近くまで【V字最優先】"},
-    {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS4", sets:3, targetKg:null, repMin:12, rest:60, bodyweight:true, note:"骨盤を丸める(後傾)→腹直に効く・反らない"}
+    {name:"腹・レッグレイズ", part:"腹直", angle:"床(マット)", ss:"SS4", sets:3, targetKg:null, repMin:20, rest:60, bodyweight:true, note:"骨盤を丸める(後傾)→腹直に効く・反らない"}
   ]}
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v2.3 (2026-07-09) 7/6B反映: ゴブレSQ20(A/B)/ワンハンドロウ12/ヒップスラスト15";
+const APP_VERSION = "v2.4 (2026-07-09) 腹・レッグレイズの目安回数を12→20に(A/B)";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
