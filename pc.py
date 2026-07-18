@@ -146,8 +146,8 @@ if __name__ == "__main__":
         TITLE,
         os.path.join(APP_DIR, "index.html"),
         js_api=Api(),
-        width=470,
-        height=900,
+        width=1180,
+        height=860,
         background_color="#111111",
     )
     webview.start(private_mode=False)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#0a0a0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="自宅トレ">
@@ -11,88 +11,329 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <title>自宅トレ A/B</title>
 <style>
+  /* ============ PATTERN 09 / ATHLETIC BLACK — 黒×ボルトイエロー ============ */
   :root{
-    --bg:#0b1020; --card:#161c30; --card2:#1f2742; --txt:#eef1f8; --sub:#9aa3c0;
-    --accent:#4ade80; --accent2:#38bdf8; --warn:#fb7185; --line:#2a3354;
+    --bg:#0a0a0b; --bg2:#101012; --panel:#141416; --panel2:#1a1a1d;
+    --line:#26262a; --line2:#333338;
+    --txt:#f2f2f0; --txt2:#9a9aa0; --txt3:#5c5c62;
+    --acc:#d7ff00; --acc-dim:rgba(215,255,0,.14);
+    --white:#e9e9e6; --red:#ff453a;
+    --cond:"Bahnschrift","Arial Narrow","Yu Gothic UI",sans-serif;
+    --jp:"Yu Gothic UI","Meiryo",-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
     --safe-top:env(safe-area-inset-top); --safe-bot:env(safe-area-inset-bottom);
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  button,input{touch-action:manipulation;}  /* 連打でのダブルタップ拡大を抑止 */
-  html,body{margin:0; height:100%;}
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  button,input{touch-action:manipulation; font-family:inherit;}  /* 連打でのダブルタップ拡大を抑止 */
+  html{background:#050506;}
+  html,body{height:100%;}
   body{
-    background:var(--bg); color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-    padding:calc(var(--safe-top) + 8px) 14px calc(var(--safe-bot) + 14px);
+    background:var(--bg); color:var(--txt); font-family:var(--jp);
+    padding:var(--safe-top) 0 calc(var(--safe-bot) + 24px);
     -webkit-user-select:none; user-select:none; overflow-x:hidden;
   }
-  .screen{display:none; max-width:560px; margin:0 auto;}
-  .screen.active{display:block;}
-  h1{font-size:22px; margin:6px 0 16px;}
-  .sub{color:var(--sub); font-size:13px;}
-  .big-btn{
+  ::selection{background:var(--acc); color:#000;}
+
+  /* ============ top nav (tabs) ============ */
+  .topnav{
+    height:64px; display:flex; align-items:stretch;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#0e0e10,#0a0a0b);
+    position:relative;
+  }
+  .topnav::after{ /* volt slash motif */
+    content:""; position:absolute; right:30px; top:0; bottom:0; width:160px;
+    background:
+      linear-gradient(75deg,transparent 46%,rgba(215,255,0,.10) 46%,rgba(215,255,0,.10) 54%,transparent 54%),
+      linear-gradient(75deg,transparent 66%,rgba(215,255,0,.05) 66%,rgba(215,255,0,.05) 74%,transparent 74%);
+    pointer-events:none;
+  }
+  .brand{display:flex; align-items:center; gap:12px; padding:0 26px; border-right:1px solid var(--line);}
+  .brand .mark{
+    width:34px; height:34px; background:var(--acc); color:#000; flex:none;
     display:flex; align-items:center; justify-content:center;
-    width:100%; border:none; border-radius:18px; color:#06210f; font-weight:800;
-    background:var(--accent); font-size:22px; padding:22px; margin:10px 0;
-    box-shadow:0 6px 0 #2fa15c; transition:transform .06s ease, box-shadow .06s ease;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);
   }
-  .big-btn:active{transform:translateY(3px); box-shadow:0 3px 0 #2fa15c;}
-  .big-btn.blue{background:var(--accent2); box-shadow:0 6px 0 #1f88b8; color:#04222e;}
-  .big-btn.ghost{background:var(--card2); color:var(--txt); box-shadow:0 6px 0 #0f1426;}
-  .big-btn.warn{background:var(--warn); box-shadow:0 6px 0 #b34a5b; color:#2a0810;}
-  .row{display:flex; gap:10px;}
-  .row>*{flex:1;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin:12px 0;}
-  .pill{display:inline-block; background:var(--card2); color:var(--sub); border-radius:999px; padding:4px 12px; font-size:13px; margin:2px 4px 2px 0;}
-  .ex-name{font-size:30px; font-weight:800; line-height:1.2; margin:8px 0;}
-  .progress{display:flex; justify-content:space-between; color:var(--sub); font-size:14px; margin-bottom:6px;}
-  .timer{font-size:84px; font-weight:800; text-align:center; letter-spacing:2px; margin:6px 0; font-variant-numeric:tabular-nums;}
-  .timer.urgent{color:var(--warn);}
-  .timer.done{color:var(--accent);}
-  .field{margin:10px 0;}
-  .field label{display:block; font-size:13px; color:var(--sub); margin-bottom:6px;}
-  .stepper{display:flex; align-items:stretch; gap:8px;}
-  .stepper button{width:64px; font-size:30px; font-weight:800; border:none; border-radius:14px; background:var(--card2); color:var(--txt);}
-  .stepper button:active{background:#2c3760;}
-  .stepper input{
-    flex:1; text-align:center; font-size:34px; font-weight:800; border-radius:14px;
-    border:2px solid var(--line); background:#0e1430; color:var(--txt); padding:10px; min-width:0;
+  .brand .mark svg{width:20px; height:20px;}
+  .brand .t1{font-family:var(--cond); font-weight:800; font-style:italic; font-size:20px; letter-spacing:.04em; line-height:1;}
+  .brand .t2{font-family:var(--cond); font-size:9px; letter-spacing:.34em; color:var(--txt3); text-transform:uppercase; margin-top:3px;}
+  .navitems{display:flex; align-items:stretch;}
+  .navitem{
+    display:flex; align-items:center; gap:9px; padding:0 26px;
+    font-family:var(--cond); font-weight:700; font-size:14px; letter-spacing:.14em;
+    color:var(--txt2); cursor:pointer; position:relative;
+    border-right:1px solid var(--line); transition:color .15s, background .15s, opacity .15s;
   }
-  .side-tag{font-size:14px; color:var(--accent2); font-weight:700; margin-bottom:4px;}
-  .note{color:var(--sub); font-size:13px; margin-top:8px; line-height:1.5;}
-  .small-row{display:flex; gap:8px; margin-top:8px;}
-  .small-row button{flex:1; border:none; border-radius:12px; background:var(--card2); color:var(--txt); font-size:14px; padding:12px; font-weight:700;}
-  .small-row button:active{background:#2c3760;}
-  .toast{
-    position:fixed; left:14px; right:14px; bottom:calc(var(--safe-bot) + 16px);
-    background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
-    display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:540px; margin:0 auto;
-    box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:50;
+  .navitem svg{width:17px; height:17px;}
+  .navitem:hover{color:var(--txt); background:#131315;}
+  .navitem.on{color:var(--acc);}
+  .navitem.on::after{
+    content:""; position:absolute; left:14px; right:14px; bottom:0; height:3px;
+    background:var(--acc); clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,5px 100%);
   }
-  .toast button{border:none; background:var(--warn); color:#2a0810; font-weight:800; border-radius:10px; padding:10px 14px; font-size:15px;}
-  textarea{width:100%; min-height:160px; background:#0e1430; color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; font-size:13px; font-family:ui-monospace,monospace; -webkit-user-select:text; user-select:text;}
-  .hist-item{display:flex; justify-content:space-between; align-items:center; padding:14px; border-bottom:1px solid var(--line);}
-  .hist-item:active{background:var(--card2);}
-  .muted{color:var(--sub); font-size:12px;}
+  body.in-workout .navitem{pointer-events:none; opacity:.25;} /* トレ進行中は誤タップ防止 */
+
+  /* ============ tab panes / screens ============ */
+  .tabpane{display:none; max-width:1120px; margin:0 auto; padding:30px 24px 40px;}
+  .tabpane.active{display:block;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  #ready,#record{max-width:640px; margin:0 auto;}
+  #end{max-width:760px; margin:0 auto;}
+
+  .kicker{
+    font-family:var(--cond); font-size:11px; font-weight:700; letter-spacing:.4em;
+    color:var(--acc); text-transform:uppercase; margin-bottom:8px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .kicker::before{content:""; width:26px; height:2px; background:var(--acc); transform:skewX(-20deg);}
+  h1{font-family:var(--cond); font-style:italic; font-weight:800; font-size:40px; line-height:.95; letter-spacing:.01em; margin-bottom:16px;}
+  h1 small{display:block; font-size:14px; font-weight:700; color:var(--txt2); letter-spacing:.14em; margin-top:10px; font-style:normal;}
+  .ana-head{display:flex; align-items:baseline; gap:16px;}
+  .ana-head h1{font-size:32px; margin-bottom:12px;}
+  .ana-head .subk{font-family:var(--cond); font-size:12px; letter-spacing:.2em; color:var(--txt3); text-transform:uppercase;}
+  .sub{color:var(--txt2); font-size:13px; line-height:1.7;}
+  .muted{color:var(--txt3); font-size:12px; font-family:var(--cond); letter-spacing:.08em;}
   .center{text-align:center;}
-  a.link{color:var(--accent2);}
-  #r-check{ font-size:46px; padding:30px; }
-  #rec-next{ margin-top:12px; color:var(--accent2); font-weight:700; }
-  .flash{ position:fixed; inset:0; background:var(--accent); opacity:0; pointer-events:none; z-index:60; }
+  .note{color:var(--txt2); font-size:13px; margin-top:8px; line-height:1.6;}
+
+  /* ============ menu cards (home) ============ */
+  .menu-row{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:18px 0;}
+  .menu-card{
+    position:relative; min-height:280px; overflow:hidden;
+    background:linear-gradient(160deg,#17171a 0%,#0d0d0f 70%);
+    border:1px solid var(--line2);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%);
+    padding:26px 28px; display:flex; flex-direction:column;
+    transition:border-color .18s;
+  }
+  .menu-card:hover{border-color:var(--acc);}
+  .menu-card .ghost{
+    position:absolute; right:-18px; top:-46px;
+    font-family:var(--cond); font-style:italic; font-weight:800;
+    font-size:280px; line-height:1; color:transparent;
+    -webkit-text-stroke:1px rgba(233,233,230,.09);
+    pointer-events:none; user-select:none;
+  }
+  .menu-card.a .ghost{-webkit-text-stroke:1px rgba(215,255,0,.13);}
+  .menu-card:hover .ghost{-webkit-text-stroke:1px rgba(215,255,0,.3);}
+  .menu-card .tag{
+    align-self:flex-start; font-family:var(--cond); font-weight:800; font-style:italic;
+    font-size:13px; letter-spacing:.2em; padding:4px 12px 4px 10px;
+    clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  }
+  .menu-card.a .tag{background:var(--acc); color:#000;}
+  .menu-card.b .tag{background:var(--white); color:#000;}
+  .menu-card h2{margin-top:14px; font-family:var(--cond); font-style:italic; font-weight:800; font-size:46px; line-height:.95; letter-spacing:.01em;}
+  .menu-card h2 span{color:var(--txt3); font-size:17px; display:block; font-weight:700; letter-spacing:.22em; margin-top:8px; font-style:normal;}
+  .menu-card ul{list-style:none; margin:16px 0 18px; display:flex; flex-wrap:wrap; gap:6px; max-width:380px; position:relative; z-index:2;}
+  .menu-card ul li{
+    font-size:11px; color:var(--txt2); border:1px solid var(--line2);
+    padding:3px 9px; background:rgba(0,0,0,.35);
+    clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  }
+  .startbtn{
+    margin-top:auto; align-self:flex-start; display:flex; align-items:center; gap:12px;
+    font-family:var(--cond); font-weight:800; font-style:italic; font-size:17px; letter-spacing:.22em;
+    padding:13px 34px 13px 26px; border:none; cursor:pointer;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+    transition:transform .12s; position:relative; z-index:2;
+  }
+  .startbtn:hover{transform:translateX(4px);}
+  .startbtn svg{width:18px; height:18px;}
+  .menu-card.a .startbtn{background:var(--acc); color:#000;}
+  .menu-card.b .startbtn{background:var(--white); color:#000;}
+
+  /* ============ cards / buttons（JS生成分のクラスも維持） ============ */
+  .card{
+    background:var(--panel); border:1px solid var(--line);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%);
+    padding:22px 26px; margin:14px 0;
+  }
+  .card-head{
+    display:flex; align-items:center; gap:12px; margin-bottom:12px;
+    font-family:var(--cond); font-weight:800; font-style:italic; font-size:16px; letter-spacing:.08em;
+  }
+  .card-head::before{content:""; width:14px; height:14px; background:var(--acc); transform:skewX(-18deg); flex:none;}
+  .card-head .en{font-size:10px; font-weight:700; font-style:normal; letter-spacing:.32em; color:var(--txt3); margin-left:4px; text-transform:uppercase;}
+  .big-btn{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    width:100%; border:none; cursor:pointer;
+    font-family:var(--cond); font-weight:800; font-style:italic; font-size:18px; letter-spacing:.16em;
+    background:var(--acc); color:#000; padding:16px 24px; margin:10px 0;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+    transition:transform .1s, filter .12s;
+  }
+  .big-btn:hover{filter:brightness(1.1);}
+  .big-btn:active{transform:translateY(2px);}
+  .big-btn svg{width:20px; height:20px; flex:none;}
+  .big-btn.blue{background:var(--white); color:#000;}
+  .big-btn.ghost{background:var(--panel2); color:var(--txt); border:1px solid var(--line2);}
+  .big-btn.warn{background:var(--red); color:#000;}
+  .pill{
+    display:inline-block; font-family:var(--cond); font-weight:800; font-style:italic;
+    font-size:12px; letter-spacing:.18em; background:var(--acc); color:#000;
+    padding:4px 12px 4px 10px; clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%); margin-bottom:8px;
+  }
+  .ex-name{font-family:var(--cond); font-style:italic; font-weight:800; font-size:44px; line-height:1.02; letter-spacing:.01em; margin:10px 0;}
+  .progress{
+    display:flex; justify-content:space-between; margin-bottom:8px;
+    font-family:var(--cond); font-weight:700; font-size:13px; letter-spacing:.14em; color:var(--txt3);
+  }
+  .timer{
+    font-family:var(--cond); font-style:italic; font-weight:800;
+    font-size:128px; text-align:center; letter-spacing:.01em; line-height:1; margin:14px 0 10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .timer.urgent{color:var(--red);}
+  .timer.done{color:var(--acc);}
+  .field{margin:12px 0;}
+  .field label{
+    display:block; font-family:var(--cond); font-size:11px; font-weight:700; letter-spacing:.24em;
+    color:var(--txt3); margin-bottom:6px; text-transform:uppercase;
+  }
+  .stepper{display:flex; align-items:stretch; gap:8px;}
+  .stepper button{
+    width:64px; font-family:var(--cond); font-size:28px; font-weight:800; cursor:pointer;
+    border:1px solid var(--line2); background:var(--panel2); color:var(--acc);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+  }
+  .stepper button:active{background:#26262c;}
+  .stepper input{
+    flex:1; text-align:center; font-family:var(--cond); font-style:italic; font-weight:800; font-size:34px;
+    border:1px solid var(--line2); background:#0e0e10; color:var(--txt); padding:10px; min-width:0;
+  }
+  .stepper input:focus{outline:none; border-color:var(--acc);}
+  .side-tag{font-family:var(--cond); font-style:italic; font-weight:800; font-size:14px; letter-spacing:.14em; color:var(--acc); margin-bottom:4px;}
+  .small-row{display:flex; gap:8px; margin-top:10px;}
+  .small-row button{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    border:1px solid var(--line2); background:var(--panel2); color:var(--txt2);
+    font-family:var(--cond); font-weight:700; font-size:13px; letter-spacing:.12em; padding:12px; cursor:pointer;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .small-row button svg{width:14px; height:14px; flex:none;}
+  .small-row button:hover{color:var(--txt);}
+  .small-row button:active{background:#26262c;}
+  .toast{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--safe-bot) + 20px);
+    width:min(560px, calc(100vw - 28px));
+    background:var(--panel2); border:1px solid var(--acc);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+    padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.6); z-index:50;
+    font-family:var(--cond); font-weight:700; letter-spacing:.06em;
+  }
+  .toast button{
+    border:none; background:var(--red); color:#000; cursor:pointer;
+    font-family:var(--cond); font-weight:800; font-style:italic; letter-spacing:.1em;
+    padding:10px 16px; font-size:14px;
+    clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  }
+  textarea{
+    width:100%; min-height:160px; background:#0e0e10; color:var(--txt);
+    border:1px solid var(--line2); padding:12px; font-size:13px;
+    font-family:ui-monospace,Consolas,monospace; -webkit-user-select:text; user-select:text;
+  }
+  .hist-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 10px; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .hist-item b{font-family:var(--cond); font-style:italic; font-size:16px; letter-spacing:.04em;}
+  .hist-item:hover{background:#141417;}
+  .hist-item:active{background:var(--panel2);}
+  #r-check{padding:26px; margin-top:16px;}
+  #r-check svg{width:52px; height:52px;}
+  #rec-next{color:var(--acc); font-weight:700;}
+  .end-hero{
+    font-family:var(--cond); font-style:italic; font-weight:800;
+    font-size:34px; line-height:1.25; letter-spacing:.01em; margin:6px 0 4px;
+  }
+  .end-next{font-family:var(--cond); font-style:italic; font-weight:800; font-size:19px; color:var(--acc); margin:8px 0 4px;}
+  .stripe{height:8px; background:repeating-linear-gradient(75deg,var(--acc) 0 14px,transparent 14px 28px); opacity:.85; margin-top:26px;}
+  .flash{ position:fixed; inset:0; background:var(--acc); opacity:0; pointer-events:none; z-index:60; }
   .flash.go{ animation:flashAnim .55s ease; }
   @keyframes flashAnim{ 0%{opacity:0;} 18%{opacity:.75;} 100%{opacity:0;} }
+  @media (max-width:900px){
+    .menu-row{grid-template-columns:1fr;}
+    .navitem{padding:0 16px;}
+    .brand{padding:0 14px;}
+    h1{font-size:32px;}
+    .timer{font-size:96px;}
+    .tabpane{padding:22px 14px 36px;}
+  }
 </style>
 </head>
 <body>
 
+<!-- ===== TOP NAV（タブバー） ===== -->
+<nav class="topnav" id="tabbar">
+  <div class="brand">
+    <div class="mark">
+      <!-- dumbbell -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>
+    </div>
+    <div>
+      <div class="t1">自宅トレ A/B</div>
+      <div class="t2">HOME&nbsp;STRENGTH&nbsp;LOG</div>
+    </div>
+  </div>
+  <div class="navitems">
+    <div class="navitem on" data-tab="train" onclick="showTab('train')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>
+      トレーニング
+    </div>
+    <div class="navitem" data-tab="analyze" onclick="showTab('analyze')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 20V10M10 20V4M16 20v-9M22 20H2"/></svg>
+      分析
+    </div>
+    <div class="navitem" data-tab="settings" onclick="showTab('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+      設定
+    </div>
+  </div>
+</nav>
+
+<!-- ===== TAB: トレーニング ===== -->
+<div id="tab-train" class="tabpane active">
+
 <!-- ===== HOME ===== -->
 <div id="home" class="screen active">
-  <h1>🏋️ 自宅トレ A/B</h1>
-  <p class="sub">メニューを選ぶ。1セットずつ記録＆休憩タイマー。音はマナーモードでも鳴るよう細工していますが、画面ロック/別アプリ中は鳴りません。休憩中は画面をつけたまま使ってください。</p>
-  <button class="big-btn" onclick="startWorkout('A')">A メニュー（押す・脚）</button>
-  <button class="big-btn blue" onclick="startWorkout('B')">B メニュー（引く・脚）</button>
-  <button class="big-btn ghost" onclick="show('history'); renderHistory();">📒 トレ履歴</button>
+  <div class="kicker">TODAY'S SESSION</div>
+  <h1>今日も、積む。<small>A / B を選んで開始 — 1セットずつ記録＆休憩タイマー</small></h1>
   <div id="resumeBox"></div>
+  <div class="menu-row">
+    <div class="menu-card a">
+      <div class="ghost">A</div>
+      <div class="tag">MENU A</div>
+      <h2>押す・脚<span>PUSH ／ LEGS — 8種目</span></h2>
+      <ul>
+        <li>ゴブレットスクワット</li><li>インクラインDBプレス</li><li>懸垂/チンアップ</li><li>サイドレイズ</li><li>他4種目</li>
+      </ul>
+      <button class="startbtn" onclick="startWorkout('A')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>
+        Aを開始
+      </button>
+    </div>
+    <div class="menu-card b">
+      <div class="ghost">B</div>
+      <div class="tag">MENU B</div>
+      <h2>引く・脚<span>PULL ／ LEGS — 8種目</span></h2>
+      <ul>
+        <li>ゴブレットスクワット</li><li>フラットDBプレス</li><li>懸垂/チンアップ</li><li>ワンハンドロウ</li><li>他4種目</li>
+      </ul>
+      <button class="startbtn" onclick="startWorkout('B')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>
+        Bを開始
+      </button>
+    </div>
+  </div>
+  <button class="big-btn ghost" onclick="show('history'); renderHistory();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+    トレ履歴
+  </button>
+  <p class="sub">音はマナーモードでも鳴るよう細工していますが、画面ロック/別アプリ中は鳴りません。休憩中は画面をつけたまま使ってください。</p>
   <p class="muted center" id="verline"></p>
+  <div class="stripe"></div>
 </div>
 
 <!-- ===== READY (種目画面：チェックでセット開始) ===== -->
@@ -101,13 +342,18 @@
   <div class="card">
     <div id="r-part" class="pill"></div>
     <div class="ex-name" id="r-name"></div>
-    <div id="r-set" class="sub" style="font-size:18px;"></div>
+    <div id="r-set" class="sub" style="font-size:17px;"></div>
     <div class="note" id="r-note"></div>
     <div class="note" id="r-last"></div>
   </div>
-  <button class="big-btn" id="r-check" onclick="finishSet()">✓</button>
+  <button class="big-btn" id="r-check" onclick="finishSet()" aria-label="セット完了">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M3.5 12.5l6 6L20.5 6"/></svg>
+  </button>
   <div class="small-row">
-    <button onclick="goBack()">← 戻る</button>
+    <button onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
+      戻る
+    </button>
     <button onclick="skipStep()">このセットを飛ばす</button>
   </div>
 </div>
@@ -115,7 +361,7 @@
 <!-- ===== RECORD (休憩カウントダウン＋入力) ===== -->
 <div id="record" class="screen">
   <div class="progress"><span id="rec-prog"></span><span id="rec-menu"></span></div>
-  <div class="ex-name center" id="rec-name" style="font-size:22px;"></div>
+  <div class="ex-name center" id="rec-name" style="font-size:26px;"></div>
   <div class="sub center" id="rec-set" style="margin-bottom:4px;"></div>
   <div class="timer" id="rec-timer">--</div>
   <div class="small-row" id="rest-row">
@@ -131,17 +377,21 @@
   <div class="note center">数字は目安。実際の重量・回数に直して入力。</div>
   <button class="big-btn ghost" onclick="nextManually()">記録OK → 次へ</button>
   <div class="small-row">
-    <button onclick="goBack()">← 戻る</button>
+    <button onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
+      戻る
+    </button>
   </div>
 </div>
 
 <!-- ===== END ===== -->
 <div id="end" class="screen">
-  <h1>✅ 終了！おつかれさま</h1>
-  <p class="sub" id="end-summary-sub"></p>
-  <p class="note" id="end-next-kg" style="color:var(--accent); font-weight:700;"></p>
+  <div class="kicker">WORKOUT COMPLETE</div>
+  <h1>終了。おつかれさま</h1>
+  <p class="end-hero" id="end-summary-sub"></p>
+  <p class="end-next" id="end-next-kg"></p>
   <p class="muted" id="end-sync"></p>
-  <button class="big-btn" onclick="copyText(document.getElementById('end-text').value, this)">📋 まとめを全部コピー</button>
+  <button class="big-btn" onclick="copyText(document.getElementById('end-text').value, this)">まとめを全部コピー</button>
   <textarea id="end-text" readonly></textarea>
   <p class="note">このテキストをコピーして、Notionに貼るか、クロードに送れば記録します。履歴にも保存済み。</p>
   <button class="big-btn ghost" onclick="show('home'); renderResume();">ホームに戻る</button>
@@ -149,10 +399,33 @@
 
 <!-- ===== HISTORY ===== -->
 <div id="history" class="screen">
-  <h1>📒 トレ履歴</h1>
-  <button class="big-btn ghost" onclick="show('home'); renderResume();">← ホーム</button>
+  <div class="ana-head"><h1>トレ履歴</h1><span class="subk">HISTORY</span></div>
+  <button class="big-btn ghost" onclick="show('home'); renderResume();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
+    ホームに戻る
+  </button>
   <div id="hist-list"></div>
   <div id="hist-detail"></div>
+</div>
+
+</div><!-- /tab-train -->
+
+<!-- ===== TAB: 分析（Phase Bで実装） ===== -->
+<div id="tab-analyze" class="tabpane">
+  <div class="ana-head"><h1>分析</h1><span class="subk">ANALYSIS</span></div>
+  <div class="card">
+    <div class="card-head">準備中<span class="en">COMING&nbsp;SOON</span></div>
+    <p class="sub">総重量の推移・部位ヒートマップ・トレーニングカレンダーを次のアップデートで実装します。</p>
+  </div>
+</div>
+
+<!-- ===== TAB: 設定（Phase Bで実装） ===== -->
+<div id="tab-settings" class="tabpane">
+  <div class="ana-head"><h1>設定</h1><span class="subk">SETTINGS</span></div>
+  <div class="card">
+    <div class="card-head">準備中<span class="en">COMING&nbsp;SOON</span></div>
+    <p class="sub">体重・目安重量・休憩時間などの設定を次のアップデートで実装します。</p>
+  </div>
 </div>
 
 <!-- toast (undo auto-advance) -->
@@ -197,7 +470,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v2.11 (2026-07-19) A8/B8メニュー改定＋WUセット＋自動漸進エンジン＋KB自動保存(PC)";
+const APP_VERSION = "v3.0-a1 (2026-07-19) デザイン9採用・タブ構造";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -244,6 +517,16 @@ function beep(freq, dur, vol){
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  // トレ進行中(ready/record)はタブバーを無効化して誤タップ防止（表示のみ・ロジック不変）
+  document.body.classList.toggle("in-workout", id==="ready"||id==="record");
+  window.scrollTo(0,0);
+}
+/* タブ切替（トレーニング/分析/設定）— 分析・設定はPhase Bで中身を実装 */
+function showTab(tab){
+  document.querySelectorAll(".navitem[data-tab]").forEach(n=>n.classList.toggle("on", n.getAttribute("data-tab")===tab));
+  document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
+  const pane = document.getElementById("tab-"+tab);
+  if(pane) pane.classList.add("active");
   window.scrollTo(0,0);
 }
 
@@ -297,7 +580,7 @@ async function initPyStorage(){
     STORE = d; PYW = true;
     renderResume();
     const v = document.getElementById("verline");
-    if(v) v.textContent = APP_VERSION + "　💾 KB保存モード";
+    if(v) v.textContent = APP_VERSION + "　KB保存モード";
   }catch(e){ PYW = false; }
 }
 window.addEventListener("pywebviewready", initPyStorage);
@@ -383,14 +666,13 @@ function renderReady(){
   const tgt = ex.wu ? `${ex.targetKg}kg × ${goal}回（軽く）`
             : ex.bodyweight ? `自重 × 目標${goal}回（限界1〜2回手前まで）`
             : `${ex.targetKg}kg × 目標${goal}回（限界1〜2回手前まで）`;
-  document.getElementById("r-note").textContent = "🎯 " + tgt + "　📐 " + (ex.angle||"") + "　💡 " + ex.note;
+  document.getElementById("r-note").textContent = "目標：" + tgt + "　／　" + (ex.angle||"") + "　／　" + ex.note;
   // last session same exercise
   const last = lastTimeFor(ex.name);
   let lastTxt = last ? ("前回: "+last) : "（このメニュー初回・上の目安でOK）";
-  if(ex.wu) lastTxt = "ウォームアップ（記録なし）。終えたら✓で本番へ";
-  else if(st.record.length===0) lastTxt += "　▶ 終えたら✓で続けて相方へ（記録は休憩中にまとめて）";
+  if(ex.wu) lastTxt = "ウォームアップ（記録なし）。終えたらチェックボタンで本番へ";
+  else if(st.record.length===0) lastTxt += "　終えたらチェックボタンで続けて相方へ（記録は休憩中にまとめて）";
   document.getElementById("r-last").textContent = lastTxt;
-  document.getElementById("r-check").textContent = "✓";
 }
 function lastTimeFor(name){
   const h = loadHistory();
@@ -430,10 +712,10 @@ function finishSet(){
 function renderNextPrep(){
   const el = document.getElementById("rec-next");
   const nx = S.steps[S.stepIndex+1];
-  if(!nx){ el.textContent="▶ これがラスト → 終わったら終了です"; return; }
+  if(!nx){ el.textContent="これがラスト → 終わったら終了です"; return; }
   const nex = S.exercises[nx.showEx];
   const kg = nex.bodyweight ? "自重" : ("目安"+(nex.targetKg!=null?nex.targetKg:"")+"kg");
-  el.textContent = `▶ 次：${nex.name} ／ ${nex.angle||""} ／ ${kg}（${nx.setNum}セット目）`;
+  el.textContent = `次：${nex.name} ／ ${nex.angle||""} ／ ${kg}（${nx.setNum}セット目）`;
 }
 function flashScreen(){
   const f=document.getElementById("flash"); if(!f) return;
@@ -452,7 +734,7 @@ function buildRecordInputs(recs){
     const card = document.createElement("div");
     if(multi){
       const h = document.createElement("div"); h.className="side-tag"; h.style.fontSize="16px"; h.style.marginTop="6px";
-      h.textContent = "▼ " + ex.name + (ex.angle?("（"+ex.angle+"）"):"");
+      h.textContent = ex.name + (ex.angle?("（"+ex.angle+"）"):"");
       card.appendChild(h);
     }
     const sides = ex.unilateral ? ["L","R"] : [null];
@@ -712,7 +994,7 @@ function finishWorkout(){
     `${S.date} ${S.label} ・ 全${S.exercises.filter(e=>!e.wu).length}種目 ・ 総重量${sum.volKg}kg ・ ${sum.min}分 ・ 推定${sum.kcal}kcal`;
   const ups = progs.filter(p=>p.to>p.kg);
   document.getElementById("end-next-kg").textContent =
-    ups.length ? "▲ 次回：" + ups.map(p=>`${p.name} ${p.to}kg`).join("・") + "（目安kgを自動更新済み）"
+    ups.length ? "次回：" + ups.map(p=>`${p.name} ${p.to}kg`).join("・") + "（目安kgを自動更新済み）"
                : "次回：全種目 現在の重量を継続（回数上限×全セットで+1kg）";
   document.getElementById("end-text").value = sessionToText(S) + "\n" + summaryLine(sum);
   const syncEl = document.getElementById("end-sync");
@@ -721,11 +1003,11 @@ function finishWorkout(){
     pywebview.api.finish_session(STORE, buildMdBlock(S, sum, progs), `トレ記録 ${S.date} ${S.label}（アプリ自動）`)
       .then(r=>{
         const g=(r&&r.git)||{};
-        syncEl.textContent = (r&&r.save&&r.save.ok?"✓ KBへ保存":"⚠ KB保存失敗")
-          + (r&&r.md&&r.md.ok?"・ログ追記":"・⚠ログ追記失敗")
+        syncEl.textContent = (r&&r.save&&r.save.ok?"KBへ保存OK":"KB保存失敗（要確認）")
+          + (r&&r.md&&r.md.ok?"・ログ追記OK":"・ログ追記失敗")
           + (g.pushed?"・GitHubへpush済み":(g.committed?"・commit済み(push失敗=次回持越し)":""));
       })
-      .catch(e=>{ syncEl.textContent="⚠ KB同期エラー（記録は端末に保存済み）"; });
+      .catch(e=>{ syncEl.textContent="KB同期エラー（記録は端末に保存済み）"; });
   }else{
     syncEl.textContent = "（ブラウザ動作＝この端末にのみ保存。正本はPC版）";
   }
@@ -755,7 +1037,7 @@ function sessionToText(sess){
 
 /* ===================== COPY ===================== */
 function copyText(txt, btn){
-  const done=()=>{ if(btn){ const o=btn.textContent; btn.textContent="✓ コピーした"; setTimeout(()=>btn.textContent=o,1500);} };
+  const done=()=>{ if(btn){ const o=btn.textContent; btn.textContent="コピーした"; setTimeout(()=>btn.textContent=o,1500);} };
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
   }else{ fallbackCopy(txt,done); }
@@ -777,7 +1059,7 @@ function renderHistory(){
   for(let i=h.length-1;i>=0;i--){
     const s=h[i];
     const div=document.createElement("div"); div.className="hist-item";
-    div.innerHTML=`<div><b>${s.date}</b> <span class="muted">${s.label}</span></div><div class="muted">▶</div>`;
+    div.innerHTML=`<div><b>${s.date}</b> <span class="muted">${s.label}</span></div><div class="muted">›</div>`;
     div.onclick=()=>showHistDetail(i);
     list.appendChild(div);
   }
@@ -787,7 +1069,7 @@ function showHistDetail(i){
   const txt=sessionToText(s);
   const d=document.getElementById("hist-detail");
   d.innerHTML=`<div class="card"><pre style="white-space:pre-wrap; font-size:13px; margin:0 0 10px;"></pre>
-    <button class="big-btn" id="hd-copy">📋 この日をコピー</button>
+    <button class="big-btn" id="hd-copy">この日をコピー</button>
     <button class="big-btn warn" id="hd-del">この履歴を削除</button></div>`;
   d.querySelector("pre").textContent = txt;                       // textContentで安全に表示(インジェクション無し)
   d.querySelector("#hd-copy").onclick = function(){ copyText(txt, this); };
@@ -804,7 +1086,7 @@ function renderResume(){
   const box = document.getElementById("resumeBox");
   if(cur && !cur.finished && cur.v===3){
     box.innerHTML = `<div class="card"><b>途中のトレがあります</b><div class="muted">${cur.date} ${cur.label}・${(cur.stepIndex||0)+1}/${cur.steps.length}</div>
-      <button class="big-btn blue" onclick="resumeWorkout()">▶ 途中から再開</button>
+      <button class="big-btn blue" onclick="resumeWorkout()">途中から再開</button>
       <button class="big-btn warn" onclick="discardCurrent()">破棄して新規</button></div>`;
   }else if(cur && !cur.finished){
     // 旧バージョンの途中データは互換性が無いので破棄案内のみ
