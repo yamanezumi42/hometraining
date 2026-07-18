@@ -139,6 +139,8 @@
 <div id="end" class="screen">
   <h1>✅ 終了！おつかれさま</h1>
   <p class="sub" id="end-summary-sub"></p>
+  <p class="note" id="end-next-kg" style="color:var(--accent); font-weight:700;"></p>
+  <p class="muted" id="end-sync"></p>
   <button class="big-btn" onclick="copyText(document.getElementById('end-text').value, this)">📋 まとめを全部コピー</button>
   <textarea id="end-text" readonly></textarea>
   <p class="note">このテキストをコピーして、Notionに貼るか、クロードに送れば記録します。履歴にも保存済み。</p>
@@ -246,13 +248,59 @@ function show(id){
 }
 
 /* ===================== STORAGE ===================== */
+/* PC(pywebview)＝KBの hometraining.json が正本（Python api経由・git自動push）。
+   ブラウザ/スマホで開いた場合＝従来どおり localStorage。 */
 const LS_CUR = "ht_current_v1";
 const LS_HIST = "ht_history_v1";
+const LS_TGT = "ht_targets_v1";
+let PYW = false;      // pywebview api が使えるか
+let STORE = null;     // PC時の正本キャッシュ {schema, settings, targets, history}
+const DEFAULT_SETTINGS = { bodyWeightKg: 60.2 };
+function settings(){ return (STORE && STORE.settings) || DEFAULT_SETTINGS; }
 function saveCurrent(){ try{ localStorage.setItem(LS_CUR, JSON.stringify(S)); }catch(e){} }
 function clearCurrent(){ try{ localStorage.removeItem(LS_CUR); }catch(e){} }
 function loadCurrent(){ try{ return JSON.parse(localStorage.getItem(LS_CUR)); }catch(e){ return null; } }
-function loadHistory(){ try{ return JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){ return []; } }
-function saveHistory(arr){ try{ localStorage.setItem(LS_HIST, JSON.stringify(arr)); }catch(e){} }
+function loadHistory(){
+  if(PYW) return (STORE && STORE.history) || [];
+  try{ return JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){ return []; }
+}
+function saveHistory(arr){
+  if(PYW){ STORE.history = arr; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  try{ localStorage.setItem(LS_HIST, JSON.stringify(arr)); }catch(e){}
+}
+/* 目安kgの上書き（漸進エンジンが更新・種目名キー＝A/B共有種目は自動で同期） */
+function loadTargets(){
+  if(PYW) return (STORE && STORE.targets) || {};
+  try{ return JSON.parse(localStorage.getItem(LS_TGT))||{}; }catch(e){ return {}; }
+}
+function saveTargets(t){
+  if(PYW){ STORE.targets = t; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  try{ localStorage.setItem(LS_TGT, JSON.stringify(t)); }catch(e){}
+}
+function targetFor(e){
+  const ov = loadTargets()[e.name];
+  return (ov!=null && !e.bodyweight) ? ov : e.targetKg;
+}
+async function initPyStorage(){
+  try{
+    if(!(window.pywebview && pywebview.api && pywebview.api.load_data)) return;
+    let d = await pywebview.api.load_data();
+    if(!d || d.error || !Array.isArray(d.history)){
+      // 初回＝localStorage（シード済み）から移行してKBへ
+      let ls = []; try{ ls = JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){}
+      let tg = {}; try{ tg = JSON.parse(localStorage.getItem(LS_TGT))||{}; }catch(e){}
+      d = { schema:3, settings: DEFAULT_SETTINGS, targets: tg, history: ls };
+      await pywebview.api.save_data(d);
+    }
+    if(!d.settings) d.settings = DEFAULT_SETTINGS;
+    if(!d.targets) d.targets = {};
+    STORE = d; PYW = true;
+    renderResume();
+    const v = document.getElementById("verline");
+    if(v) v.textContent = APP_VERSION + "　💾 KB保存モード";
+  }catch(e){ PYW = false; }
+}
+window.addEventListener("pywebviewready", initPyStorage);
 const LS_SEEDED = "ht_seeded_v1";
 const SEED_HISTORY = [{"v": 3, "menuKey": "A", "label": "自宅A（押す・脚）", "date": "2026-06-20", "startedAt": 1781953200000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 15, "reps": 12}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 15, "reps": 15}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 15, "reps": 15}], "doneAt": 1781953200000}]}, {"name": "インクラインDBプレス", "records": [{"entries": [{"side": null, "kg": 8, "reps": 13}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 8, "reps": 15}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 8, "reps": 15}], "doneAt": 1781953200000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1781953200000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 4, "reps": 9}], "doneAt": 1781953200000}]}, {"name": "三頭エクステンション", "records": [{"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 8, "reps": 12}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 8, "reps": 13}], "doneAt": 1781953200000}]}, {"name": "カーフレイズ(加重)", "records": [{"entries": [{"side": null, "kg": 3, "reps": 20}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 3, "reps": 20}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": 10, "reps": 20}], "doneAt": 1781953200000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 38}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1781953200000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1781953200000}]}]}, {"v": 3, "menuKey": "B", "label": "自宅B（引く・脚）", "date": "2026-06-22", "startedAt": 1782126000000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 16, "reps": 15}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 16, "reps": 15}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 16, "reps": 15}], "doneAt": 1782126000000}]}, {"name": "フラットDBプレス", "records": [{"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 8, "reps": 11}], "doneAt": 1782126000000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1782126000000}]}, {"name": "ワンハンドロウ", "records": [{"entries": [{"side": "L", "kg": 8, "reps": 8}, {"side": "R", "kg": 8, "reps": 8}], "doneAt": 1782126000000}, {"entries": [{"side": "L", "kg": 8, "reps": 8}, {"side": "R", "kg": 8, "reps": 8}], "doneAt": 1782126000000}, {"entries": [{"side": "L", "kg": 8, "reps": 8}, {"side": "R", "kg": 8, "reps": 8}], "doneAt": 1782126000000}]}, {"name": "ヒップスラスト", "records": [{"entries": [{"side": null, "kg": null, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 22}], "doneAt": 1782126000000}]}, {"name": "リアレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 4, "reps": 15}], "doneAt": 1782126000000}]}, {"name": "二頭カール", "records": [{"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782126000000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782126000000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 30}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 30}], "doneAt": 1782126000000}, {"entries": [{"side": null, "kg": null, "reps": 15}], "doneAt": 1782126000000}]}]}, {"v": 3, "menuKey": "A", "label": "自宅A（押す・脚）", "date": "2026-06-25", "startedAt": 1782385200000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 17, "reps": 8}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 17, "reps": 8}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 17, "reps": 16}], "doneAt": 1782385200000}]}, {"name": "インクラインDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 8}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782385200000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1782385200000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 4, "reps": 14}], "doneAt": 1782385200000}]}, {"name": "三頭エクステンション", "records": [{"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1782385200000}]}, {"name": "カーフレイズ(加重)", "records": [{"entries": [{"side": null, "kg": 10, "reps": 22}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 10, "reps": 22}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": 12, "reps": 22}], "doneAt": 1782385200000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782385200000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782385200000}]}]}, {"v": 3, "menuKey": "B", "label": "自宅B（引く・脚）", "date": "2026-06-27", "startedAt": 1782558000000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 17, "reps": 10}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 17, "reps": 10}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 17, "reps": 17}], "doneAt": 1782558000000}]}, {"name": "フラットDBプレス", "records": [{"entries": [{"side": null, "kg": 8, "reps": 15}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 8, "reps": 15}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 8, "reps": 10}], "doneAt": 1782558000000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782558000000}]}, {"name": "ワンハンドロウ", "records": [{"entries": [{"side": "L", "kg": 8, "reps": 20}, {"side": "R", "kg": 8, "reps": 15}], "doneAt": 1782558000000}, {"entries": [{"side": "L", "kg": 8, "reps": 20}, {"side": "R", "kg": 8, "reps": 20}], "doneAt": 1782558000000}, {"entries": [{"side": "L", "kg": 8, "reps": 20}, {"side": "R", "kg": 8, "reps": 20}], "doneAt": 1782558000000}]}, {"name": "ヒップスラスト", "records": [{"entries": [{"side": null, "kg": null, "reps": 15}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 15}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782558000000}]}, {"name": "リアレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 14}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782558000000}]}, {"name": "二頭カール", "records": [{"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782558000000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782558000000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782558000000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782558000000}]}]}, {"v": 3, "menuKey": "A", "label": "自宅A（押す・脚）", "date": "2026-06-29", "startedAt": 1782730800000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 17, "reps": 13}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 17, "reps": 13}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 17, "reps": 13}], "doneAt": 1782730800000}]}, {"name": "インクラインDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782730800000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1782730800000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 4, "reps": 13}], "doneAt": 1782730800000}]}, {"name": "三頭エクステンション", "records": [{"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1782730800000}]}, {"name": "カーフレイズ(加重)", "records": [{"entries": [{"side": null, "kg": 12, "reps": 15}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 12, "reps": 15}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1782730800000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782730800000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782730800000}]}]}, {"v": 3, "menuKey": "B", "label": "自宅B（引く・脚）", "date": "2026-07-01", "startedAt": 1782903600000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 17, "reps": 10}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 17, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 17, "reps": 15}], "doneAt": 1782903600000}]}, {"name": "フラットDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1782903600000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 6}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1782903600000}]}, {"name": "ワンハンドロウ", "records": [{"entries": [{"side": "L", "kg": 9, "reps": 20}, {"side": "R", "kg": 9, "reps": 20}], "doneAt": 1782903600000}, {"entries": [{"side": "L", "kg": 9, "reps": 20}, {"side": "R", "kg": 9, "reps": 20}], "doneAt": 1782903600000}, {"entries": [{"side": "L", "kg": 9, "reps": 20}, {"side": "R", "kg": 9, "reps": 20}], "doneAt": 1782903600000}]}, {"name": "ヒップスラスト", "records": [{"entries": [{"side": null, "kg": 9, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 9, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 9, "reps": 15}], "doneAt": 1782903600000}]}, {"name": "リアレイズ", "records": [{"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 5, "reps": 15}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1782903600000}]}, {"name": "二頭カール", "records": [{"entries": [{"side": null, "kg": 5, "reps": 11}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 5, "reps": 7}], "doneAt": 1782903600000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 13}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1782903600000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782903600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1782903600000}]}]}, {"v": 3, "menuKey": "A", "label": "自宅A（押す・脚）", "date": "2026-07-03", "startedAt": 1783076400000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 18, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 18, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 18, "reps": 15}], "doneAt": 1783076400000}]}, {"name": "インクラインDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783076400000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": null, "reps": 2}], "doneAt": 1783076400000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783076400000}]}, {"name": "三頭エクステンション", "records": [{"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 10, "reps": 10}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 10, "reps": 6}], "doneAt": 1783076400000}]}, {"name": "カーフレイズ(加重)", "records": [{"entries": [{"side": null, "kg": 12, "reps": 12}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1783076400000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 17}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783076400000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783076400000}]}]}, {"v": 3, "menuKey": "B", "label": "自宅B（引く・脚）", "date": "2026-07-06", "startedAt": 1783335600000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 20, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 20, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 20, "reps": 10}], "doneAt": 1783335600000}]}, {"name": "フラットDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783335600000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783335600000}]}, {"name": "ワンハンドロウ", "records": [{"entries": [{"side": "L", "kg": 12, "reps": 14}, {"side": "R", "kg": 12, "reps": 15}], "doneAt": 1783335600000}, {"entries": [{"side": "L", "kg": 12, "reps": 10}, {"side": "R", "kg": 12, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": "L", "kg": 12, "reps": 9}, {"side": "R", "kg": 12, "reps": 10}], "doneAt": 1783335600000}]}, {"name": "ヒップスラスト", "records": [{"entries": [{"side": null, "kg": 12, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 15, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 15, "reps": 12}], "doneAt": 1783335600000}]}, {"name": "リアレイズ", "records": [{"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783335600000}]}, {"name": "二頭カール", "records": [{"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 5, "reps": 6}], "doneAt": 1783335600000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783335600000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783335600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783335600000}]}]}, {"v": 3, "menuKey": "A", "label": "自宅A（押す・脚）", "date": "2026-07-09", "startedAt": 1783594800000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 20, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 20, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 20, "reps": 12}], "doneAt": 1783594800000}]}, {"name": "インクラインDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 9, "reps": 10}], "doneAt": 1783594800000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 5}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783594800000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783594800000}]}, {"name": "三頭エクステンション", "records": [{"entries": [{"side": null, "kg": 10, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 10, "reps": 12}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 10, "reps": 12}], "doneAt": 1783594800000}]}, {"name": "カーフレイズ(加重)", "records": [{"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": 12, "reps": 20}], "doneAt": 1783594800000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783594800000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783594800000}]}]}, {"v": 3, "menuKey": "B", "label": "自宅B（引く・脚）", "date": "2026-07-11", "startedAt": 1783767600000, "finished": true, "seeded": true, "exercises": [{"name": "ゴブレットスクワット", "records": [{"entries": [{"side": null, "kg": 21, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 21, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 21, "reps": 12}], "doneAt": 1783767600000}]}, {"name": "フラットDBプレス", "records": [{"entries": [{"side": null, "kg": 9, "reps": 11}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 9, "reps": 11}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 9, "reps": 11}], "doneAt": 1783767600000}]}, {"name": "懸垂/チンアップ", "records": [{"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": null, "reps": 4}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": null, "reps": 3}], "doneAt": 1783767600000}]}, {"name": "ワンハンドロウ", "records": [{"entries": [{"side": "L", "kg": 12, "reps": 12}, {"side": "R", "kg": 12, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": "L", "kg": 12, "reps": 13}, {"side": "R", "kg": 12, "reps": 13}], "doneAt": 1783767600000}, {"entries": [{"side": "L", "kg": 12, "reps": 13}, {"side": "R", "kg": 12, "reps": 13}], "doneAt": 1783767600000}]}, {"name": "ヒップスラスト", "records": [{"entries": [{"side": null, "kg": 12, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 12, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 12, "reps": 15}], "doneAt": 1783767600000}]}, {"name": "リアレイズ", "records": [{"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 5, "reps": 16}], "doneAt": 1783767600000}]}, {"name": "二頭カール", "records": [{"entries": [{"side": null, "kg": 5, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 5, "reps": 10}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 5, "reps": 8}], "doneAt": 1783767600000}]}, {"name": "サイドレイズ", "records": [{"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 4, "reps": 12}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": 4, "reps": 15}], "doneAt": 1783767600000}]}, {"name": "腹・レッグレイズ", "records": [{"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783767600000}, {"entries": [{"side": null, "kg": null, "reps": 20}], "doneAt": 1783767600000}]}]}];
 /* 過去の自宅A/B記録（KBトレーニングログ由来・6/20〜7/11）を履歴に一度だけ合流。
@@ -277,7 +325,7 @@ function startWorkout(menuKey){
   const menu = MENUS[menuKey];
   // snapshot menu so later edits don't change history
   const exs = menu.exercises.map(e=>({
-    name:e.name, part:e.part, angle:e.angle||"", ss:e.ss||null, sets:e.sets, targetKg:e.targetKg,
+    name:e.name, part:e.part, angle:e.angle||"", ss:e.ss||null, sets:e.sets, targetKg:targetFor(e),
     repMin:(e.repMin!=null?e.repMin:8), repMax:(e.repMax!=null?e.repMax:null), rest:e.rest,
     bodyweight:!!e.bodyweight, unilateral:!!e.unilateral, wu:!!e.wu, note:e.note||"",
     records: [] // records[setIdx] = {entries:[{side,kg,reps}], doneAt}
@@ -581,6 +629,73 @@ function skipStep(){
   renderReady(); show("ready");
 }
 
+/* ===================== SUMMARY / PROGRESSION ===================== */
+function calcSummary(sess){
+  const W = settings().bodyWeightKg || 60.2;
+  let vol = 0, bwReps = 0;
+  sess.exercises.forEach(ex=>{
+    if(ex.wu) return;
+    (ex.records||[]).filter(r=>r).forEach(r=>{
+      (r.entries||[]).forEach(en=>{
+        const reps = en.reps||0;
+        if(ex.bodyweight){
+          if(ex.name.indexOf("懸垂")>=0) vol += W*reps;   // 懸垂＝体重×回数でkg計上
+          else bwReps += reps;                              // レッグレイズ等＝回数のみ
+        }else if(en.kg!=null){ vol += en.kg*reps; }
+      });
+    });
+  });
+  const min = Math.max(1, Math.round(((sess.endedAt||Date.now()) - sess.startedAt)/60000));
+  // 推定kcal＝運動(6.0METs)と休憩(2.0METs)を予定レスト合計で分割（Compendium準拠の時間×強度法・±30%目安）
+  let restSec = 0; (sess.steps||[]).forEach(st=>{ restSec += (st.restAfter||0); });
+  const restMin = Math.min(restSec/60, min*0.85);
+  const actMin  = Math.max(min - restMin, min*0.15);
+  const kcal = Math.round(1.05 * W * ((actMin/60)*6.0 + (restMin/60)*2.0));
+  return { volKg: Math.round(vol), bwReps, min, kcal };
+}
+function summaryLine(sum){
+  return `合計: 総重量${sum.volKg}kg（懸垂=体重換算）・${sum.min}分・推定${sum.kcal}kcal`;
+}
+/* ダブルプログレッション自動判定：全セットで回数上限→+1kg／下限割れ→据置(見直し)／それ以外→据置 */
+function computeProgression(sess){
+  const out = [];
+  sess.exercises.forEach(ex=>{
+    if(ex.wu || ex.bodyweight || ex.repMax==null) return;
+    const recs = (ex.records||[]).filter(r=>r);
+    if(!recs.length) return;
+    const kgs = [];
+    recs.forEach(r=>r.entries.forEach(en=>{ if(en.kg!=null) kgs.push(en.kg); }));
+    if(!kgs.length) return;
+    const kg = kgs[kgs.length-1];
+    const allTop = recs.length>=ex.sets && recs.every(r=>r.entries.every(en=>(en.reps||0)>=ex.repMax));
+    const belowMin = recs.some(r=>r.entries.some(en=>(en.reps||0)<ex.repMin));
+    if(allTop && kg<KG_MAX){ out.push({name:ex.name, kg:kg, to:kg+1, msg:`${ex.name} ${kg}→${kg+1}kg（全セット${ex.repMax}回達成）`}); }
+    else if(belowMin){ out.push({name:ex.name, kg:kg, to:kg, msg:`${ex.name} ${kg}kg据置（下限${ex.repMin}回割れあり・フォーム優先／続くなら-1kg）`}); }
+    else { out.push({name:ex.name, kg:kg, to:kg, msg:`${ex.name} ${kg}kg据置（上限${ex.repMax}回×全セットで+1kg）`}); }
+  });
+  return out;
+}
+function applyProgression(progs){
+  const t = loadTargets();
+  progs.forEach(p=>{ t[p.name] = p.to; });                  // 種目名キー＝A/B共有種目は自動同期
+  if(t["ワンハンドロウ"]!=null) t["ヒップスラスト"] = t["ワンハンドロウ"]; // 重量リンク（本人指定：付け替え無し）＝個別判定より優先
+  saveTargets(t);
+}
+function buildMdBlock(sess, sum, progs){
+  const youbi = "日月火水木金土".charAt(new Date(sess.startedAt).getDay());
+  let out = `### ${sess.date}（${youbi}）${sess.label}（アプリ自動記録）\n`;
+  sess.exercises.forEach(ex=>{
+    if(ex.wu) return;
+    const recs=(ex.records||[]).filter(r=>r);
+    if(!recs.length) return;
+    out += `- ${ex.name} ${recs.map(r=>fmtEntries(r.entries)).join(" / ")}\n`;
+  });
+  out += `- 合計：総重量 ${sum.volKg}kg（懸垂=体重${settings().bodyWeightKg}kg換算・自重腹は回数のみ）・${sum.min}分・推定${sum.kcal}kcal\n`;
+  const ups = progs.filter(p=>p.to>p.kg);
+  out += `- 次回漸進（アプリ自動判定）：` + (ups.length ? ups.map(p=>`${p.name} ${p.kg}→${p.to}kg`).join("・") + `／他は据置` : `全種目据置`) + `\n`;
+  return out;
+}
+
 /* ===================== FINISH ===================== */
 function finishWorkout(){
   stopTimer(); releaseWake();
@@ -590,8 +705,30 @@ function finishWorkout(){
   hist.push(JSON.parse(JSON.stringify(S)));
   saveHistory(hist);
   clearCurrent();
-  document.getElementById("end-summary-sub").textContent = `${S.date} ${S.label} ・ 全${S.exercises.filter(e=>!e.wu).length}種目`;
-  document.getElementById("end-text").value = sessionToText(S);
+  const sum = calcSummary(S);
+  const progs = computeProgression(S);
+  applyProgression(progs);
+  document.getElementById("end-summary-sub").textContent =
+    `${S.date} ${S.label} ・ 全${S.exercises.filter(e=>!e.wu).length}種目 ・ 総重量${sum.volKg}kg ・ ${sum.min}分 ・ 推定${sum.kcal}kcal`;
+  const ups = progs.filter(p=>p.to>p.kg);
+  document.getElementById("end-next-kg").textContent =
+    ups.length ? "▲ 次回：" + ups.map(p=>`${p.name} ${p.to}kg`).join("・") + "（目安kgを自動更新済み）"
+               : "次回：全種目 現在の重量を継続（回数上限×全セットで+1kg）";
+  document.getElementById("end-text").value = sessionToText(S) + "\n" + summaryLine(sum);
+  const syncEl = document.getElementById("end-sync");
+  if(PYW && window.pywebview){
+    syncEl.textContent = "KBへ保存中…";
+    pywebview.api.finish_session(STORE, buildMdBlock(S, sum, progs), `トレ記録 ${S.date} ${S.label}（アプリ自動）`)
+      .then(r=>{
+        const g=(r&&r.git)||{};
+        syncEl.textContent = (r&&r.save&&r.save.ok?"✓ KBへ保存":"⚠ KB保存失敗")
+          + (r&&r.md&&r.md.ok?"・ログ追記":"・⚠ログ追記失敗")
+          + (g.pushed?"・GitHubへpush済み":(g.committed?"・commit済み(push失敗=次回持越し)":""));
+      })
+      .catch(e=>{ syncEl.textContent="⚠ KB同期エラー（記録は端末に保存済み）"; });
+  }else{
+    syncEl.textContent = "（ブラウザ動作＝この端末にのみ保存。正本はPC版）";
+  }
   show("end");
 }
 
