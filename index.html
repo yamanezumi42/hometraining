@@ -840,7 +840,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v3.0-a4 (2026-07-19) 敵対レビュー6件+2件修正";
+const APP_VERSION = "v3.0-a5 (2026-07-19) カレンダー月曜はじまり・日付を3時区切りの論理日に";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -1007,7 +1007,8 @@ function seedHistory(){ try{
 
 /* ===================== SESSION ===================== */
 function todayStr(){
-  const d=new Date(); const z=n=>String(n).padStart(2,"0");
+  // 論理日＝深夜3時までは前日扱い（本人の生活リズム・watchdogと同じ区切り／2026-07-19指定）
+  const d=new Date(Date.now()-3*3600*1000); const z=n=>String(n).padStart(2,"0");
   return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate());
 }
 function startWorkout(menuKey){
@@ -1385,7 +1386,7 @@ function applyProgression(progs){
   saveTargets(t);
 }
 function buildMdBlock(sess, sum, progs){
-  const youbi = "日月火水木金土".charAt(new Date(sess.startedAt).getDay());
+  const youbi = "日月火水木金土".charAt(new Date(sess.date+"T12:00:00").getDay()); // 論理日基準（深夜トレでも日付とズレない）
   let out = `### ${sess.date}（${youbi}）${sess.label}（アプリ自動記録）\n`;
   sess.exercises.forEach(ex=>{
     if(ex.wu) return;
@@ -1898,10 +1899,10 @@ function anaCalendar(){
   if(anaCalPrev){ m--; if(m<0){ m=11; y--; } }
   const data = calendarData(y,m);
   document.getElementById("ana-cal-title").textContent = y+"年"+(m+1)+"月";
-  const first = new Date(y,m,1).getDay(); // 日曜はじまり表示（集計は月曜週）
+  const first = (new Date(y,m,1).getDay()+6)%7; // 月曜はじまり表示（本人指定2026-07-19・集計も月曜週）
   const days = new Date(y,m+1,0).getDate();
   const isThisMonth = (y===today.getFullYear() && m===today.getMonth());
-  let html = '<tr><th class="sun">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sat">土</th></tr><tr>';
+  let html = '<tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sat">土</th><th class="sun">日</th></tr><tr>';
   for(let i=0;i<first;i++) html+='<td class="off"></td>';
   let col=first;
   for(let d=1;d<=days;d++){
