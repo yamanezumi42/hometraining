@@ -253,6 +253,180 @@
   .flash{ position:fixed; inset:0; background:var(--acc); opacity:0; pointer-events:none; z-index:60; }
   .flash.go{ animation:flashAnim .55s ease; }
   @keyframes flashAnim{ 0%{opacity:0;} 18%{opacity:.75;} 100%{opacity:0;} }
+
+  /* ============ ANALYZE TAB (Phase B) ============ */
+  .ana-sec{margin:16px 0;}
+  .card-head .legend{margin-left:auto; display:flex; align-items:center; gap:16px; font-size:11px; font-style:normal; font-weight:700; letter-spacing:.14em; color:var(--txt2);}
+  .card-head .legend i{display:inline-block; width:12px; height:12px; transform:skewX(-14deg); margin-right:6px; vertical-align:-1px;}
+  .card-head .legend .la i{background:var(--acc);}
+  .card-head .legend .lb i{background:var(--white);}
+
+  /* stat cards */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:16px 0;}
+  .stat{
+    background:var(--panel); border:1px solid var(--line);
+    padding:18px 20px 16px; position:relative; overflow:hidden;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+  }
+  .stat::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--acc);}
+  .stat .s-lab{display:flex; align-items:center; gap:8px; font-family:var(--cond); font-size:11px; font-weight:700; letter-spacing:.18em; color:var(--txt3);}
+  .stat .s-lab svg{width:14px; height:14px; color:var(--acc); flex:none;}
+  .stat .s-val{font-family:var(--cond); font-style:italic; font-weight:800; font-size:36px; line-height:1; margin-top:12px; letter-spacing:.01em;}
+  .stat .s-val small{font-size:15px; font-weight:700; color:var(--txt2); margin-left:2px;}
+  .stat .s-foot{font-size:10px; color:var(--txt3); margin-top:8px; letter-spacing:.08em; font-family:var(--cond);}
+  .stat .diff{font-family:var(--cond); font-style:italic; font-weight:800; font-size:13px; margin-left:8px;}
+  .stat .diff.up{color:var(--acc);}
+  .stat .diff.down{color:var(--txt3);}
+
+  /* volume bar chart (horizontally scrollable) */
+  .chart-scroll{overflow-x:auto; padding-bottom:6px;}
+  .chart{display:flex; align-items:flex-end; height:230px; border-bottom:1px solid var(--line2); padding:0 8px; position:relative; min-width:100%; width:max-content;}
+  .chart .grid{position:absolute; left:0; right:0; border-top:1px dashed #202024; font-family:var(--cond); font-size:9px; color:var(--txt3); letter-spacing:.1em; pointer-events:none;}
+  .chart .grid span{position:absolute; left:2px; top:-14px;}
+  .bcol{width:56px; flex:none; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; z-index:2;}
+  .bar{width:32px; transform:skewX(-6deg); position:relative; transition:filter .15s;}
+  .bcol:hover .bar{filter:brightness(1.25);}
+  .bar.A{background:linear-gradient(180deg,var(--acc),#8fb000);}
+  .bar.B{background:linear-gradient(180deg,var(--white),#8f8f8c);}
+  .bar.hot{box-shadow:0 0 18px rgba(215,255,0,.35);}
+  .bval{font-family:var(--cond); font-style:italic; font-weight:700; font-size:10px; color:var(--txt2); margin-bottom:5px; letter-spacing:.02em; white-space:nowrap;}
+  .bcol:hover .bval{color:var(--txt);}
+  .bdiff{font-family:var(--cond); font-style:italic; font-weight:800; font-size:10px; color:var(--acc); margin-bottom:2px; white-space:nowrap;}
+  .bdiff.down{color:var(--txt3);}
+  .xlab{font-family:var(--cond); font-size:10px; color:var(--txt3); letter-spacing:.06em; text-align:center; padding-top:6px; white-space:nowrap;}
+  .xlab b{display:block; color:var(--txt2); font-style:italic; font-size:11px;}
+
+  /* exercise trend */
+  .ex-sel-row{display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
+  select.ana-select{
+    background:#0e0e10; color:var(--txt); border:1px solid var(--line2); padding:10px 12px;
+    font-family:var(--cond); font-weight:700; font-size:14px; letter-spacing:.06em; min-width:220px;
+  }
+  select.ana-select:focus{outline:none; border-color:var(--acc);}
+  .stall-tag{
+    font-family:var(--cond); font-weight:800; font-style:italic; font-size:12px; letter-spacing:.14em;
+    background:var(--red); color:#000; padding:4px 12px 4px 10px;
+    clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  }
+  .exchart-wrap{overflow-x:auto;}
+  .exchart-wrap svg{display:block;}
+
+  /* PR table */
+  .prtable{width:100%; border-collapse:collapse;}
+  .prtable th{
+    font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--txt3); text-align:left; padding:8px 10px; border-bottom:1px solid var(--line2);
+  }
+  .prtable td{padding:10px; border-bottom:1px solid var(--line); font-size:13px;}
+  .prtable td.v{font-family:var(--cond); font-style:italic; font-weight:800; font-size:19px; letter-spacing:.02em;}
+  .prtable td.v small{font-size:11px; color:var(--txt2); font-weight:700;}
+  .prtable td.d{font-family:var(--cond); color:var(--txt3); font-size:12px; letter-spacing:.08em;}
+
+  /* weekly sets bars */
+  .wsrow{display:grid; grid-template-columns:110px 1fr 64px; gap:10px; align-items:center; padding:5px 0;}
+  .wsrow .wlab{font-family:var(--cond); font-size:12px; font-weight:700; letter-spacing:.08em; color:var(--txt2); text-align:right;}
+  .wstrack{position:relative; height:14px; background:#101013; border:1px solid var(--line);}
+  .wstrack .band{position:absolute; top:0; bottom:0; background:rgba(215,255,0,.08); border-left:1px dashed rgba(215,255,0,.25); border-right:1px dashed rgba(215,255,0,.25);}
+  .wstrack .wbar{position:absolute; left:0; top:2px; bottom:2px; background:var(--acc); opacity:.45; transform:skewX(-10deg); transform-origin:left;}
+  .wstrack .wbar.ok{opacity:1;}
+  .wstrack .wbar.over{opacity:1; box-shadow:0 0 10px rgba(215,255,0,.5);}
+  .wsrow .wval{font-family:var(--cond); font-style:italic; font-weight:800; font-size:15px;}
+  .wsrow .wval small{font-size:10px; color:var(--txt3); font-weight:700;}
+  .ws-note{font-size:10px; color:var(--txt3); font-family:var(--cond); letter-spacing:.1em; margin-top:10px;}
+
+  /* calendar */
+  .calwrap{display:grid; grid-template-columns:1fr 260px; gap:26px; align-items:start;}
+  .cal{width:100%; border-collapse:collapse; table-layout:fixed;}
+  .cal th{font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.24em; color:var(--txt3); padding:6px 0; border-bottom:1px solid var(--line2);}
+  .cal th.sun{color:#8a4a4a;} .cal th.sat{color:#4a6a8a;}
+  .cal td{height:54px; vertical-align:top; padding:6px 8px; border:1px solid var(--line); font-family:var(--cond); font-size:12px; color:var(--txt2); position:relative;}
+  .cal td:hover{background:#17171a;}
+  .cal td.off{background:#0c0c0d; color:#38383d;}
+  .cal td .dot{position:absolute; left:8px; bottom:7px; width:10px; height:10px; transform:skewX(-14deg);}
+  .cal td .dot.B2{left:22px;}
+  .cal td .dot.A{background:var(--acc);}
+  .cal td .dot.B{background:var(--white);}
+  .cal td .dt-lab{position:absolute; right:7px; bottom:5px; font-size:9px; font-style:italic; font-weight:700; color:var(--txt3); letter-spacing:.08em;}
+  .cal td.today{border:1px solid var(--acc); background:var(--acc-dim);}
+  .cal td.today .dnum{color:var(--acc); font-weight:800; font-style:italic;}
+  .calside .cs-kick{font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.3em; color:var(--txt3); text-transform:uppercase; margin-bottom:10px;}
+  .calside .cs-num{font-family:var(--cond); font-style:italic; font-weight:800; font-size:56px; line-height:.9;}
+  .calside .cs-num em{color:var(--acc); font-style:italic;}
+  .calside .cs-num small{font-size:18px; color:var(--txt3); font-weight:700;}
+  .calside p{font-size:11px; color:var(--txt2); line-height:1.9; margin-top:12px;}
+  .calside .cs-legend{display:flex; flex-direction:column; gap:8px; margin-top:16px; font-size:11px; color:var(--txt2); font-family:var(--cond); letter-spacing:.1em;}
+  .calside .cs-legend i{display:inline-block; width:11px; height:11px; transform:skewX(-14deg); margin-right:8px; vertical-align:-1px;}
+  .calbtn{
+    margin-top:14px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    border:1px solid var(--line2); background:var(--panel2); color:var(--txt2);
+    font-family:var(--cond); font-weight:700; font-size:12px; letter-spacing:.14em; padding:9px 16px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .calbtn:hover{color:var(--txt); border-color:var(--acc);}
+  .calbtn svg{width:13px; height:13px;}
+
+  /* heatmap */
+  .modeseg{display:flex; gap:0; margin-left:auto;}
+  .modeseg button{
+    border:1px solid var(--line2); border-left:none; background:var(--panel2); color:var(--txt2); cursor:pointer;
+    font-family:var(--cond); font-weight:700; font-style:normal; font-size:11px; letter-spacing:.1em; padding:8px 14px;
+  }
+  .modeseg button:first-child{border-left:1px solid var(--line2); clip-path:polygon(0 0,100% 0,100% 100%,6px 100%);}
+  .modeseg button:last-child{clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%);}
+  .modeseg button.on{background:var(--acc); color:#000; font-weight:800; border-color:var(--acc);}
+  .heatwrap{display:grid; grid-template-columns:1fr 1fr 300px; gap:12px;}
+  .figbox{text-align:center;}
+  .figbox .fig-lab{font-family:var(--cond); font-size:11px; font-weight:700; letter-spacing:.3em; color:var(--txt3); margin-bottom:6px; text-transform:uppercase;}
+  .figbox svg{width:100%; max-width:220px; height:auto;}
+  .muscle{cursor:pointer; transition:filter .12s;}
+  .muscle:hover{filter:brightness(1.5) drop-shadow(0 0 6px rgba(215,255,0,.6));}
+  .muscle.sel path,.muscle.sel ellipse,.muscle.sel rect{stroke:var(--acc); stroke-width:2;}
+  .muscle.sel{filter:drop-shadow(0 0 7px rgba(215,255,0,.7));}
+  .heatlegend{
+    grid-column:1 / span 2; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+    font-family:var(--cond); font-size:10px; letter-spacing:.16em; color:var(--txt3); margin-top:4px; text-align:center;
+  }
+  .heatlegend .scale{display:flex; gap:3px;}
+  .heatlegend .scale i{width:22px; height:9px; transform:skewX(-16deg); background:var(--acc);}
+  .detail{
+    background:var(--panel2); border:1px solid var(--line2);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+    padding:20px 22px; align-self:start;
+  }
+  .detail .d-kick{font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.32em; color:var(--acc); text-transform:uppercase;}
+  .detail h3{font-family:var(--cond); font-style:italic; font-weight:800; font-size:28px; margin-top:6px; line-height:1;}
+  .detail h3 small{display:block; font-size:10px; font-style:normal; font-weight:700; letter-spacing:.26em; color:var(--txt3); margin-top:5px;}
+  .detail .d-rows{margin-top:14px; display:flex; flex-direction:column;}
+  .detail .d-row{display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--line);}
+  .detail .d-row:last-child{border-bottom:none;}
+  .detail .d-row .k{font-size:11px; color:var(--txt3); letter-spacing:.1em; font-family:var(--cond);}
+  .detail .d-row .v{font-family:var(--cond); font-style:italic; font-weight:800; font-size:20px;}
+  .detail .d-row .v small{font-size:11px; color:var(--txt2); font-weight:700;}
+  .detail .d-row .v.acc{color:var(--acc);}
+  .detail .d-exs{margin-top:12px; border-top:1px solid var(--line); padding-top:8px;}
+  .detail .d-exrow{display:flex; justify-content:space-between; gap:8px; padding:6px 0; font-size:11px; color:var(--txt2);}
+  .detail .d-exrow .n{color:var(--txt);}
+  .detail .d-exrow .m{font-family:var(--cond); color:var(--txt3); letter-spacing:.04em; white-space:nowrap;}
+
+  /* history rows (analyze) */
+  .hist-row{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:13px 10px; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .hist-row:hover{background:#141417;}
+  .hist-row:active{background:var(--panel2);}
+  .hist-row .hl{display:flex; align-items:center; gap:10px; min-width:0;}
+  .hist-row .hl b{font-family:var(--cond); font-style:italic; font-size:16px; letter-spacing:.04em;}
+  .hist-row .badge{
+    display:inline-flex; align-items:center; justify-content:center; flex:none;
+    font-family:var(--cond); font-style:italic; font-weight:800; font-size:14px;
+    width:26px; height:26px; clip-path:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%);
+  }
+  .hist-row .badge.A{background:var(--acc); color:#000;}
+  .hist-row .badge.B{background:var(--white); color:#000;}
+  .hist-row .hr-stats{display:flex; gap:16px; font-family:var(--cond); font-size:12px; color:var(--txt2); letter-spacing:.04em; white-space:nowrap;}
+  .hist-row .hr-stats b{font-style:italic; font-size:14px; color:var(--txt);}
+
   @media (max-width:900px){
     .menu-row{grid-template-columns:1fr;}
     .navitem{padding:0 16px;}
@@ -260,6 +434,12 @@
     h1{font-size:32px;}
     .timer{font-size:96px;}
     .tabpane{padding:22px 14px 36px;}
+    .stats{grid-template-columns:1fr 1fr;}
+    .heatwrap{grid-template-columns:1fr 1fr;}
+    .detail{grid-column:1 / span 2;}
+    .calwrap{grid-template-columns:1fr;}
+    .wsrow{grid-template-columns:84px 1fr 56px;}
+    .hist-row .hr-stats{gap:10px; font-size:11px;}
   }
 </style>
 </head>
@@ -327,9 +507,9 @@
       </button>
     </div>
   </div>
-  <button class="big-btn ghost" onclick="show('history'); renderHistory();">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-    トレ履歴
+  <button class="big-btn ghost" onclick="showTab('analyze')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 20V10M10 20V4M16 20v-9M22 20H2"/></svg>
+    分析・トレ履歴
   </button>
   <p class="sub">音はマナーモードでも鳴るよう細工していますが、画面ロック/別アプリ中は鳴りません。休憩中は画面をつけたまま使ってください。</p>
   <p class="muted center" id="verline"></p>
@@ -397,25 +577,78 @@
   <button class="big-btn ghost" onclick="show('home'); renderResume();">ホームに戻る</button>
 </div>
 
-<!-- ===== HISTORY ===== -->
-<div id="history" class="screen">
-  <div class="ana-head"><h1>トレ履歴</h1><span class="subk">HISTORY</span></div>
-  <button class="big-btn ghost" onclick="show('home'); renderResume();">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
-    ホームに戻る
-  </button>
-  <div id="hist-list"></div>
-  <div id="hist-detail"></div>
-</div>
-
 </div><!-- /tab-train -->
 
-<!-- ===== TAB: 分析（Phase Bで実装） ===== -->
+<!-- ===== TAB: 分析（Phase B） ===== -->
 <div id="tab-analyze" class="tabpane">
-  <div class="ana-head"><h1>分析</h1><span class="subk">ANALYSIS</span></div>
-  <div class="card">
-    <div class="card-head">準備中<span class="en">COMING&nbsp;SOON</span></div>
-    <p class="sub">総重量の推移・部位ヒートマップ・トレーニングカレンダーを次のアップデートで実装します。</p>
+  <div class="ana-head"><h1>分析</h1><span class="subk" id="ana-range">PERFORMANCE</span></div>
+
+  <!-- 1. stat cards -->
+  <div class="stats" id="ana-stats"></div>
+
+  <!-- 2. volume trend -->
+  <div class="card ana-sec">
+    <div class="card-head">総重量の推移<span class="en">Total Volume / Session</span>
+      <span class="legend"><span class="la"><i></i>A 押す・脚</span><span class="lb"><i></i>B 引く・脚</span></span>
+    </div>
+    <div class="chart-scroll" id="ana-vol-scroll"><div class="chart" id="ana-vol-chart"></div><div style="display:flex; width:max-content; min-width:100%; padding:0 8px;" id="ana-vol-xlabs"></div></div>
+    <p class="ws-note">懸垂=体重換算でkg計上・自重腹（レッグレイズ）は含まない。棒にカーソルで日付と値。</p>
+  </div>
+
+  <!-- 3. exercise trend -->
+  <div class="card ana-sec">
+    <div class="card-head">種目別推移<span class="en">Exercise Progress</span></div>
+    <div class="ex-sel-row">
+      <select class="ana-select" id="ana-ex-sel" onchange="anaExChange()"></select>
+      <span id="ana-ex-stall"></span>
+    </div>
+    <div class="exchart-wrap" id="ana-ex-chart"></div>
+  </div>
+
+  <!-- 4. PR list -->
+  <div class="card ana-sec">
+    <div class="card-head">自己ベスト<span class="en">Personal Records</span></div>
+    <div style="overflow-x:auto;"><table class="prtable" id="ana-pr"></table></div>
+  </div>
+
+  <!-- 5. weekly sets per muscle -->
+  <div class="card ana-sec">
+    <div class="card-head">部位別・今週セット数<span class="en">Weekly Sets / Muscle</span></div>
+    <div id="ana-ws-bars"></div>
+    <p class="ws-note">主働=1.0・副次=0.5セット換算。帯=筋肥大の目安（週10-20セット/部位）。</p>
+  </div>
+
+  <!-- 6. monthly calendar -->
+  <div class="card ana-sec">
+    <div class="card-head"><span id="ana-cal-title">カレンダー</span><span class="en">Training Calendar</span></div>
+    <div class="calwrap">
+      <table class="cal" id="ana-cal"></table>
+      <div class="calside" id="ana-cal-side"></div>
+    </div>
+  </div>
+
+  <!-- 7. body heatmap -->
+  <div class="card ana-sec">
+    <div class="card-head">部位ヒートマップ<span class="en">Muscle Heat</span>
+      <span class="modeseg" id="ana-heat-modes">
+        <button id="ana-mode-1" class="on" onclick="anaSetMode(1)">今週セット数</button>
+        <button id="ana-mode-2" onclick="anaSetMode(2)">累計総重量</button>
+        <button id="ana-mode-3" onclick="anaSetMode(3)">成長度（重量ベース）</button>
+      </span>
+    </div>
+    <div class="heatwrap">
+      <div class="figbox"><div class="fig-lab">前面 FRONT</div><div id="ana-fig-front"></div></div>
+      <div class="figbox"><div class="fig-lab">背面 BACK</div><div id="ana-fig-back"></div></div>
+      <div class="detail" id="ana-detail"></div>
+      <div class="heatlegend" id="ana-heat-legend"></div>
+    </div>
+  </div>
+
+  <!-- 8. session history (旧トレ履歴を吸収) -->
+  <div class="card ana-sec">
+    <div class="card-head">セッション履歴<span class="en">History</span></div>
+    <div id="hist-list"></div>
+    <div id="hist-detail"></div>
   </div>
 </div>
 
@@ -470,7 +703,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v3.0-a1 (2026-07-19) デザイン9採用・タブ構造";
+const APP_VERSION = "v3.0-a2 (2026-07-19) 分析タブ実装";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -521,12 +754,13 @@ function show(id){
   document.body.classList.toggle("in-workout", id==="ready"||id==="record");
   window.scrollTo(0,0);
 }
-/* タブ切替（トレーニング/分析/設定）— 分析・設定はPhase Bで中身を実装 */
+/* タブ切替（トレーニング/分析/設定）— 分析はrenderAnalyze()を毎回呼ぶ（オンデマンド計算） */
 function showTab(tab){
   document.querySelectorAll(".navitem[data-tab]").forEach(n=>n.classList.toggle("on", n.getAttribute("data-tab")===tab));
   document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
   const pane = document.getElementById("tab-"+tab);
   if(pane) pane.classList.add("active");
+  if(tab==="analyze") renderAnalyze();
   window.scrollTo(0,0);
 }
 
@@ -1049,7 +1283,7 @@ function fallbackCopy(txt, done){
   document.body.removeChild(ta);
 }
 
-/* ===================== HISTORY ===================== */
+/* ===================== HISTORY（分析タブへ吸収・表示のみ拡張／データ操作は従来のまま） ===================== */
 function renderHistory(){
   const h = loadHistory();
   const list = document.getElementById("hist-list");
@@ -1058,8 +1292,12 @@ function renderHistory(){
   list.innerHTML="";
   for(let i=h.length-1;i>=0;i--){
     const s=h[i];
-    const div=document.createElement("div"); div.className="hist-item";
-    div.innerHTML=`<div><b>${s.date}</b> <span class="muted">${s.label}</span></div><div class="muted">›</div>`;
+    const vol = sessionVolume(s).volKg;
+    const min = sessionDuration(s);
+    const kcal = sessionKcal(s);
+    const div=document.createElement("div"); div.className="hist-row";
+    div.innerHTML=`<div class="hl"><span class="badge ${s.menuKey==="A"?"A":"B"}">${s.menuKey||"?"}</span><b>${s.date}</b></div>
+      <div class="hr-stats"><span><b>${vol.toLocaleString("ja-JP")}</b> kg</span><span><b>${min!=null?min:"—"}</b> 分</span><span><b>${kcal!=null?kcal:"—"}</b> kcal</span></div>`;
     div.onclick=()=>showHistDetail(i);
     list.appendChild(div);
   }
@@ -1077,7 +1315,531 @@ function showHistDetail(i){
 }
 function deleteHist(i){
   if(!confirm("この履歴を削除する？")) return;
-  const h=loadHistory(); h.splice(i,1); saveHistory(h); renderHistory();
+  const h=loadHistory(); h.splice(i,1); saveHistory(h); renderAnalyze(); // 削除のデータ操作は従来どおり・再描画のみ分析タブ全体へ
+}
+
+/* ===================== ANALYZE TAB (Phase B・新規関数のみ／既存ロジックは読み取り専用) ===================== */
+/* --- 部位マッピング（主働=1.0・副次=0.5セット換算） --- */
+const MUSCLES = {
+  chest:      {jp:"胸",       en:"PECTORALIS"},
+  abs:        {jp:"腹直",     en:"RECTUS ABDOMINIS"},
+  front_delt: {jp:"三角前部", en:"FRONT DELT"},
+  side_delt:  {jp:"三角側部", en:"SIDE DELT"},
+  rear_delt:  {jp:"三角後部", en:"REAR DELT"},
+  biceps:     {jp:"上腕二頭", en:"BICEPS"},
+  triceps:    {jp:"上腕三頭", en:"TRICEPS"},
+  forearms:   {jp:"前腕",     en:"FOREARMS"},
+  lats:       {jp:"広背",     en:"LATISSIMUS DORSI"},
+  mid_back:   {jp:"僧帽中部", en:"MID TRAPEZIUS"},
+  lower_back: {jp:"脊柱起立", en:"LOWER BACK"},
+  glutes:     {jp:"臀",       en:"GLUTES"},
+  quads:      {jp:"四頭",     en:"QUADRICEPS"},
+  hams:       {jp:"ハム",     en:"HAMSTRINGS"},
+  calves:     {jp:"下腿",     en:"CALVES"}
+};
+const MUSCLE_ORDER = ["chest","front_delt","side_delt","rear_delt","lats","mid_back","lower_back","biceps","triceps","forearms","abs","glutes","quads","hams","calves"];
+const EX_MUSCLE = [
+  {k:"ゴブレット",     pri:["quads"],      sec:["glutes"]},
+  {k:"インクライン",   pri:["chest"],      sec:["triceps","front_delt"]},
+  {k:"フラット",       pri:["chest"],      sec:["triceps"]},
+  {k:"懸垂",           pri:["lats"],       sec:["biceps","forearms"]},
+  {k:"ワンハンドロウ", pri:["mid_back"],   sec:["lats","biceps"]},
+  {k:"ヒップスラスト", pri:["glutes"],     sec:["hams"]},
+  {k:"RDL",            pri:["hams"],       sec:["glutes","lower_back"]},
+  {k:"サイドレイズ",   pri:["side_delt"],  sec:[]},
+  {k:"リアレイズ",     pri:["rear_delt"],  sec:[]},
+  {k:"三頭",           pri:["triceps"],    sec:[]},
+  {k:"二頭",           pri:["biceps"],     sec:["forearms"]},
+  {k:"カーフ",         pri:["calves"],     sec:[]},
+  {k:"レッグレイズ",   pri:["abs"],        sec:[]}
+];
+const PART_GUESS = [["胸","chest"],["腹","abs"],["広背","lats"],["僧帽","mid_back"],["脊柱","lower_back"],["背","mid_back"],["尻","glutes"],["臀","glutes"],["ハム","hams"],["四頭","quads"],["下腿","calves"],["カーフ","calves"],["三頭","triceps"],["二頭","biceps"],["前腕","forearms"],["側部","side_delt"],["後部","rear_delt"],["前部","front_delt"],["肩","side_delt"],["脚","quads"]];
+function muscleOf(name, part){
+  for(const m of EX_MUSCLE){ if(name && name.indexOf(m.k)>=0) return m; }
+  const p = part || "";
+  for(const g of PART_GUESS){ if(p.indexOf(g[0])>=0) return {k:name, pri:[g[1]], sec:[]}; }
+  return {k:name, pri:["other"], sec:[]}; // 未知の種目＝人型には塗らない（一覧には出る）
+}
+function isChinup(name){ return (name||"").indexOf("懸垂")>=0; }
+
+/* --- 集計ユーティリティ（seededの穴・endedAt無しに耐性） --- */
+function bodyW(){ return settings().bodyWeightKg || 60.2; }
+function exVolume(ex){ // 1種目分: kg=Σkg×reps（懸垂=体重換算）／reps=kg計上しない自重の回数
+  const W = bodyW(); let kg=0, reps=0;
+  (ex.records||[]).filter(r=>r).forEach(r=>(r.entries||[]).forEach(en=>{
+    const n = en.reps||0;
+    if(isChinup(ex.name)) kg += W*n;
+    else if(en.kg!=null) kg += en.kg*n;
+    else reps += n;
+  }));
+  return {kg:kg, reps:reps};
+}
+function sessionVolume(sess){
+  let kg=0, reps=0;
+  (sess.exercises||[]).forEach(ex=>{ if(ex.wu) return; const v=exVolume(ex); kg+=v.kg; reps+=v.reps; });
+  return {volKg:Math.round(kg), volRaw:kg, bwReps:reps};
+}
+function sessionDuration(sess){ // 分（endedAt無し=seededは null → 表示は「—」）
+  if(!sess || !sess.endedAt || !sess.startedAt) return null;
+  return Math.max(1, Math.round((sess.endedAt - sess.startedAt)/60000));
+}
+function sessionKcal(sess){ // steps無し(seeded)・endedAt無しはkcalを出さない
+  if(!(sess && sess.steps && sess.steps.length && sess.endedAt)) return null;
+  return calcSummary(sess).kcal;
+}
+function sessTime(s){ return s.startedAt || Date.parse(s.date) || 0; }
+function weekStartOf(t){ // 月曜0:00（ローカル）
+  const d = new Date(t); const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return x.getTime() - ((x.getDay()+6)%7)*86400000;
+}
+function weeklySets(weekStart){ // 部位→週換算セット数（主働1.0・副次0.5）
+  const out={}, we=weekStart+7*86400000;
+  loadHistory().forEach(s=>{
+    const t=sessTime(s); if(t<weekStart || t>=we) return;
+    (s.exercises||[]).forEach(ex=>{
+      if(ex.wu) return;
+      const n=(ex.records||[]).filter(r=>r).length; if(!n) return;
+      const m=muscleOf(ex.name, ex.part);
+      m.pri.forEach(k=>{ out[k]=(out[k]||0)+n; });
+      m.sec.forEach(k=>{ out[k]=(out[k]||0)+n*0.5; });
+    });
+  });
+  return out;
+}
+function muscleTotals(){ // 全期間: 部位→{kg,reps}（主働1.0・副次0.5）
+  const out={};
+  loadHistory().forEach(s=>(s.exercises||[]).forEach(ex=>{
+    if(ex.wu) return;
+    const v=exVolume(ex); if(!v.kg && !v.reps) return;
+    const m=muscleOf(ex.name, ex.part);
+    const add=(k,f)=>{ const o=out[k]||(out[k]={kg:0,reps:0}); o.kg+=v.kg*f; o.reps+=v.reps*f; };
+    m.pri.forEach(k=>add(k,1)); m.sec.forEach(k=>add(k,0.5));
+  }));
+  return out;
+}
+function allExerciseNames(){ // MENUS順→履歴のみの種目
+  const names=[], seen={};
+  ["A","B"].forEach(k=>MENUS[k].exercises.forEach(e=>{ if(!e.wu && !seen[e.name]){ seen[e.name]=1; names.push(e.name); } }));
+  loadHistory().forEach(s=>(s.exercises||[]).forEach(ex=>{ if(!ex.wu && ex.name && !seen[ex.name] && (ex.records||[]).filter(r=>r).length){ seen[ex.name]=1; names.push(ex.name); } }));
+  return names;
+}
+function repMaxFor(name){
+  for(const k of ["A","B"]){ const e=MENUS[k].exercises.find(x=>x.name===name); if(e && e.repMax!=null) return e.repMax; }
+  return null;
+}
+function exerciseSeries(name){ // セッションごとの最大kg（自重=最大回数）とボリューム
+  const pts=[];
+  loadHistory().forEach(s=>{
+    const ex=(s.exercises||[]).find(e=>e.name===name && !e.wu); if(!ex) return;
+    const recs=(ex.records||[]).filter(r=>r); if(!recs.length) return;
+    let maxKg=null, maxReps=0;
+    recs.forEach(r=>(r.entries||[]).forEach(en=>{
+      if(en.kg!=null) maxKg=(maxKg==null?en.kg:Math.max(maxKg,en.kg));
+      maxReps=Math.max(maxReps,en.reps||0);
+    }));
+    const rm=(ex.repMax!=null)?ex.repMax:repMaxFor(name);
+    const allTop=(rm!=null) && recs.every(r=>(r.entries||[]).every(en=>(en.reps||0)>=rm));
+    const v=exVolume(ex);
+    pts.push({date:s.date, menuKey:s.menuKey, maxKg:maxKg, maxReps:maxReps, vol:Math.round(v.kg), reps:v.reps, allTop:allTop, bw:(maxKg==null)||isChinup(name)});
+  });
+  return pts;
+}
+function stallInfo(name){ // 直近3セッション同じ最大kg＆回数上限未達
+  const pts=exerciseSeries(name); if(pts.length<3) return false;
+  const l3=pts.slice(-3), last=l3[2];
+  if(last.bw){ return l3.every(p=>p.maxReps===l3[0].maxReps) && !last.allTop; }
+  if(l3.some(p=>p.maxKg==null)) return false;
+  return l3.every(p=>p.maxKg===l3[0].maxKg) && !last.allTop;
+}
+function prTable(){ // 種目ごとの自己ベスト
+  const rows=[];
+  allExerciseNames().forEach(n=>{
+    let best=null; const chin=isChinup(n);
+    loadHistory().forEach(s=>{
+      const ex=(s.exercises||[]).find(e=>e.name===n && !e.wu); if(!ex) return;
+      (ex.records||[]).filter(r=>r).forEach(r=>(r.entries||[]).forEach(en=>{
+        const reps=en.reps||0;
+        if(chin || en.kg==null){ // 自重＝最高回数
+          if(!best || best.kg!=null || reps>best.reps) {
+            if(best && best.kg!=null) return; // kg記録がある種目はkg優先
+            if(!best || reps>best.reps) best={kg:null, reps:reps, date:s.date};
+          }
+        }else{
+          if(!best || best.kg==null || en.kg>best.kg || (en.kg===best.kg && reps>best.reps)) best={kg:en.kg, reps:reps, date:s.date};
+        }
+      }));
+    });
+    if(best) rows.push({name:n, kg:best.kg, reps:best.reps, date:best.date});
+  });
+  return rows;
+}
+function growthData(){ // 種目: 初回kg→最新kgの伸び率%（自重=回数）→ 主働部位へ平均で集約
+  const byEx={};
+  allExerciseNames().forEach(n=>{
+    const pts=exerciseSeries(n); if(pts.length<2) return;
+    let a=null, b=null;
+    if(pts[pts.length-1].bw){ a=pts[0].maxReps; b=pts[pts.length-1].maxReps; }
+    else{
+      const w=pts.filter(p=>p.maxKg!=null); if(w.length<2) return;
+      a=w[0].maxKg; b=w[w.length-1].maxKg;
+    }
+    if(!a) return;
+    byEx[n]=Math.round((b-a)/a*100);
+  });
+  const agg={};
+  Object.keys(byEx).forEach(n=>{
+    muscleOf(n,"").pri.forEach(k=>{ (agg[k]||(agg[k]=[])).push(byEx[n]); });
+  });
+  const byMuscle={};
+  Object.keys(agg).forEach(k=>{ byMuscle[k]=Math.round(agg[k].reduce((s,x)=>s+x,0)/agg[k].length); });
+  return {byMuscle:byMuscle, byEx:byEx};
+}
+function calendarData(y,m){ // m=0-11 → {日:[menuKey,...]}
+  const map={};
+  loadHistory().forEach(s=>{
+    const p=(s.date||"").split("-"); if(p.length<3) return;
+    if(+p[0]===y && +p[1]===m+1){ const d=+p[2]; (map[d]||(map[d]=[])).push(s.menuKey); }
+  });
+  return map;
+}
+
+/* --- 表示ヘルパ --- */
+function fmtNum(n){ return Math.round(n).toLocaleString("ja-JP"); }
+function fmtSets(v){ return (v%1) ? v.toFixed(1) : String(v); }
+function mdShort(dateStr){ const p=(dateStr||"").split("-"); return p.length===3 ? (+p[1])+"/"+(+p[2]) : dateStr; }
+function diffSpan(d, unit){
+  if(d==null) return "";
+  const cls = d>0 ? "up" : "down";
+  const sign = d>0 ? "+" : (d<0 ? "-" : "±");
+  return `<span class="diff ${cls}">${sign}${fmtNum(Math.abs(d))}${unit}</span>`;
+}
+
+/* --- 人型ヒートマップ（自作SVG・前面/背面） --- */
+const HEAT_SIL = '<g fill="#161618" stroke="#2c2c31" stroke-width="1">'
+  +'<circle cx="100" cy="26" r="16"/>'
+  +'<path d="M92,40 h16 v12 h-16 z"/>'
+  +'<path d="M58,52 L142,52 L138,105 L128,160 L132,178 L68,178 L72,160 L62,105 Z"/>'
+  +'<path d="M56,54 C46,58 42,70 42,80 L38,125 L30,170 L42,174 L50,126 L56,90 Z"/>'
+  +'<path d="M144,54 C154,58 158,70 158,80 L162,125 L170,170 L158,174 L150,126 L144,90 Z"/>'
+  +'<path d="M68,178 L64,265 L68,330 L64,395 L84,395 L88,330 L92,265 L96,178 Z"/>'
+  +'<path d="M104,178 L108,265 L112,330 L116,395 L136,395 L132,330 L128,265 L132,178 Z"/>'
+  +'</g>';
+const HEAT_SHAPES = {
+  front: [
+    ["chest",      '<path d="M68,62 Q95,60 97,72 L97,98 Q80,106 66,94 Z"/><path d="M132,62 Q105,60 103,72 L103,98 Q120,106 134,94 Z"/>'],
+    ["front_delt", '<ellipse cx="61" cy="57" rx="8" ry="8"/><ellipse cx="139" cy="57" rx="8" ry="8"/>'],
+    ["side_delt",  '<ellipse cx="47" cy="66" rx="9" ry="12"/><ellipse cx="153" cy="66" rx="9" ry="12"/>'],
+    ["abs",        '<rect x="84" y="104" width="32" height="64" rx="8"/>'],
+    ["biceps",     '<ellipse cx="45" cy="103" rx="8" ry="18"/><ellipse cx="155" cy="103" rx="8" ry="18"/>'],
+    ["forearms",   '<ellipse cx="37" cy="147" rx="7" ry="20"/><ellipse cx="163" cy="147" rx="7" ry="20"/>'],
+    ["quads",      '<ellipse cx="79" cy="225" rx="13" ry="38"/><ellipse cx="121" cy="225" rx="13" ry="38"/>'],
+    ["calves",     '<ellipse cx="75" cy="315" rx="8" ry="25"/><ellipse cx="125" cy="315" rx="8" ry="25"/>']
+  ],
+  back: [
+    ["mid_back",   '<path d="M100,46 L78,58 L92,90 L100,98 L108,90 L122,58 Z"/>'],
+    ["rear_delt",  '<ellipse cx="50" cy="64" rx="10" ry="12"/><ellipse cx="150" cy="64" rx="10" ry="12"/>'],
+    ["lats",       '<path d="M66,92 Q62,122 80,150 L96,158 L96,102 Q80,98 66,92 Z"/><path d="M134,92 Q138,122 120,150 L104,158 L104,102 Q120,98 134,92 Z"/>'],
+    ["lower_back", '<rect x="94" y="110" width="12" height="56" rx="4"/>'],
+    ["triceps",    '<ellipse cx="45" cy="103" rx="8" ry="18"/><ellipse cx="155" cy="103" rx="8" ry="18"/>'],
+    ["glutes",     '<ellipse cx="84" cy="192" rx="15" ry="14"/><ellipse cx="116" cy="192" rx="15" ry="14"/>'],
+    ["hams",       '<ellipse cx="79" cy="244" rx="12" ry="32"/><ellipse cx="121" cy="244" rx="12" ry="32"/>'],
+    ["calves",     '<ellipse cx="76" cy="314" rx="9" ry="26"/><ellipse cx="124" cy="314" rx="9" ry="26"/>']
+  ]
+};
+
+/* --- 状態（分析タブ表示ごとにデータは再計算） --- */
+let anaMode = 1;       // 1=今週セット数 2=累計総重量 3=成長度（重量ベース）
+let anaSel = null;     // 選択中の部位
+let anaCalPrev = false;// カレンダー: 前月表示中か
+
+function renderAnalyze(){
+  anaStats();
+  anaVolChart();
+  anaExSelector();
+  anaExChart();
+  anaPR();
+  anaWeekBars();
+  anaCalendar();
+  anaHeat();
+  renderHistory();
+  const h = loadHistory();
+  const rangeEl = document.getElementById("ana-range");
+  if(h.length){
+    rangeEl.textContent = "PERFORMANCE ／ " + h[0].date.replace(/-/g,".") + " – " + h[h.length-1].date.replace(/-/g,".");
+  }else{
+    rangeEl.textContent = "PERFORMANCE";
+  }
+}
+
+/* 1. 統計カード */
+function anaStats(){
+  const h = loadHistory();
+  const now = Date.now(), ws = weekStartOf(now), pws = ws - 7*86400000;
+  const inRange = (s,a,b)=>{ const t=sessTime(s); return t>=a && t<b; };
+  const thisW = h.filter(s=>inRange(s,ws,ws+7*86400000));
+  const prevW = h.filter(s=>inRange(s,pws,ws));
+  const twVol = thisW.reduce((a,s)=>a+sessionVolume(s).volRaw,0);
+  const pwVol = prevW.reduce((a,s)=>a+sessionVolume(s).volRaw,0);
+  const last = h.length ? h[h.length-1] : null;
+  const lastMin = last ? sessionDuration(last) : null;
+  let prevMin=null; for(let i=h.length-2;i>=0;i--){ const m=sessionDuration(h[i]); if(m!=null){ prevMin=m; break; } }
+  let lastKcal=null, lastKcalDate=null, prevKcal=null;
+  for(let i=h.length-1;i>=0;i--){ const k=sessionKcal(h[i]); if(k!=null){ if(lastKcal==null){ lastKcal=k; lastKcalDate=h[i].date; } else { prevKcal=k; break; } } }
+  const ICONS = {
+    vol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>',
+    cnt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+    time:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.5"/></svg>',
+    kcal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M12 2c1 4-4 6-4 10a4 4 0 0 0 8 0c0-2-1-3-1-3s3 1 3 5a7 7 0 0 1-14 0c0-6 7-8 8-12z"/></svg>'
+  };
+  const foot1 = thisW.length ? thisW.map(s=>mdShort(s.date)+" "+s.menuKey).join(" + ")+" の合計" : "今週はまだ0回";
+  document.getElementById("ana-stats").innerHTML =
+    `<div class="stat"><div class="s-lab">${ICONS.vol}今週総重量</div>
+      <div class="s-val">${fmtNum(twVol)}<small>kg</small>${(thisW.length&&prevW.length)?diffSpan(Math.round(twVol-pwVol),"kg"):""}</div>
+      <div class="s-foot">${foot1}${prevW.length?"・前週比":""}</div></div>
+    <div class="stat"><div class="s-lab">${ICONS.cnt}今週トレ回数</div>
+      <div class="s-val">${thisW.length}<small>/3回</small>${diffSpan(thisW.length-prevW.length,"回")}</div>
+      <div class="s-foot">目標 週3回・前週${prevW.length}回</div></div>
+    <div class="stat"><div class="s-lab">${ICONS.time}直近の時間</div>
+      <div class="s-val">${lastMin!=null?lastMin:"—"}<small>${lastMin!=null?"分":""}</small>${(lastMin!=null&&prevMin!=null)?diffSpan(lastMin-prevMin,"分"):""}</div>
+      <div class="s-foot">${last?mdShort(last.date)+" "+last.menuKey+(lastMin==null?"（時間記録なし）":"・前回比"):"履歴なし"}</div></div>
+    <div class="stat"><div class="s-lab">${ICONS.kcal}直近の推定kcal</div>
+      <div class="s-val">${lastKcal!=null?lastKcal:"—"}<small>${lastKcal!=null?"kcal":""}</small>${(lastKcal!=null&&prevKcal!=null)?diffSpan(lastKcal-prevKcal,""):""}</div>
+      <div class="s-foot">${lastKcal!=null?mdShort(lastKcalDate)+"・時間×強度法（±30%目安）":"（seeded記録はkcal算出不可）"}</div></div>`;
+}
+
+/* 2. 総重量推移（棒・A/B色分け・横スクロール） */
+function anaVolChart(){
+  const h = loadHistory();
+  const chart = document.getElementById("ana-vol-chart");
+  const xl = document.getElementById("ana-vol-xlabs");
+  if(!h.length){ chart.innerHTML='<p class="sub" style="align-self:center; margin:auto;">まだ履歴がありません。</p>'; xl.innerHTML=""; return; }
+  const vols = h.map(s=>sessionVolume(s).volRaw);
+  const max = Math.max.apply(null, vols) || 1;
+  // 直近セッションの「同メニュー前回」との差
+  let lastDiff=null;
+  const lastS=h[h.length-1];
+  for(let i=h.length-2;i>=0;i--){ if(h[i].menuKey===lastS.menuKey){ lastDiff=Math.round(vols[h.length-1]-vols[i]); break; } }
+  let bars="", labs="";
+  const grids=[0.25,0.5,0.75,1].map(f=>`<div class="grid" style="bottom:${f*180}px;"><span>${fmtNum(max*f)}</span></div>`).join("");
+  h.forEach((s,i)=>{
+    const hpx=Math.max(3, Math.round(vols[i]/max*180));
+    const isLast=(i===h.length-1);
+    const diffTag=(isLast&&lastDiff!=null)?`<span class="bdiff${lastDiff<0?" down":""}">同${lastS.menuKey}前回比 ${lastDiff>=0?"+":"-"}${fmtNum(Math.abs(lastDiff))}kg</span>`:"";
+    bars+=`<div class="bcol" title="${s.date} ${s.menuKey}：${fmtNum(vols[i])}kg">${diffTag}<span class="bval">${fmtNum(vols[i])}</span><div class="bar ${s.menuKey==="A"?"A":"B"}${isLast?" hot":""}" style="height:${hpx}px;"></div></div>`;
+    labs+=`<div class="xlab" style="width:56px; flex:none;">${mdShort(s.date)}<b>${s.menuKey}</b></div>`;
+  });
+  chart.innerHTML = grids + bars;
+  xl.innerHTML = labs;
+  const sc=document.getElementById("ana-vol-scroll"); sc.scrollLeft = sc.scrollWidth;
+}
+
+/* 3. 種目別推移（折れ線=最大kg／薄い棒=ボリューム・停滞マーク） */
+function anaExSelector(){
+  const sel = document.getElementById("ana-ex-sel");
+  const names = allExerciseNames();
+  const cur = sel.value;
+  sel.innerHTML = names.map(n=>`<option value="${n}">${n}</option>`).join("");
+  if(names.indexOf(cur)>=0) sel.value=cur;
+}
+function anaExChange(){ anaExChart(); }
+function anaExChart(){
+  const name = document.getElementById("ana-ex-sel").value;
+  const box = document.getElementById("ana-ex-chart");
+  const stallEl = document.getElementById("ana-ex-stall");
+  if(!name){ box.innerHTML='<p class="sub">まだ履歴がありません。</p>'; stallEl.innerHTML=""; return; }
+  const pts = exerciseSeries(name);
+  stallEl.innerHTML = stallInfo(name) ? '<span class="stall-tag">停滞</span><span class="muted" style="margin-left:8px;">直近3回 同じ最大' + (pts.length&&pts[pts.length-1].bw?"回数":"kg") + '・回数上限未達</span>' : "";
+  if(!pts.length){ box.innerHTML='<p class="sub">この種目の記録はまだありません。</p>'; return; }
+  const bw = pts[pts.length-1].bw;
+  const vals = pts.map(p=>bw?p.maxReps:(p.maxKg!=null?p.maxKg:0));
+  const vols = pts.map(p=>bw?(isChinup(name)?p.vol:p.reps):p.vol);
+  const vmax=Math.max.apply(null,vals)||1, vmin=Math.min.apply(null,vals);
+  const bmax=Math.max.apply(null,vols)||1;
+  const n=pts.length, step=54, padL=40, padR=16, padT=22, padB=30, H=230;
+  const W=padL+padR+Math.max(1,n-1)*step+40;
+  const plotH=H-padT-padB;
+  const yOf=v=>{ const lo=Math.max(0,vmin-(vmax-vmin||1)*0.3), hi=vmax+(vmax-vmin||1)*0.15; return padT+plotH-(v-lo)/(hi-lo||1)*plotH; };
+  const xOf=i=>padL+20+i*step;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  svg+=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#333338" stroke-width="1"/>`;
+  pts.forEach((p,i)=>{ // 薄い棒＝ボリューム
+    const bh=Math.max(2, vols[i]/bmax*(plotH*0.85));
+    svg+=`<rect x="${xOf(i)-9}" y="${H-padB-bh}" width="18" height="${bh}" fill="#d7ff00" fill-opacity="0.16"><title>${p.date}：${bw&&!isChinup(name)?fmtNum(vols[i])+"回":fmtNum(vols[i])+"kg"}（ボリューム）</title></rect>`;
+  });
+  svg+=`<polyline fill="none" stroke="#d7ff00" stroke-width="2.5" points="${pts.map((p,i)=>xOf(i)+","+yOf(vals[i])).join(" ")}"/>`;
+  pts.forEach((p,i)=>{
+    svg+=`<circle cx="${xOf(i)}" cy="${yOf(vals[i])}" r="4" fill="#d7ff00"><title>${p.date} ${p.menuKey}：最大${bw?vals[i]+"回":vals[i]+"kg"}</title></circle>`;
+    svg+=`<text x="${xOf(i)}" y="${yOf(vals[i])-9}" text-anchor="middle" font-size="11" font-style="italic" font-weight="700" fill="#f2f2f0" font-family="Bahnschrift,Arial Narrow,sans-serif">${vals[i]}</text>`;
+    svg+=`<text x="${xOf(i)}" y="${H-padB+16}" text-anchor="middle" font-size="10" fill="#5c5c62" font-family="Bahnschrift,Arial Narrow,sans-serif">${mdShort(p.date)}</text>`;
+  });
+  svg+=`<text x="${padL}" y="14" font-size="10" fill="#5c5c62" font-family="Bahnschrift,Arial Narrow,sans-serif">折れ線＝セッション最大${bw?"回数（自重）":"使用kg"}／薄い棒＝ボリューム</text>`;
+  svg+="</svg>";
+  box.innerHTML=svg;
+  box.scrollLeft = box.scrollWidth;
+}
+
+/* 4. PR（自己ベスト）一覧 */
+function anaPR(){
+  const rows = prTable();
+  const el = document.getElementById("ana-pr");
+  if(!rows.length){ el.innerHTML='<tr><td class="sub">まだ記録がありません。</td></tr>'; return; }
+  el.innerHTML = '<tr><th>種目</th><th>自己ベスト</th><th>日付</th></tr>' + rows.map(r=>
+    `<tr><td>${r.name}</td><td class="v">${r.kg!=null?(r.kg+"<small>kg</small> × "+r.reps+"<small>回</small>"):("自重 × "+r.reps+"<small>回</small>")}</td><td class="d">${r.date}</td></tr>`
+  ).join("");
+}
+
+/* 5. 部位別・今週セット数バー（推奨帯10-20） */
+function anaWeekBars(){
+  const ws = weeklySets(weekStartOf(Date.now()));
+  const maxV = Math.max(25, Math.ceil(Math.max.apply(null, MUSCLE_ORDER.map(k=>ws[k]||0))+2));
+  document.getElementById("ana-ws-bars").innerHTML = MUSCLE_ORDER.map(k=>{
+    const v = ws[k]||0;
+    const cls = v>20 ? "over" : (v>=10 ? "ok" : "");
+    return `<div class="wsrow"><span class="wlab">${MUSCLES[k].jp}</span>
+      <div class="wstrack"><span class="band" style="left:${10/maxV*100}%; width:${10/maxV*100}%;"></span><span class="wbar ${cls}" style="width:${Math.min(100, v/maxV*100)}%;"></span></div>
+      <span class="wval">${fmtSets(v)}<small> セット</small></span></div>`;
+  }).join("");
+}
+
+/* 6. 月間カレンダー（当月⇄前月ボタン1つ） */
+function anaToggleCal(){ anaCalPrev = !anaCalPrev; anaCalendar(); }
+function anaCalendar(){
+  const today = new Date();
+  let y = today.getFullYear(), m = today.getMonth();
+  if(anaCalPrev){ m--; if(m<0){ m=11; y--; } }
+  const data = calendarData(y,m);
+  document.getElementById("ana-cal-title").textContent = y+"年"+(m+1)+"月";
+  const first = new Date(y,m,1).getDay(); // 日曜はじまり表示（集計は月曜週）
+  const days = new Date(y,m+1,0).getDate();
+  const isThisMonth = (y===today.getFullYear() && m===today.getMonth());
+  let html = '<tr><th class="sun">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sat">土</th></tr><tr>';
+  for(let i=0;i<first;i++) html+='<td class="off"></td>';
+  let col=first;
+  for(let d=1;d<=days;d++){
+    const keys=(data[d]||[]).filter((v,i,a)=>a.indexOf(v)===i).sort();
+    const dots=keys.map((k,i)=>`<span class="dot ${k}${i>0?" B2":""}"></span>`).join("");
+    const lab=keys.length?`<span class="dt-lab">${keys.join("+")}</span>`:"";
+    const todayCls=(isThisMonth && d===today.getDate())?' class="today"':"";
+    html+=`<td${todayCls}><span class="dnum">${d}</span>${dots}${lab}</td>`;
+    col++; if(col===7 && d<days){ html+="</tr><tr>"; col=0; }
+  }
+  for(;col<7 && col>0;col++) html+='<td class="off"></td>';
+  html+="</tr>";
+  document.getElementById("ana-cal").innerHTML = html;
+  const cnt = Object.keys(data).reduce((a,d)=>a+data[d].length,0);
+  document.getElementById("ana-cal-side").innerHTML =
+    `<div class="cs-kick">This Month</div>
+     <div class="cs-num"><em>${cnt}</em><small> 回</small></div>
+     <p>${(m+1)}月のトレーニング実績。<br>週3ペースで月間12回前後が目安。</p>
+     <div class="cs-legend">
+       <span><i style="background:var(--acc);"></i>A 押す・脚</span>
+       <span><i style="background:var(--white);"></i>B 引く・脚</span>
+       <span><i style="background:transparent; border:1px solid var(--acc);"></i>今日</span>
+     </div>
+     <button class="calbtn" onclick="anaToggleCal()">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="${anaCalPrev?"M9 5l7 7-7 7":"M15 5l-7 7 7 7"}"/></svg>
+       ${anaCalPrev?"今の月に戻る":"前の月を見る"}
+     </button>`;
+}
+
+/* 7. 人型ヒートマップ（3モード＋部位クリック詳細） */
+function anaSetMode(m){ anaMode=m; anaHeat(); }
+function anaSelMuscle(k){ anaSel=(anaSel===k?null:k); anaHeat(); }
+function anaHeatData(){
+  const ws = weeklySets(weekStartOf(Date.now()));
+  const totals = muscleTotals();
+  const growth = growthData();
+  return {ws:ws, totals:totals, growth:growth};
+}
+function anaHeatOpacity(k, D){
+  if(anaMode===1){
+    const v=D.ws[k]||0;
+    if(v<=0) return 0.06;
+    if(v<10) return 0.14 + v/10*0.30;
+    if(v<=20) return 0.60 + (v-10)/10*0.28;
+    return 0.97;
+  }
+  if(anaMode===2){
+    const t=D.totals[k]; const v=t?(t.kg>0?t.kg:t.reps):0;
+    let max=1; MUSCLE_ORDER.forEach(x=>{ const o=D.totals[x]; if(o) max=Math.max(max, o.kg>0?o.kg:o.reps); });
+    return v>0 ? 0.12 + 0.80*Math.log(1+v)/Math.log(1+max) : 0.06;
+  }
+  const p=D.growth.byMuscle[k];
+  if(p==null) return 0.06;
+  if(p<=0) return 0.10;
+  return Math.min(0.97, 0.20 + p/60*0.77);
+}
+function anaHeatTitle(k, D){
+  const jp=MUSCLES[k].jp;
+  if(anaMode===1) return jp+" — 今週"+fmtSets(D.ws[k]||0)+"セット";
+  if(anaMode===2){
+    const t=D.totals[k];
+    if(!t || (!t.kg && !t.reps)) return jp+" — 累計0kg";
+    return jp + (t.kg>0 ? " — 累計"+fmtNum(t.kg)+"kg" : " — 累計"+fmtNum(t.reps)+"回（自重・回数）");
+  }
+  const p=D.growth.byMuscle[k];
+  return jp + (p==null ? " — 成長度 データ不足" : " — 成長度（重量ベース）"+(p>0?"+":"")+p+"%");
+}
+function anaHeat(){
+  const D = anaHeatData();
+  const build = side => {
+    let g="";
+    HEAT_SHAPES[side].forEach(pair=>{
+      const k=pair[0];
+      g+=`<g class="muscle${anaSel===k?" sel":""}" data-m="${k}" fill-opacity="${anaHeatOpacity(k,D).toFixed(2)}">${pair[1]}<title>${anaHeatTitle(k,D)}</title></g>`;
+    });
+    return `<svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">${HEAT_SIL}<g fill="#d7ff00" stroke="rgba(215,255,0,.35)" stroke-width="1">${g}</g></svg>`;
+  };
+  document.getElementById("ana-fig-front").innerHTML = build("front");
+  document.getElementById("ana-fig-back").innerHTML  = build("back");
+  ["ana-fig-front","ana-fig-back"].forEach(id=>{
+    document.getElementById(id).querySelectorAll("g.muscle").forEach(el=>{
+      el.onclick = ()=>anaSelMuscle(el.getAttribute("data-m"));
+    });
+  });
+  [1,2,3].forEach(m=>document.getElementById("ana-mode-"+m).classList.toggle("on", anaMode===m));
+  // 凡例
+  const leg = document.getElementById("ana-heat-legend");
+  if(anaMode===1){
+    leg.innerHTML = '少 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 多　筋肥大の目安＝週10-20セット/部位（0=消灯・1-9=薄・10-20=適正・21+=濃）';
+  }else if(anaMode===2){
+    leg.innerHTML = '少 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 多　全期間の累計総重量（対数濃淡・主働1.0/副次0.5・自重腹は回数）';
+  }else{
+    leg.innerHTML = '低 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 高　成長度（重量ベース）＝初回kg→最新kgの伸び率（自重は回数）。筋肉量そのものではありません';
+  }
+  anaDetail(D);
+}
+function anaDetail(D){
+  const box = document.getElementById("ana-detail");
+  if(!anaSel){
+    box.innerHTML = '<div class="d-kick">Selected Muscle</div><h3 style="color:var(--txt3);">部位を選択<small>CLICK A MUSCLE</small></h3><p class="sub" style="margin-top:14px;">人型の部位をクリックすると、今週セット数・累計重量・担当種目・成長度を表示します。</p>';
+    return;
+  }
+  const k = anaSel, mi = MUSCLES[k];
+  const t = D.totals[k] || {kg:0,reps:0};
+  const g = D.growth.byMuscle[k];
+  // 担当種目（主働/副次）＋現在目安kg＋最終実施日
+  const exRows = [];
+  allExerciseNames().forEach(n=>{
+    const m = muscleOf(n, "");
+    const role = m.pri.indexOf(k)>=0 ? "主" : (m.sec.indexOf(k)>=0 ? "副" : null);
+    if(!role) return;
+    let def=null; ["A","B"].forEach(x=>{ if(!def) def=MENUS[x].exercises.find(e=>e.name===n); });
+    const kgTxt = def ? (def.bodyweight ? "自重" : "目安"+targetFor(def)+"kg") : "—";
+    let lastD=null; const h=loadHistory();
+    for(let i=h.length-1;i>=0;i--){ const ex=(h[i].exercises||[]).find(e=>e.name===n&&!e.wu); if(ex&&(ex.records||[]).filter(r=>r).length){ lastD=h[i].date; break; } }
+    exRows.push(`<div class="d-exrow"><span class="n">${role==="主"?"●":"○"} ${n}</span><span class="m">${kgTxt}・最終${lastD?mdShort(lastD):"—"}</span></div>`);
+  });
+  const kgLine = t.kg>0 ? fmtNum(t.kg)+'<small> kg</small>' : (t.reps>0 ? fmtNum(t.reps)+'<small> 回（自重）</small>' : '0<small> kg</small>');
+  box.innerHTML =
+    `<div class="d-kick">Selected Muscle</div>
+     <h3>${mi.jp}<small>${mi.en}</small></h3>
+     <div class="d-rows">
+       <div class="d-row"><span class="k">今週セット数</span><span class="v acc">${fmtSets(D.ws[k]||0)}<small> セット</small></span></div>
+       <div class="d-row"><span class="k">累計挙上重量</span><span class="v">${kgLine}</span></div>
+       <div class="d-row"><span class="k">成長度（重量ベース）</span><span class="v">${g!=null?((g>0?"+":"")+g+"<small> %</small>"):"—"}</span></div>
+     </div>
+     <div class="d-exs">${exRows.length?exRows.join(""):'<div class="d-exrow"><span class="n">担当種目なし</span></div>'}</div>`;
 }
 
 /* ===================== RESUME ===================== */
