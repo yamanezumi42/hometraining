@@ -7,6 +7,7 @@
 import io
 import json
 import os
+import re
 import subprocess
 import threading
 
@@ -20,7 +21,9 @@ TITLE = "自宅トレ"
 KB_DIR = r"C:\Users\PC_User\Desktop\Claude\knowledge-base"
 DATA_PATH = os.path.join(KB_DIR, "06_ツール・環境", "hometraining.json")
 MD_PATH = os.path.join(KB_DIR, "04_日常・生活", "トレーニングログ_2026.md")
-MD_ANCHOR = "## 記録"  # この見出しの後・最初の "### " 日付ブロックの直前に挿入する
+# 「## 記録」見出し（行頭・##ちょうど2個）の後、最初の "### " 日付ブロックの直前に挿入する。
+# ⚠️部分文字列検索は禁止：「### 記録アプリ」等の見出しに誤マッチする（2026-07-19レビューBUG-1）。
+MD_ANCHOR_RE = re.compile(r"(?m)^## 記録.*$")
 
 
 class Api:
@@ -62,20 +65,18 @@ class Api:
                 with io.open(self._md_path, "r", encoding="utf-8") as f:
                     text = f.read()
                 block = block.rstrip() + "\n"
-                anchor_i = text.find(MD_ANCHOR)
-                if anchor_i >= 0:
-                    first_block = text.find("\n### ", anchor_i)
-                    if first_block >= 0:
-                        new_text = text[:first_block + 1] + block + "\n" + text[first_block + 1:]
-                    else:
-                        new_text = text.rstrip() + "\n\n" + block
+                m = MD_ANCHOR_RE.search(text)
+                anchor_i = m.start() if m else -1
+                first_block = text.find("\n### ", m.end()) if m else -1
+                if m and first_block >= 0:
+                    new_text = text[:first_block + 1] + block + "\n" + text[first_block + 1:]
                 else:
                     new_text = text.rstrip() + "\n\n" + block
                 tmp = self._md_path + ".tmp"
                 with io.open(tmp, "w", encoding="utf-8") as f:
                     f.write(new_text)
                 os.replace(tmp, self._md_path)
-            return {"ok": True, "anchored": anchor_i >= 0}
+            return {"ok": True, "anchored": bool(m and first_block >= 0)}
         except Exception as e:
             return {"ok": False, "error": repr(e)}
 

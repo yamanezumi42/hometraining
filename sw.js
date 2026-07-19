@@ -1,4 +1,4 @@
-const CACHE = "ht-v3-0a3";
+const CACHE = "ht-v3-0a4";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", e => {

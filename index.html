@@ -840,7 +840,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v3.0-a3 (2026-07-19) 設定タブ実装";
+const APP_VERSION = "v3.0-a4 (2026-07-19) 敵対レビュー6件+2件修正";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -919,7 +919,8 @@ function settings(){
   return DEFAULT_SETTINGS;
 }
 function saveSettings(obj){
-  if(PYW && STORE){ STORE.settings = obj; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  if(PYW && STORE){ STORE.settings = obj; try{ pywebview.api.save_data(STORE); }catch(e){}
+    try{ localStorage.setItem(LS_SET, JSON.stringify(obj)); }catch(e){} return; } // 端末ミラー（KB保存失敗時の保険）
   try{ localStorage.setItem(LS_SET, JSON.stringify(obj)); }catch(e){}
 }
 /* メニュー編集の上書き（設定タブ）：PYW→STORE.menus／ブラウザ→localStorage ht_menus_v1。あれば丸ごと使う */
@@ -931,7 +932,8 @@ function menusOverride(){
   return _menusOv;
 }
 function saveMenus(m){
-  if(PYW && STORE){ STORE.menus = m; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  if(PYW && STORE){ STORE.menus = m; try{ pywebview.api.save_data(STORE); }catch(e){}
+    try{ if(m) localStorage.setItem(LS_MENUS, JSON.stringify(m)); else localStorage.removeItem(LS_MENUS); }catch(e){} return; } // 端末ミラー
   _menusOv = m;
   try{ if(m) localStorage.setItem(LS_MENUS, JSON.stringify(m)); else localStorage.removeItem(LS_MENUS); }catch(e){}
 }
@@ -944,7 +946,8 @@ function loadHistory(){
   try{ return JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){ return []; }
 }
 function saveHistory(arr){
-  if(PYW){ STORE.history = arr; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  if(PYW){ STORE.history = arr; try{ pywebview.api.save_data(STORE); }catch(e){}
+    try{ localStorage.setItem(LS_HIST, JSON.stringify(arr)); }catch(e){} return; } // 端末ミラー＝KB保存失敗でもセッションを失わない（レビューBUG-3）
   try{ localStorage.setItem(LS_HIST, JSON.stringify(arr)); }catch(e){}
 }
 /* 目安kgの上書き（漸進エンジンが更新・種目名キー＝A/B共有種目は自動で同期） */
@@ -953,7 +956,8 @@ function loadTargets(){
   try{ return JSON.parse(localStorage.getItem(LS_TGT))||{}; }catch(e){ return {}; }
 }
 function saveTargets(t){
-  if(PYW){ STORE.targets = t; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  if(PYW){ STORE.targets = t; try{ pywebview.api.save_data(STORE); }catch(e){}
+    try{ localStorage.setItem(LS_TGT, JSON.stringify(t)); }catch(e){} return; } // 端末ミラー
   try{ localStorage.setItem(LS_TGT, JSON.stringify(t)); }catch(e){}
 }
 function targetFor(e){
@@ -964,8 +968,15 @@ async function initPyStorage(){
   try{
     if(!(window.pywebview && pywebview.api && pywebview.api.load_data)) return;
     let d = await pywebview.api.load_data();
-    if(!d || d.error || !Array.isArray(d.history)){
-      // 初回＝localStorage（シード済み）から移行してKBへ
+    if(d && (d.error || !Array.isArray(d.history))){
+      // KBファイルは存在するのに読めない/壊れている＝絶対に上書きしない（レビューBUG-2）。
+      // 端末保存モード（localStorage）に退避して記録は守る。
+      const v = document.getElementById("verline");
+      if(v) v.textContent = APP_VERSION + "　[!] KB読込エラー：端末保存モードで動作中（記録は消えません。Claudeに伝えてください）";
+      return;
+    }
+    if(!d){
+      // 真の初回（ファイル無し）＝localStorage（シード済み）から移行してKBへ
       let ls = []; try{ ls = JSON.parse(localStorage.getItem(LS_HIST))||[]; }catch(e){}
       let tg = {}; try{ tg = JSON.parse(localStorage.getItem(LS_TGT))||{}; }catch(e){}
       d = { schema:3, settings: DEFAULT_SETTINGS, targets: tg, history: ls };
@@ -1037,7 +1048,8 @@ function buildSteps(exs){
         // B: 休憩中にA・Bをまとめて記録
         if(s<=exs[b].sets){
           const rec=[]; if(s<=exs[a].sets) rec.push({exI:a,setNum:s}); rec.push({exI:b,setNum:s});
-          steps.push({showEx:b, setNum:s, restAfter:exs[b].rest, ss:e.ss, record:rec});
+          steps.push({showEx:b, setNum:s, restAfter:exs[b].rest, ss:e.ss, record:rec,
+            recordAll:rec.map(x=>({exI:x.exI,setNum:x.setNum}))}); // skip→戻るの復元用（レビューBUG-4）
         }
       }
       i+=2;
@@ -1201,6 +1213,7 @@ function tick(){
 }
 function stopTimer(){ timer.running=false; timer.endAt=0; timer.lastBeep=-1; if(timer.id){clearInterval(timer.id); timer.id=null;} }
 function extendRest(s){
+  cancelAutoNext(); // 自動送りトースト中に±10秒を押したら送りを止める（レビュー指摘）
   if(timer.endAt < Date.now()) timer.endAt = Date.now();
   timer.endAt = Math.max(Date.now()+1000, timer.endAt + s*1000); // −10連打でも過去に落とさない(最低1秒)
   timer.running=true; timer.lastBeep=-1;
@@ -1266,7 +1279,8 @@ function readEntriesFor(exI){
   return sides.map(side=>{
     const kg = ex.bodyweight ? null : parseFloat((document.getElementById(inputId("kg",side,exI))||{}).value);
     const reps = parseFloat((document.getElementById(inputId("reps",side,exI))||{}).value);
-    return { side: side, kg: (isNaN(kg)?null:kg), reps: (isNaN(reps)?0:reps) };
+    // 直接タイプの異常値ガード：kgは3〜32へクランプ・回数は0〜99の整数（レビュー指摘）
+    return { side: side, kg: (isNaN(kg)?null:clampKg(kg)), reps: (isNaN(reps)?0:Math.min(99, Math.max(0, Math.round(reps)))) };
   });
 }
 function commitAndAdvance(){
@@ -1292,6 +1306,12 @@ function goBack(){
   curStep().record.forEach(rc=>{
     if(S.exercises[rc.exI].records) S.exercises[rc.exI].records[rc.setNum-1] = undefined;
   });
+  // スーパーセットA-stepをskip→戻ってやり直す場合、相方B-stepの記録対象にAを復元（レビューBUG-4）
+  const st0 = curStep();
+  if(st0.record.length===0 && st0.ss){
+    const nx = S.steps[S.stepIndex+1];
+    if(nx && nx.recordAll) nx.record = nx.recordAll.map(x=>({exI:x.exI,setNum:x.setNum}));
+  }
   saveCurrent(); renderReady(); show("ready");
 }
 function skipStep(){
@@ -1326,16 +1346,18 @@ function calcSummary(sess){
       });
     });
   });
-  const min = Math.max(1, Math.round(((sess.endedAt||Date.now()) - sess.startedAt)/60000));
+  const rawMin = Math.max(1, Math.round(((sess.endedAt||Date.now()) - sess.startedAt)/60000));
+  const min = Math.min(rawMin, 180); // 途中放置→翌日再開等の異常値ガード＝180分で頭打ち（レビューBUG-6）
   // 推定kcal＝運動(6.0METs)と休憩(2.0METs)を予定レスト合計で分割（Compendium準拠の時間×強度法・±30%目安）
   let restSec = 0; (sess.steps||[]).forEach(st=>{ restSec += (st.restAfter||0); });
   const restMin = Math.min(restSec/60, min*0.85);
   const actMin  = Math.max(min - restMin, min*0.15);
   const kcal = Math.round(1.05 * W * ((actMin/60)*6.0 + (restMin/60)*2.0));
-  return { volKg: Math.round(vol), bwReps, min, kcal };
+  return { volKg: Math.round(vol), bwReps, min, rawMin, kcal };
 }
 function summaryLine(sum){
-  return `合計: 総重量${sum.volKg}kg（懸垂=体重換算）・${sum.min}分・推定${sum.kcal}kcal`;
+  const capped = (sum.rawMin!=null && sum.rawMin>sum.min) ? `（実測${sum.rawMin}分＝放置込みのため180分で計上）` : "";
+  return `合計: 総重量${sum.volKg}kg（懸垂=体重換算）・${sum.min}分${capped}・推定${sum.kcal}kcal`;
 }
 /* ダブルプログレッション自動判定：全セットで回数上限→+1kg／下限割れ→据置(見直し)／それ以外→据置 */
 function computeProgression(sess){
@@ -1371,7 +1393,8 @@ function buildMdBlock(sess, sum, progs){
     if(!recs.length) return;
     out += `- ${ex.name} ${recs.map(r=>fmtEntries(r.entries)).join(" / ")}\n`;
   });
-  out += `- 合計：総重量 ${sum.volKg}kg（懸垂=体重${settings().bodyWeightKg}kg換算・自重腹は回数のみ）・${sum.min}分・推定${sum.kcal}kcal\n`;
+  const capped = (sum.rawMin!=null && sum.rawMin>sum.min) ? `（実測${sum.rawMin}分＝放置込み・180分で計上）` : "";
+  out += `- 合計：総重量 ${sum.volKg}kg（懸垂=体重${settings().bodyWeightKg}kg換算・自重腹は回数のみ）・${sum.min}分${capped}・推定${sum.kcal}kcal\n`;
   const ups = progs.filter(p=>p.to>p.kg);
   out += `- 次回漸進（アプリ自動判定）：` + (ups.length ? ups.map(p=>`${p.name} ${p.kg}→${p.to}kg`).join("・") + `／他は据置` : `全種目据置`) + `\n`;
   return out;
@@ -1402,11 +1425,11 @@ function finishWorkout(){
     pywebview.api.finish_session(STORE, buildMdBlock(S, sum, progs), `トレ記録 ${S.date} ${S.label}（アプリ自動）`)
       .then(r=>{
         const g=(r&&r.git)||{};
-        syncEl.textContent = (r&&r.save&&r.save.ok?"KBへ保存OK":"KB保存失敗（要確認）")
+        syncEl.textContent = (r&&r.save&&r.save.ok?"KBへ保存OK":"KB保存失敗（記録はこの端末に保持・Claudeに伝えてください）")
           + (r&&r.md&&r.md.ok?"・ログ追記OK":"・ログ追記失敗")
-          + (g.pushed?"・GitHubへpush済み":(g.committed?"・commit済み(push失敗=次回持越し)":""));
+          + (g.pushed?"・GitHubへpush済み":(g.committed?"・commit済み(push失敗=次回持越し)":(g.ok===false?"・git失敗":"")));
       })
-      .catch(e=>{ syncEl.textContent="KB同期エラー（記録は端末に保存済み）"; });
+      .catch(e=>{ syncEl.textContent="KB同期エラー（記録はこの端末に保持されています。Claudeに伝えてください）"; });
   }else{
     syncEl.textContent = "（ブラウザ動作＝この端末にのみ保存。正本はPC版）";
   }
@@ -1804,7 +1827,7 @@ function anaExSelector(){
   const sel = document.getElementById("ana-ex-sel");
   const names = allExerciseNames();
   const cur = sel.value;
-  sel.innerHTML = names.map(n=>`<option value="${n}">${n}</option>`).join("");
+  sel.innerHTML = names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
   if(names.indexOf(cur)>=0) sel.value=cur;
 }
 function anaExChange(){ anaExChart(); }
@@ -1850,7 +1873,7 @@ function anaPR(){
   const el = document.getElementById("ana-pr");
   if(!rows.length){ el.innerHTML='<tr><td class="sub">まだ記録がありません。</td></tr>'; return; }
   el.innerHTML = '<tr><th>種目</th><th>自己ベスト</th><th>日付</th></tr>' + rows.map(r=>
-    `<tr><td>${r.name}</td><td class="v">${r.kg!=null?(r.kg+"<small>kg</small> × "+r.reps+"<small>回</small>"):("自重 × "+r.reps+"<small>回</small>")}</td><td class="d">${r.date}</td></tr>`
+    `<tr><td>${esc(r.name)}</td><td class="v">${r.kg!=null?(r.kg+"<small>kg</small> × "+r.reps+"<small>回</small>"):("自重 × "+r.reps+"<small>回</small>")}</td><td class="d">${r.date}</td></tr>`
   ).join("");
 }
 
@@ -1994,7 +2017,7 @@ function anaDetail(D){
     const kgTxt = def ? (def.bodyweight ? "自重" : "目安"+targetFor(def)+"kg") : "—";
     let lastD=null; const h=loadHistory();
     for(let i=h.length-1;i>=0;i--){ const ex=(h[i].exercises||[]).find(e=>e.name===n&&!e.wu); if(ex&&(ex.records||[]).filter(r=>r).length){ lastD=h[i].date; break; } }
-    exRows.push(`<div class="d-exrow"><span class="n">${role==="主"?"●":"○"} ${n}</span><span class="m">${kgTxt}・最終${lastD?mdShort(lastD):"—"}</span></div>`);
+    exRows.push(`<div class="d-exrow"><span class="n">${role==="主"?"●":"○"} ${esc(n)}</span><span class="m">${kgTxt}・最終${lastD?mdShort(lastD):"—"}</span></div>`);
   });
   const kgLine = t.kg>0 ? fmtNum(t.kg)+'<small> kg</small>' : (t.reps>0 ? fmtNum(t.reps)+'<small> 回（自重）</small>' : '0<small> kg</small>');
   box.innerHTML =
