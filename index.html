@@ -427,6 +427,90 @@
   .hist-row .hr-stats{display:flex; gap:16px; font-family:var(--cond); font-size:12px; color:var(--txt2); letter-spacing:.04em; white-space:nowrap;}
   .hist-row .hr-stats b{font-style:italic; font-size:14px; color:var(--txt);}
 
+  /* ============ SETTINGS TAB (Phase C) ============ */
+  .bw-row{display:flex; align-items:stretch; gap:10px; max-width:460px;}
+  .bw-row input{
+    width:150px; text-align:center; font-family:var(--cond); font-style:italic; font-weight:800; font-size:30px;
+    border:1px solid var(--line2); background:#0e0e10; color:var(--txt); padding:8px; min-width:0;
+  }
+  .bw-row input:focus{outline:none; border-color:var(--acc);}
+  .bw-row .unit{align-self:center; font-family:var(--cond); font-weight:700; font-size:15px; color:var(--txt2);}
+  .set-btn{
+    border:none; cursor:pointer; background:var(--acc); color:#000;
+    font-family:var(--cond); font-weight:800; font-style:italic; font-size:14px; letter-spacing:.12em;
+    padding:10px 22px; clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+    display:inline-flex; align-items:center; gap:8px; transition:filter .12s;
+  }
+  .set-btn:hover{filter:brightness(1.1);}
+  .set-btn:active{transform:translateY(1px);}
+  .set-btn svg{width:15px; height:15px; flex:none;}
+  .set-btn.ghost{background:var(--panel2); color:var(--txt2); border:1px solid var(--line2);}
+  .set-btn.ghost:hover{color:var(--txt); border-color:var(--acc); filter:none;}
+  .set-btn.warn{background:var(--red);}
+  .tgt-row{display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:10px 4px; border-bottom:1px solid var(--line);}
+  .tgt-row:last-child{border-bottom:none;}
+  .tgt-row .tname{font-size:13px; min-width:0;}
+  .tgt-row .tbw{font-family:var(--cond); font-size:12px; color:var(--txt3); letter-spacing:.08em;}
+  .tgt-step{display:flex; gap:6px; align-items:stretch;}
+  .tgt-step button{
+    width:42px; font-family:var(--cond); font-size:20px; font-weight:800; cursor:pointer;
+    border:1px solid var(--line2); background:var(--panel2); color:var(--acc);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .tgt-step button:active{background:#26262c;}
+  .tgt-step input{
+    width:68px; text-align:center; font-family:var(--cond); font-style:italic; font-weight:800; font-size:20px;
+    border:1px solid var(--line2); background:#0e0e10; color:var(--txt); padding:6px; min-width:0;
+  }
+  .tgt-step input:focus{outline:none; border-color:var(--acc);}
+  .ovmark{
+    display:inline-block; font-family:var(--cond); font-weight:800; font-style:italic; font-size:10px; letter-spacing:.12em;
+    color:var(--acc); border:1px solid var(--acc); padding:1px 7px; margin-left:8px;
+    clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  }
+  .linkbadge{
+    display:inline-block; font-family:var(--cond); font-weight:800; font-style:italic; font-size:10px; letter-spacing:.1em;
+    background:var(--white); color:#000; padding:2px 9px 2px 7px; margin-left:8px; cursor:help;
+    clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%);
+  }
+  .mex-row{display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--line);}
+  .mex-row .mi{font-family:var(--cond); font-style:italic; font-weight:800; font-size:15px; color:var(--txt3); width:22px; flex:none; text-align:right;}
+  .mex-row .mn{min-width:0; flex:1;}
+  .mex-row .mn b{font-family:var(--cond); font-style:italic; font-size:15px; letter-spacing:.03em;}
+  .mex-row .mmeta{font-size:11px; color:var(--txt3); margin-top:3px; line-height:1.5;}
+  .mex-row.wu{opacity:.65;}
+  .mex-row .mfix{font-family:var(--cond); font-size:11px; font-weight:700; letter-spacing:.16em; color:var(--txt3); flex:none;}
+  .mex-btns{display:flex; gap:6px; flex:none;}
+  .icon-btn{
+    width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+    border:1px solid var(--line2); background:var(--panel2); color:var(--txt2);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .icon-btn svg{width:15px; height:15px;}
+  .icon-btn:hover{color:var(--acc); border-color:var(--acc);}
+  .icon-btn:disabled{opacity:.25; pointer-events:none;}
+  .icon-btn.warn:hover{color:var(--red); border-color:var(--red);}
+  .set-form{
+    background:var(--panel2); border:1px solid var(--line2); padding:18px 20px; margin-top:14px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+  }
+  .set-form .sf-title{font-family:var(--cond); font-weight:800; font-style:italic; font-size:15px; letter-spacing:.08em; color:var(--acc); margin-bottom:10px;}
+  .sf-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .sf-grid .f-wide{grid-column:1 / -1;}
+  .set-in{
+    width:100%; background:#0e0e10; color:var(--txt); border:1px solid var(--line2); padding:9px 10px;
+    font-size:14px; font-family:var(--jp); -webkit-user-select:text; user-select:text;
+  }
+  .set-in:focus{outline:none; border-color:var(--acc);}
+  select.set-in{font-family:var(--cond); font-weight:700; letter-spacing:.04em;}
+  .set-in:disabled{opacity:.35;}
+  .chkline{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--txt2); cursor:pointer; user-select:none; padding-top:26px;}
+  .chkline input{width:17px; height:17px; accent-color:var(--acc); margin:0;}
+  .sf-btns{display:flex; gap:10px; margin-top:16px;}
+  .info-row{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:10px 4px; border-bottom:1px solid var(--line);}
+  .info-row .k{font-size:11px; color:var(--txt3); letter-spacing:.14em; font-family:var(--cond); font-weight:700; text-transform:uppercase; flex:none;}
+  .info-row .v{font-family:var(--cond); font-style:italic; font-weight:800; font-size:16px; text-align:right; min-width:0; overflow-wrap:anywhere;}
+  .info-row .v small{font-size:11px; color:var(--txt2); font-weight:700;}
   @media (max-width:900px){
     .menu-row{grid-template-columns:1fr;}
     .navitem{padding:0 16px;}
@@ -440,6 +524,10 @@
     .calwrap{grid-template-columns:1fr;}
     .wsrow{grid-template-columns:84px 1fr 56px;}
     .hist-row .hr-stats{gap:10px; font-size:11px;}
+    .sf-grid{grid-template-columns:1fr 1fr;}
+    .tgt-row{grid-template-columns:1fr auto; gap:8px;}
+    .tgt-row .set-btn{grid-column:2; justify-self:end;}
+    .chkline{padding-top:0;}
   }
 </style>
 </head>
@@ -485,8 +573,8 @@
     <div class="menu-card a">
       <div class="ghost">A</div>
       <div class="tag">MENU A</div>
-      <h2>押す・脚<span>PUSH ／ LEGS — 8種目</span></h2>
-      <ul>
+      <h2>押す・脚<span id="menu-sub-A">PUSH ／ LEGS — 8種目</span></h2>
+      <ul id="menu-ul-A">
         <li>ゴブレットスクワット</li><li>インクラインDBプレス</li><li>懸垂/チンアップ</li><li>サイドレイズ</li><li>他4種目</li>
       </ul>
       <button class="startbtn" onclick="startWorkout('A')">
@@ -497,8 +585,8 @@
     <div class="menu-card b">
       <div class="ghost">B</div>
       <div class="tag">MENU B</div>
-      <h2>引く・脚<span>PULL ／ LEGS — 8種目</span></h2>
-      <ul>
+      <h2>引く・脚<span id="menu-sub-B">PULL ／ LEGS — 8種目</span></h2>
+      <ul id="menu-ul-B">
         <li>ゴブレットスクワット</li><li>フラットDBプレス</li><li>懸垂/チンアップ</li><li>ワンハンドロウ</li><li>他4種目</li>
       </ul>
       <button class="startbtn" onclick="startWorkout('B')">
@@ -652,12 +740,61 @@
   </div>
 </div>
 
-<!-- ===== TAB: 設定（Phase Bで実装） ===== -->
+<!-- ===== TAB: 設定（Phase C） ===== -->
 <div id="tab-settings" class="tabpane">
   <div class="ana-head"><h1>設定</h1><span class="subk">SETTINGS</span></div>
+
+  <!-- 1. 体重 -->
   <div class="card">
-    <div class="card-head">準備中<span class="en">COMING&nbsp;SOON</span></div>
-    <p class="sub">体重・目安重量・休憩時間などの設定を次のアップデートで実装します。</p>
+    <div class="card-head">体重<span class="en">BODY&nbsp;WEIGHT</span></div>
+    <div class="bw-row">
+      <input id="set-bw" type="number" min="30" max="150" step="0.1" inputmode="decimal">
+      <span class="unit">kg</span>
+      <button class="set-btn" id="set-bw-save" onclick="setSaveBw(this)">保存</button>
+    </div>
+    <p class="note">懸垂の体重換算（総重量への計上）と推定kcalの計算に使われます（30〜150kg・0.1刻み）。</p>
+  </div>
+
+  <!-- 2. 目安重量 -->
+  <div class="card">
+    <div class="card-head">目安重量（次回の重量）<span class="en">TARGET&nbsp;KG</span></div>
+    <div id="set-tgt-list"></div>
+    <button class="set-btn warn" style="margin-top:16px;" onclick="setResetAllTargets()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M4 12a8 8 0 1 1 2.3 5.6M4 21v-5h5"/></svg>
+      全部初期値に戻す
+    </button>
+    <p class="note">次のトレ開始時の目安kgに反映されます（3〜32kg・1kg刻み）。トレ終了時の自動漸進でも更新されます。「初期値に戻す」＝メニュー定義の値に戻します。</p>
+  </div>
+
+  <!-- 3. メニュー編集 -->
+  <div class="card">
+    <div class="card-head">メニュー編集<span class="en">MENU&nbsp;EDITOR</span>
+      <span class="modeseg">
+        <button id="set-menu-A" class="on" onclick="setMenuTab('A')">A 押す・脚</button>
+        <button id="set-menu-B" onclick="setMenuTab('B')">B 引く・脚</button>
+      </span>
+    </div>
+    <div id="set-mex-list"></div>
+    <div class="small-row" style="margin-top:14px;">
+      <button onclick="setExAdd()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M12 5v14M5 12h14"/></svg>
+        種目を追加
+      </button>
+      <button onclick="setMenuReset()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M4 12a8 8 0 1 1 2.3 5.6M4 21v-5h5"/></svg>
+        このメニューを初期構成に戻す
+      </button>
+    </div>
+    <div id="set-ex-form" style="display:none;"></div>
+    <p class="note">編集は次のトレ開始から反映されます（進行中のトレは開始時にスナップショット済みのため影響なし）。WUセットは常に先頭固定・編集不可（目安kg＝ゴブレットスクワット目安の半分で自動計算）。</p>
+  </div>
+
+  <!-- 4. データ・同期 -->
+  <div class="card">
+    <div class="card-head">データ・同期<span class="en">DATA&nbsp;/&nbsp;SYNC</span></div>
+    <div id="set-data-info"></div>
+    <div id="set-data-actions" style="margin-top:14px;"></div>
+    <p class="note" id="set-sync-result"></p>
   </div>
 </div>
 
@@ -703,7 +840,7 @@ const MENUS = {
 };
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v3.0-a2 (2026-07-19) 分析タブ実装";
+const APP_VERSION = "v3.0-a3 (2026-07-19) 設定タブ実装";
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -761,6 +898,7 @@ function showTab(tab){
   const pane = document.getElementById("tab-"+tab);
   if(pane) pane.classList.add("active");
   if(tab==="analyze") renderAnalyze();
+  if(tab==="settings") renderSettings();
   window.scrollTo(0,0);
 }
 
@@ -773,7 +911,31 @@ const LS_TGT = "ht_targets_v1";
 let PYW = false;      // pywebview api が使えるか
 let STORE = null;     // PC時の正本キャッシュ {schema, settings, targets, history}
 const DEFAULT_SETTINGS = { bodyWeightKg: 60.2 };
-function settings(){ return (STORE && STORE.settings) || DEFAULT_SETTINGS; }
+const LS_SET = "ht_settings_v1";
+/* 設定の読み出し優先順：STORE.settings（PYW） → localStorage ht_settings_v1（ブラウザ） → DEFAULT_SETTINGS */
+function settings(){
+  if(STORE && STORE.settings) return STORE.settings;
+  try{ const s = JSON.parse(localStorage.getItem(LS_SET)); if(s && s.bodyWeightKg) return s; }catch(e){}
+  return DEFAULT_SETTINGS;
+}
+function saveSettings(obj){
+  if(PYW && STORE){ STORE.settings = obj; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  try{ localStorage.setItem(LS_SET, JSON.stringify(obj)); }catch(e){}
+}
+/* メニュー編集の上書き（設定タブ）：PYW→STORE.menus／ブラウザ→localStorage ht_menus_v1。あれば丸ごと使う */
+const LS_MENUS = "ht_menus_v1";
+let _menusOv; // undefined=未読込（ブラウザ時のキャッシュ）
+function menusOverride(){
+  if(PYW) return (STORE && STORE.menus) || null;
+  if(_menusOv===undefined){ try{ _menusOv = JSON.parse(localStorage.getItem(LS_MENUS)) || null; }catch(e){ _menusOv = null; } }
+  return _menusOv;
+}
+function saveMenus(m){
+  if(PYW && STORE){ STORE.menus = m; try{ pywebview.api.save_data(STORE); }catch(e){} return; }
+  _menusOv = m;
+  try{ if(m) localStorage.setItem(LS_MENUS, JSON.stringify(m)); else localStorage.removeItem(LS_MENUS); }catch(e){}
+}
+function effectiveMenus(){ const ov = menusOverride(); return ov ? {A:(ov.A||MENUS.A), B:(ov.B||MENUS.B)} : MENUS; }
 function saveCurrent(){ try{ localStorage.setItem(LS_CUR, JSON.stringify(S)); }catch(e){} }
 function clearCurrent(){ try{ localStorage.removeItem(LS_CUR); }catch(e){} }
 function loadCurrent(){ try{ return JSON.parse(localStorage.getItem(LS_CUR)); }catch(e){ return null; } }
@@ -839,10 +1001,13 @@ function todayStr(){
 }
 function startWorkout(menuKey){
   unlockAudio();
-  const menu = MENUS[menuKey];
+  const menu = effectiveMenus()[menuKey];
+  // WU目安＝ゴブレットスクワット現在目安の半分（動的・SQがメニューに無ければ10）
+  const sqDef = menu.exercises.find(x=>!x.wu && x.name==="ゴブレットスクワット");
+  const wuKg = sqDef ? Math.max(3, Math.round(targetFor(sqDef)/2)) : 10;
   // snapshot menu so later edits don't change history
   const exs = menu.exercises.map(e=>({
-    name:e.name, part:e.part, angle:e.angle||"", ss:e.ss||null, sets:e.sets, targetKg:targetFor(e),
+    name:e.name, part:e.part, angle:e.angle||"", ss:e.ss||null, sets:e.sets, targetKg:(e.wu ? wuKg : targetFor(e)),
     repMin:(e.repMin!=null?e.repMin:8), repMax:(e.repMax!=null?e.repMax:null), rest:e.rest,
     bodyweight:!!e.bodyweight, unilateral:!!e.unilateral, wu:!!e.wu, note:e.note||"",
     records: [] // records[setIdx] = {entries:[{side,kg,reps}], doneAt}
@@ -1355,6 +1520,7 @@ const EX_MUSCLE = [
 ];
 const PART_GUESS = [["胸","chest"],["腹","abs"],["広背","lats"],["僧帽","mid_back"],["脊柱","lower_back"],["背","mid_back"],["尻","glutes"],["臀","glutes"],["ハム","hams"],["四頭","quads"],["下腿","calves"],["カーフ","calves"],["三頭","triceps"],["二頭","biceps"],["前腕","forearms"],["側部","side_delt"],["後部","rear_delt"],["前部","front_delt"],["肩","side_delt"],["脚","quads"]];
 function muscleOf(name, part){
+  const cm = customMuscleOf(name); if(cm) return {k:name, pri:[cm], sec:[]}; // ex.muscle（設定タブのメニュー編集で指定）が最優先
   for(const m of EX_MUSCLE){ if(name && name.indexOf(m.k)>=0) return m; }
   const p = part || "";
   for(const g of PART_GUESS){ if(p.indexOf(g[0])>=0) return {k:name, pri:[g[1]], sec:[]}; }
@@ -1419,12 +1585,12 @@ function muscleTotals(){ // 全期間: 部位→{kg,reps}（主働1.0・副次0.
 }
 function allExerciseNames(){ // MENUS順→履歴のみの種目
   const names=[], seen={};
-  ["A","B"].forEach(k=>MENUS[k].exercises.forEach(e=>{ if(!e.wu && !seen[e.name]){ seen[e.name]=1; names.push(e.name); } }));
+  ["A","B"].forEach(k=>effectiveMenus()[k].exercises.forEach(e=>{ if(!e.wu && !seen[e.name]){ seen[e.name]=1; names.push(e.name); } }));
   loadHistory().forEach(s=>(s.exercises||[]).forEach(ex=>{ if(!ex.wu && ex.name && !seen[ex.name] && (ex.records||[]).filter(r=>r).length){ seen[ex.name]=1; names.push(ex.name); } }));
   return names;
 }
 function repMaxFor(name){
-  for(const k of ["A","B"]){ const e=MENUS[k].exercises.find(x=>x.name===name); if(e && e.repMax!=null) return e.repMax; }
+  for(const k of ["A","B"]){ const e=effectiveMenus()[k].exercises.find(x=>x.name===name); if(e && e.repMax!=null) return e.repMax; }
   return null;
 }
 function exerciseSeries(name){ // セッションごとの最大kg（自重=最大回数）とボリューム
@@ -1824,7 +1990,7 @@ function anaDetail(D){
     const m = muscleOf(n, "");
     const role = m.pri.indexOf(k)>=0 ? "主" : (m.sec.indexOf(k)>=0 ? "副" : null);
     if(!role) return;
-    let def=null; ["A","B"].forEach(x=>{ if(!def) def=MENUS[x].exercises.find(e=>e.name===n); });
+    let def=null; ["A","B"].forEach(x=>{ if(!def) def=effectiveMenus()[x].exercises.find(e=>e.name===n); });
     const kgTxt = def ? (def.bodyweight ? "自重" : "目安"+targetFor(def)+"kg") : "—";
     let lastD=null; const h=loadHistory();
     for(let i=h.length-1;i>=0;i--){ const ex=(h[i].exercises||[]).find(e=>e.name===n&&!e.wu); if(ex&&(ex.records||[]).filter(r=>r).length){ lastD=h[i].date; break; } }
@@ -1840,6 +2006,254 @@ function anaDetail(D){
        <div class="d-row"><span class="k">成長度（重量ベース）</span><span class="v">${g!=null?((g>0?"+":"")+g+"<small> %</small>"):"—"}</span></div>
      </div>
      <div class="d-exs">${exRows.length?exRows.join(""):'<div class="d-exrow"><span class="n">担当種目なし</span></div>'}</div>`;
+}
+
+/* ===================== SETTINGS TAB (Phase C・新規関数のみ) ===================== */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+/* 部位select（メニュー編集で ex.muscle に保存するキーとJPラベル） */
+const MUSCLE_SEL_ORDER = ["chest","abs","front_delt","side_delt","rear_delt","biceps","triceps","forearms","lats","mid_back","lower_back","glutes","quads","hams","calves"];
+const MUSCLE_SEL_JP = {chest:"胸",abs:"腹",front_delt:"肩前",side_delt:"肩横",rear_delt:"肩後",biceps:"二頭",triceps:"三頭",forearms:"前腕",lats:"広背",mid_back:"背中厚み",lower_back:"脊柱起立",glutes:"尻",quads:"四頭",hams:"ハム",calves:"カーフ"};
+/* ex.muscle（メニュー編集で指定した主部位）を種目名から引く＝分析側muscleOfが最優先で使う */
+function customMuscleOf(name){
+  const M = effectiveMenus();
+  for(const k of ["A","B"]){
+    const e = M[k].exercises.find(x=>x.name===name && x.muscle);
+    if(e && MUSCLES[e.muscle]) return e.muscle;
+  }
+  return null;
+}
+function renderSettings(){ setRenderBw(); setRenderTargets(); setRenderMenu(); setRenderData(); }
+
+/* --- 1. 体重 --- */
+function setRenderBw(){ document.getElementById("set-bw").value = settings().bodyWeightKg; }
+function setSaveBw(btn){
+  const v = Math.round(parseFloat(document.getElementById("set-bw").value)*10)/10;
+  if(isNaN(v) || v<30 || v>150){ alert("体重は30〜150kgの範囲で入力してね"); setRenderBw(); return; }
+  saveSettings(Object.assign({}, settings(), {bodyWeightKg:v}));
+  setRenderBw(); setRenderData();
+  const o=btn.textContent; btn.textContent="保存した"; setTimeout(()=>{ btn.textContent=o; },1500);
+}
+
+/* --- 2. 目安重量一覧 --- */
+let _tgtRows = [];
+function setRenderTargets(){
+  const M = effectiveMenus(), seen = {}, ov = loadTargets();
+  _tgtRows = [];
+  ["A","B"].forEach(k=>M[k].exercises.forEach(e=>{ if(e.wu || seen[e.name]) return; seen[e.name]=1; _tgtRows.push(e); }));
+  const list = document.getElementById("set-tgt-list");
+  if(!_tgtRows.length){ list.innerHTML = '<p class="sub">メニューに種目がありません。</p>'; return; }
+  list.innerHTML = _tgtRows.map((e,i)=>{
+    const hip = (e.name==="ヒップスラスト")
+      ? '<span class="linkbadge" title="ワンハンドロウと同じダンベルを付け替え無しで使う設定のため、トレ終了時の自動漸進でワンハンドロウの目安kgに再同期されます（ここで手で変えても次回のトレ終了時に上書き）">ワンハンドロウ連動</span>' : "";
+    if(e.bodyweight){
+      return `<div class="tgt-row"><span class="tname">${esc(e.name)}${hip}</span><span class="tbw">自重（目安kgなし）</span><span></span></div>`;
+    }
+    const cur = targetFor(e);
+    const mark = (ov[e.name]!=null) ? '<span class="ovmark">変更中</span>' : "";
+    return `<div class="tgt-row"><span class="tname">${esc(e.name)}${hip}${mark}</span>
+      <span class="tgt-step">
+        <button type="button" onclick="setTgtBump(${i},-1)">−</button>
+        <input id="set-tgt-in-${i}" type="number" inputmode="numeric" min="${KG_MIN}" max="${KG_MAX}" step="1" value="${cur}" onchange="setTgtInput(${i},this)">
+        <button type="button" onclick="setTgtBump(${i},1)">＋</button>
+      </span>
+      <button class="set-btn ghost" onclick="setTgtReset(${i})">初期値に戻す</button></div>`;
+  }).join("");
+}
+function setTgtBump(i,d){
+  const e=_tgtRows[i]; if(!e) return;
+  const t=loadTargets(); t[e.name]=clampKg(targetFor(e)+d); saveTargets(t); setRenderTargets();
+}
+function setTgtInput(i,el){
+  const e=_tgtRows[i]; if(!e) return;
+  const v=clampKg(parseFloat(el.value));
+  if(isNaN(v)){ setRenderTargets(); return; }
+  const t=loadTargets(); t[e.name]=v; saveTargets(t); setRenderTargets();
+}
+function setTgtReset(i){
+  const e=_tgtRows[i]; if(!e) return;
+  const t=loadTargets(); delete t[e.name]; saveTargets(t); setRenderTargets();
+}
+function setResetAllTargets(){
+  if(!confirm("目安重量をすべて初期値（メニュー定義の値）に戻す？")) return;
+  saveTargets({}); setRenderTargets();
+}
+
+/* --- 3. メニュー編集（A/B別） --- */
+let setMenuKey="A", setExEdit=null; // setExEdit: null=フォーム閉 / -1=追加 / 1以上=そのindexを編集
+function menusForEdit(){ const ov=menusOverride(); return ov ? ov : JSON.parse(JSON.stringify(MENUS)); }
+function setAfterMenuChange(){ setRenderMenu(); setRenderTargets(); renderMenuCards(); }
+function setMenuTab(k){ setMenuKey=k; setExEdit=null; setRenderMenu(); }
+const SET_ICONS = {
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 20l1.2-4.8L16.4 4l3.6 3.6L8.8 18.8 4 20z"/><path d="M14.4 6l3.6 3.6"/></svg>',
+  del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M5 5l14 14M19 5L5 19"/></svg>'
+};
+function setExMeta(e){
+  return [
+    (e.muscle && MUSCLE_SEL_JP[e.muscle]) || e.part || "",
+    `${e.sets}セット × ${e.repMin}${(e.repMax!=null && e.repMax!==e.repMin) ? ("-"+e.repMax) : ""}回`,
+    e.bodyweight ? "自重" : ("目安"+targetFor(e)+"kg"),
+    `休憩${e.rest}秒`,
+    e.ss || null,
+    e.unilateral ? "左右別" : null
+  ].filter(Boolean).join("・");
+}
+function setRenderMenu(){
+  ["A","B"].forEach(k=>{ const b=document.getElementById("set-menu-"+k); if(b) b.classList.toggle("on", setMenuKey===k); });
+  const arr = effectiveMenus()[setMenuKey].exercises;
+  const list = document.getElementById("set-mex-list");
+  list.innerHTML = arr.map((e,i)=>{
+    if(e.wu) return `<div class="mex-row wu"><span class="mi">WU</span><div class="mn"><b>${esc(e.name)}</b><div class="mmeta">先頭固定・目安kg＝ゴブレットスクワット目安の半分（自動）・記録されません</div></div><span class="mfix">固定</span></div>`;
+    return `<div class="mex-row"><span class="mi">${i}</span><div class="mn"><b>${esc(e.name)}</b><div class="mmeta">${esc(setExMeta(e))}</div></div>
+      <span class="mex-btns">
+        <button class="icon-btn" title="上へ" onclick="setExMove(${i},-1)" ${i<=1?"disabled":""}>${SET_ICONS.up}</button>
+        <button class="icon-btn" title="下へ" onclick="setExMove(${i},1)" ${i>=arr.length-1?"disabled":""}>${SET_ICONS.down}</button>
+        <button class="icon-btn" title="編集" onclick="setExEditOpen(${i})">${SET_ICONS.edit}</button>
+        <button class="icon-btn warn" title="削除" onclick="setExDelete(${i})">${SET_ICONS.del}</button>
+      </span></div>`;
+  }).join("");
+  setRenderExForm();
+}
+function setExMove(i,d){
+  const m=menusForEdit(), arr=m[setMenuKey].exercises, j=i+d;
+  if(i<1 || j<1 || j>=arr.length) return;
+  const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+  saveMenus(m); setExEdit=null; setAfterMenuChange();
+}
+function setExDelete(i){
+  const m=menusForEdit(), arr=m[setMenuKey].exercises, e=arr[i];
+  if(!e || e.wu) return;
+  if(!confirm(`「${e.name}」を${setMenuKey}メニューから削除する？（過去の履歴・自己ベストはそのまま残ります）`)) return;
+  arr.splice(i,1);
+  saveMenus(m); setExEdit=null; setAfterMenuChange();
+}
+function setExAdd(){ setExEdit=-1; setRenderExForm(); }
+function setExEditOpen(i){ setExEdit=i; setRenderExForm(); }
+function setExCancel(){ setExEdit=null; setRenderExForm(); }
+function setMenuReset(){
+  if(!confirm(`${setMenuKey}メニューを初期構成に戻す？（追加・削除・並べ替え・編集をすべて破棄します）`)) return;
+  const m=menusForEdit();
+  m[setMenuKey]=JSON.parse(JSON.stringify(MENUS[setMenuKey]));
+  saveMenus(m); setExEdit=null; setAfterMenuChange();
+}
+function setGuessMuscle(e){
+  if(e.muscle && MUSCLES[e.muscle]) return e.muscle;
+  const k = muscleOf(e.name, e.part).pri[0];
+  return MUSCLES[k] ? k : "chest";
+}
+function setRenderExForm(){
+  const box = document.getElementById("set-ex-form");
+  if(setExEdit===null){ box.style.display="none"; box.innerHTML=""; return; }
+  const arr = effectiveMenus()[setMenuKey].exercises;
+  const isAdd = (setExEdit===-1);
+  const e = isAdd ? {name:"", sets:3, repMin:8, repMax:12, rest:90, targetKg:10, bodyweight:false, unilateral:false, ss:null, note:""} : arr[setExEdit];
+  if(!isAdd && (!e || e.wu)){ setExEdit=null; box.style.display="none"; return; }
+  const mus = isAdd ? "chest" : setGuessMuscle(e);
+  const musOpts = MUSCLE_SEL_ORDER.map(k=>`<option value="${k}"${k===mus?" selected":""}>${MUSCLE_SEL_JP[k]}</option>`).join("");
+  const ssOpts = ["","SS1","SS2","SS3","SS4"].map(v=>`<option value="${v}"${(e.ss||"")===v?" selected":""}>${v||"（なし）"}</option>`).join("");
+  box.innerHTML = `
+    <div class="sf-title">${isAdd ? "種目を追加" : "種目を編集：" + esc(e.name)}（${setMenuKey}メニュー）</div>
+    <div class="sf-grid">
+      <div class="field f-wide" style="margin:0;"><label>種目名</label><input id="sf-name" class="set-in" type="text" value="${esc(e.name)}" placeholder="例：ショルダープレス"></div>
+      <div class="field" style="margin:0;"><label>主部位</label><select id="sf-muscle" class="set-in">${musOpts}</select></div>
+      <div class="field" style="margin:0;"><label>セット数（1-5）</label><input id="sf-sets" class="set-in" type="number" min="1" max="5" step="1" value="${e.sets}"></div>
+      <div class="field" style="margin:0;"><label>休憩（秒）</label><input id="sf-rest" class="set-in" type="number" min="0" max="600" step="5" value="${e.rest}"></div>
+      <div class="field" style="margin:0;"><label>回数帯 下限</label><input id="sf-repmin" class="set-in" type="number" min="1" max="99" step="1" value="${e.repMin}"></div>
+      <div class="field" style="margin:0;"><label>回数帯 上限</label><input id="sf-repmax" class="set-in" type="number" min="1" max="99" step="1" value="${e.repMax!=null?e.repMax:e.repMin}"></div>
+      <div class="field" style="margin:0;"><label>目安kg（${KG_MIN}-${KG_MAX}）</label><input id="sf-kg" class="set-in" type="number" min="${KG_MIN}" max="${KG_MAX}" step="1" value="${e.targetKg!=null?e.targetKg:10}" ${e.bodyweight?"disabled":""}></div>
+      <label class="chkline"><input id="sf-bw" type="checkbox" ${e.bodyweight?"checked":""} onchange="document.getElementById('sf-kg').disabled=this.checked">自重（kgなし）</label>
+      <label class="chkline"><input id="sf-uni" type="checkbox" ${e.unilateral?"checked":""}>左右別（L/R入力）</label>
+      <div class="field" style="margin:0;"><label>SSグループ</label><select id="sf-ss" class="set-in">${ssOpts}</select></div>
+      <div class="field f-wide" style="margin:0;"><label>メモ（フォームの注意など）</label><input id="sf-note" class="set-in" type="text" value="${esc(e.note||"")}"></div>
+    </div>
+    <p class="note">SS＝同じSS名がリストで隣り合う2種目はスーパーセット（交互に実施・記録は2種目目の休憩中にまとめて）。</p>
+    <div class="sf-btns">
+      <button class="set-btn" onclick="setExSave()">${isAdd?"追加する":"保存する"}</button>
+      <button class="set-btn ghost" onclick="setExCancel()">キャンセル</button>
+    </div>`;
+  box.style.display="block";
+}
+function setExSave(){
+  const name = (document.getElementById("sf-name").value||"").trim();
+  if(!name){ alert("種目名を入力してね"); return; }
+  const muscle = document.getElementById("sf-muscle").value;
+  const sets = Math.round(parseFloat(document.getElementById("sf-sets").value));
+  const repMin = Math.round(parseFloat(document.getElementById("sf-repmin").value));
+  const repMax = Math.round(parseFloat(document.getElementById("sf-repmax").value));
+  const rest = Math.round(parseFloat(document.getElementById("sf-rest").value));
+  const bw = document.getElementById("sf-bw").checked;
+  const uni = document.getElementById("sf-uni").checked;
+  const ss = document.getElementById("sf-ss").value || null;
+  const note = (document.getElementById("sf-note").value||"").trim();
+  const kgRaw = parseFloat(document.getElementById("sf-kg").value);
+  if(isNaN(sets) || sets<1 || sets>5){ alert("セット数は1〜5で入力してね"); return; }
+  if(isNaN(repMin) || repMin<1){ alert("回数帯の下限は1以上で入力してね"); return; }
+  if(isNaN(repMax) || repMax<repMin){ alert("回数帯の上限は下限以上で入力してね"); return; }
+  if(isNaN(rest) || rest<0 || rest>600){ alert("休憩秒は0〜600で入力してね"); return; }
+  if(!bw && (isNaN(kgRaw) || clampKg(kgRaw)!==Math.round(kgRaw))){ alert(`目安kgは${KG_MIN}〜${KG_MAX}kg（1kg刻み）で入力してね`); return; }
+  const m = menusForEdit(), arr = m[setMenuKey].exercises;
+  const base = (setExEdit>=1 && arr[setExEdit] && !arr[setExEdit].wu) ? Object.assign({}, arr[setExEdit]) : {};
+  const ex = Object.assign(base, {
+    name:name, part:MUSCLE_SEL_JP[muscle], muscle:muscle, sets:sets,
+    repMin:repMin, repMax:repMax, rest:rest,
+    targetKg:(bw?null:clampKg(kgRaw)), bodyweight:bw, unilateral:uni, ss:ss, note:note
+  });
+  if(setExEdit===-1) arr.push(ex);
+  else arr[setExEdit]=ex;
+  saveMenus(m); setExEdit=null; setAfterMenuChange();
+}
+
+/* --- ホームのメニュープレビュー（effectiveMenus準拠で描画） --- */
+function renderMenuCards(){
+  const M = effectiveMenus();
+  ["A","B"].forEach(k=>{
+    const exs = M[k].exercises.filter(e=>!e.wu);
+    const ul = document.getElementById("menu-ul-"+k); if(!ul) return;
+    ul.innerHTML = exs.slice(0,4).map(e=>`<li>${esc(e.name)}</li>`).join("")
+      + (exs.length>4 ? `<li>他${exs.length-4}種目</li>` : "");
+    const sub = document.getElementById("menu-sub-"+k);
+    if(sub) sub.textContent = (k==="A" ? "PUSH ／ LEGS — " : "PULL ／ LEGS — ") + exs.length + "種目";
+  });
+}
+
+/* --- 4. データ・同期 --- */
+function setRenderData(){
+  const h = loadHistory();
+  document.getElementById("set-data-info").innerHTML =
+    `<div class="info-row"><span class="k">保存モード</span><span class="v" style="font-size:14px;">${PYW ? "KB自動保存（hometraining.json・git連携）" : "ブラウザ端末内（localStorage）"}</span></div>
+     <div class="info-row"><span class="k">履歴件数</span><span class="v">${h.length}<small> 件</small></span></div>
+     <div class="info-row"><span class="k">体重設定</span><span class="v">${settings().bodyWeightKg}<small> kg</small></span></div>
+     <div class="info-row"><span class="k">バージョン</span><span class="v" style="font-size:13px;">${esc(APP_VERSION)}</span></div>`;
+  const act = document.getElementById("set-data-actions");
+  if(PYW){
+    act.innerHTML = `<button class="big-btn" style="margin:0;" onclick="setSyncNow()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v5h-5"/></svg>
+      今すぐKBへ同期</button>`;
+  }else{
+    act.innerHTML = `<button class="big-btn ghost" style="margin:0;" onclick="setCopyJson(this.querySelector('span'))">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/></svg>
+      <span>記録データをJSONでコピー（簡易バックアップ）</span></button>`;
+  }
+  document.getElementById("set-sync-result").textContent = "";
+}
+function setSyncNow(){
+  const res = document.getElementById("set-sync-result");
+  if(!(PYW && window.pywebview && pywebview.api)){ res.textContent="pywebview APIが見つかりません"; return; }
+  res.textContent = "同期中…";
+  Promise.resolve(pywebview.api.save_data(STORE)).then(sv=>
+    Promise.resolve(pywebview.api.git_sync("手動同期 "+todayStr())).then(g=>{
+      const gTxt = g && g.pushed ? "GitHubへpush済み"
+        : g && g.committed ? "commit済み（push失敗＝次回持越し）"
+        : g && g.ok ? "git変更なし"
+        : "git失敗：" + ((g && g.error) || "不明");
+      res.textContent = (sv && sv.ok ? "KB保存OK" : "KB保存失敗：" + ((sv && sv.error) || "不明")) + "・" + gTxt;
+    })
+  ).catch(e=>{ res.textContent = "同期エラー：" + e; });
+}
+function setCopyJson(btn){
+  const data = { schema:3, settings:settings(), targets:loadTargets(), menus:menusOverride(), history:loadHistory() };
+  copyText(JSON.stringify(data), btn);
 }
 
 /* ===================== RESUME ===================== */
@@ -1882,6 +2296,18 @@ document.addEventListener("visibilitychange", ()=>{
 document.getElementById("verline").textContent = APP_VERSION;
 seedHistory();
 renderResume();
+renderMenuCards();
+// PYW時：STORE（menus上書き）ロード完了後にホームのメニュープレビューを更新（initPyStorageは不変のまま別リスナで待つ）
+window.addEventListener("pywebviewready", ()=>{
+  let n=0;
+  const iv=setInterval(()=>{
+    if(PYW || ++n>20){
+      clearInterval(iv);
+      renderMenuCards();
+      if(document.getElementById("tab-settings").classList.contains("active")) renderSettings();
+    }
+  }, 150);
+});
 // register service worker (offline)
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 // unlock audio on first touch anywhere
