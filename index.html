@@ -410,11 +410,12 @@
     font-size:12.5px; color:var(--txt2); line-height:1.6;
   }
   .tipbox svg{width:15px; height:15px; color:var(--acc); flex:none; margin-top:2px;}
+  /* 「前回」はトレ中に読む判断材料なので脚注扱いにしない（コントラストを上げる） */
   .lastline{
-    margin-top:11px; font-family:var(--cond); font-size:12px; letter-spacing:.06em; color:var(--txt3);
-    display:flex; gap:8px; flex-wrap:wrap; align-items:baseline;
+    margin-top:var(--s3); font-family:var(--cond); font-size:var(--fs2); letter-spacing:.06em; color:var(--txt2);
+    display:flex; gap:var(--s2); flex-wrap:wrap; align-items:baseline;
   }
-  .lastline b{font-family:var(--disp); font-style:italic; color:var(--txt2); font-size:14px;}
+  .lastline b{font-family:var(--cond); font-style:normal; font-weight:600; color:var(--acc); font-size:var(--fs1); letter-spacing:var(--ls3);}
   #r-check{
     padding:24px; margin-top:16px; font-size:22px; letter-spacing:.2em;
     box-shadow:0 0 0 1px rgba(215,255,0,.4), 0 14px 34px rgba(215,255,0,.14);
