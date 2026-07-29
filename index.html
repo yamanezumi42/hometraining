@@ -79,6 +79,9 @@
     transition:opacity .3s linear;
   }
   #boot.gone{opacity:0; pointer-events:none;}
+  /* 保険：JSが途中で失敗しても2秒後に必ず消える（起動画面で操作不能にならない） */
+  #boot{animation:bootAutoHide .35s linear 2s forwards;}
+  @keyframes bootAutoHide{to{opacity:0; visibility:hidden; pointer-events:none;}}
   #boot .bmark{
     width:96px; height:96px; background:var(--acc); color:#000;
     display:flex; align-items:center; justify-content:center;
@@ -278,6 +281,24 @@
   .startbtn svg{width:18px; height:18px;}
   .menu-card.a .startbtn{background:var(--acc); color:#000;}
   .menu-card.b .startbtn{background:var(--white); color:#000;}
+
+  /* ============ resume banner ============ */
+  .resume{
+    display:flex; align-items:center; gap:16px; margin:18px 0 6px; padding:15px 20px;
+    background:linear-gradient(100deg,rgba(215,255,0,.09),rgba(20,20,26,.9) 46%);
+    border:1px solid var(--line2); border-left:3px solid var(--acc);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+    animation:riseIn .35s var(--ease-hard) both;
+  }
+  .resume .rz-ico{width:30px; height:30px; color:var(--acc); flex:none;}
+  .resume .rz-ico svg{width:100%; height:100%;}
+  .resume .rz-txt{min-width:0; flex:1;}
+  .resume .rz-txt b{font-family:var(--disp); font-style:italic; font-weight:700; font-size:19px; letter-spacing:.03em;}
+  .resume .rz-meta{font-family:var(--cond); font-size:11.5px; letter-spacing:.08em; color:var(--txt2); margin-top:4px;}
+  .resume .rz-track{height:4px; background:#101017; border:1px solid var(--line); margin-top:9px; max-width:420px;}
+  .resume .rz-track i{display:block; height:100%; background:var(--acc); box-shadow:0 0 10px rgba(215,255,0,.5);}
+  .resume .rz-btns{display:flex; gap:8px; flex:none;}
+  .set-btn.danger:hover{color:var(--red); border-color:var(--red);}
 
   /* ============ panels / cards ============ */
   .card{
@@ -2515,7 +2536,10 @@ function anaPR(){
 function anaWeekBars(){
   const ws = weeklySets(weekStartOf(Date.now()));
   const maxV = Math.max(25, Math.ceil(Math.max.apply(null, MUSCLE_ORDER.map(k=>ws[k]||0))+2));
-  document.getElementById("ana-ws-bars").innerHTML = MUSCLE_ORDER.map(k=>{
+  const total = MUSCLE_ORDER.reduce((s,k)=>s+(ws[k]||0), 0);
+  const empty = total<=0
+    ? '<p class="sub" style="margin-bottom:10px; color:var(--txt3);">今週（月曜起点）はまだ記録がありません。トレをすると部位ごとに積み上がります。</p>' : "";
+  document.getElementById("ana-ws-bars").innerHTML = empty + MUSCLE_ORDER.map(k=>{
     const v = ws[k]||0;
     const cls = v>20 ? "over" : (v>=10 ? "ok" : "");
     return `<div class="wsrow"><span class="wlab">${MUSCLES[k].jp}</span>
@@ -2971,13 +2995,24 @@ function renderResume(){
   const cur = loadCurrent();
   const box = document.getElementById("resumeBox");
   if(cur && !cur.finished && cur.v===3){
-    box.innerHTML = `<div class="card"><b>途中のトレがあります</b><div class="muted">${cur.date} ${cur.label}・${(cur.stepIndex||0)+1}/${cur.steps.length}</div>
-      <button class="big-btn blue" onclick="resumeWorkout()">途中から再開</button>
-      <button class="big-btn warn" onclick="discardCurrent()">破棄して新規</button></div>`;
+    const done = (cur.stepIndex||0), all = cur.steps.length;
+    box.innerHTML = `<div class="resume">
+      <div class="rz-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M12 7v5l4 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+      <div class="rz-txt"><b>途中のトレがあります</b>
+        <div class="rz-meta">${esc(cur.date)}　${esc(cur.label)}　—　${done}/${all} ステップ完了</div>
+        <div class="rz-track"><i style="width:${Math.round(done/all*100)}%"></i></div>
+      </div>
+      <div class="rz-btns">
+        <button class="set-btn" onclick="resumeWorkout()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>途中から再開</button>
+        <button class="set-btn ghost danger" onclick="discardCurrent()">破棄</button>
+      </div></div>`;
   }else if(cur && !cur.finished){
     // 旧バージョンの途中データは互換性が無いので破棄案内のみ
-    box.innerHTML = `<div class="card"><b>途中のトレ（旧バージョン）があります</b><div class="muted">${cur.date} ${cur.label}</div>
-      <button class="big-btn warn" onclick="discardCurrent()">破棄して新規</button></div>`;
+    box.innerHTML = `<div class="resume">
+      <div class="rz-txt"><b>途中のトレ（旧バージョン）があります</b>
+        <div class="rz-meta">${esc(cur.date)}　${esc(cur.label)}　—　再開できない形式です</div></div>
+      <div class="rz-btns"><button class="set-btn ghost danger" onclick="discardCurrent()">破棄して新規</button></div></div>`;
   }else{ box.innerHTML=""; }
 }
 function resumeWorkout(){
