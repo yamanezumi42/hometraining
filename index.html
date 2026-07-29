@@ -24,7 +24,16 @@
     --txt:#f4f4f2; --txt2:#9c9cab; --txt3:#5f5f70;
     /* --- volt --- */
     --acc:#d7ff00; --acc2:#a8c800; --acc-dim:rgba(215,255,0,.13); --acc-glow:rgba(215,255,0,.42);
-    --white:#ececeb; --red:#ff3b46; --cy:#31e4ff; --mg:#ff2f6d;
+    --white:#ececeb; --red:#ff3b46; --cy:#31e4ff;
+    /* 余白＝7段のみ（8px系グリッド。中間値を使わない） */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+    /* 文字＝9段／字間＝4段 */
+    --fs1:10px; --fs2:12px; --fs3:14px; --fs4:17px; --fs5:21px; --fs6:28px; --fs7:38px; --fs8:54px; --fs9:80px;
+    --ls1:.02em; --ls2:.08em; --ls3:.16em; --ls4:.32em;
+    /* モーション＝3段 */
+    --t-fast:120ms; --t-base:200ms; --t-slow:320ms;
+    /* ヒートマップ＝明度でなく色で5段（オリーブに沈むのを回避） */
+    --heat0:#23232c; --heat1:#55411a; --heat2:#9c7f00; --heat3:#ccc200; --heat4:#d7ff00;
     /* --- type --- */
     --disp:"Bahnschrift SemiCondensed","Bahnschrift Condensed","Bahnschrift","DIN Condensed","Arial Narrow",sans-serif;
     --cond:"Bahnschrift SemiCondensed","Bahnschrift","Arial Narrow","Yu Gothic UI",sans-serif;
@@ -58,10 +67,11 @@
   ::-webkit-scrollbar-thumb{background:#2a2a34; border:2px solid #0b0b0f;}
   ::-webkit-scrollbar-thumb:hover{background:var(--acc); }
 
-  /* ============ global overlays (grain / scanline / vignette) ============ */
-  .fx-grain,.fx-scan,.fx-vig{position:fixed; inset:0; pointer-events:none; z-index:80;}
+  /* ============ global overlays (grain / scanline / vignette) ============
+     z-index 60＝topnav(70)より下。UIの上に乗せると文字とCTAが濁るため。 */
+  .fx-grain,.fx-scan,.fx-vig{position:fixed; inset:0; pointer-events:none; z-index:60;}
   .fx-grain{
-    opacity:.05; mix-blend-mode:overlay;
+    opacity:.035; mix-blend-mode:soft-light;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
     animation:grainShift 5.5s steps(6) infinite;
   }
@@ -69,8 +79,8 @@
     0%{transform:translate(0,0);} 20%{transform:translate(-4px,2px);} 40%{transform:translate(3px,-3px);}
     60%{transform:translate(-2px,-2px);} 80%{transform:translate(2px,3px);} 100%{transform:translate(0,0);}
   }
-  .fx-scan{ opacity:.5; background:repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px); }
-  .fx-vig{ box-shadow:inset 0 0 190px 40px rgba(0,0,0,.72); }
+  .fx-scan{ opacity:.2; background:repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px); }
+  .fx-vig{ box-shadow:inset 0 0 120px 8px rgba(0,0,0,.5); }
 
   /* ============ boot splash ============ */
   #boot{
@@ -152,9 +162,6 @@
   .navitem:hover::before{transform:translateX(101%);}
   .navitem.on{color:#000; background:var(--acc);}
   .navitem.on svg{color:#000;}
-  .navitem.on::after{
-    content:""; position:absolute; left:0; right:0; bottom:0; height:0;
-  }
   .navitem.on{ clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%); }
   body.in-workout .navitem{pointer-events:none; opacity:.22; filter:grayscale(1);}
   body.in-workout{padding-bottom:10px;}
@@ -164,18 +171,25 @@
   .tabpane.active{display:block;}
   .screen{display:none;}
   .screen.active{display:block;}
-  #ready,#record{max-width:700px; margin:0 auto;}
-  #end{max-width:820px; margin:0 auto;}
+  #ready{max-width:760px; margin:0 auto;}
+  #record{max-width:1010px; margin:0 auto;}
+  #end{max-width:860px; margin:0 auto;}
+  /* 休憩画面は2カラム（左＝タイマー／右＝記録入力とCTA）＝CTAが画面外に出ないため */
+  .rec-grid{display:grid; grid-template-columns:minmax(0,1fr) 430px; gap:var(--s5); align-items:start; margin-top:var(--s3);}
+  .rec-left{display:flex; flex-direction:column; align-items:center;}
+  .rec-left .small-row,.rec-left .nextup{width:100%;}
+  .rec-right{min-width:0;}
 
   /* screen enter animation (JSが .scr-in を付ける) */
-  .scr-in{animation:scrIn .34s var(--ease-hard) both;}
-  @keyframes scrIn{ 0%{opacity:0; transform:translateY(14px) scale(.994);} 100%{opacity:1; transform:none;} }
-  .stagger > *{animation:riseIn .42s var(--ease-hard) both;}
-  .stagger > *:nth-child(1){animation-delay:.02s} .stagger > *:nth-child(2){animation-delay:.07s}
-  .stagger > *:nth-child(3){animation-delay:.12s} .stagger > *:nth-child(4){animation-delay:.17s}
-  .stagger > *:nth-child(5){animation-delay:.22s} .stagger > *:nth-child(6){animation-delay:.27s}
-  .stagger > *:nth-child(n+7){animation-delay:.31s}
-  @keyframes riseIn{ 0%{opacity:0; transform:translateY(16px);} 100%{opacity:1; transform:none;} }
+  .scr-in{animation:scrIn var(--t-slow) var(--ease-hard) both;}
+  @keyframes scrIn{ 0%{opacity:0; transform:translateY(8px) scale(.996);} 100%{opacity:1; transform:none;} }
+  /* 入場の振り付け＝40ms刻み（等間隔） */
+  .stagger > *{animation:riseIn var(--t-slow) var(--ease-hard) both;}
+  .stagger > *:nth-child(1){animation-delay:0ms}    .stagger > *:nth-child(2){animation-delay:40ms}
+  .stagger > *:nth-child(3){animation-delay:80ms}   .stagger > *:nth-child(4){animation-delay:120ms}
+  .stagger > *:nth-child(5){animation-delay:160ms}  .stagger > *:nth-child(6){animation-delay:200ms}
+  .stagger > *:nth-child(n+7){animation-delay:240ms}
+  @keyframes riseIn{ 0%{opacity:0; transform:translateY(12px);} 100%{opacity:1; transform:none;} }
 
   /* diagonal wipe used on screen/tab change */
   #wipe{position:fixed; inset:-10% -20%; z-index:90; pointer-events:none; opacity:0;}
@@ -199,7 +213,6 @@
   h1{
     font-family:var(--disp); font-style:italic; font-weight:700; font-size:44px; line-height:.94;
     letter-spacing:.01em; margin-bottom:16px; position:relative;
-    text-shadow:3px 3px 0 rgba(215,255,0,.14);
   }
   h1 small{display:block; font-size:14px; font-weight:600; color:var(--txt2); letter-spacing:.12em; margin-top:11px; font-style:normal; text-shadow:none;}
   .ana-head{display:flex; align-items:baseline; gap:16px;}
@@ -234,16 +247,17 @@
   .menu-card:hover{transform:translateY(-4px); border-color:var(--acc); box-shadow:0 22px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(215,255,0,.22);}
   .menu-card:hover::after{opacity:1; transform:translateX(26%);}
   .menu-card.b:hover{border-color:var(--white); box-shadow:0 22px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(236,236,235,.22);}
+  /* 巨大な A / B ＝意図的に見せる（薄すぎると"斜線のゴミ"に見えるため 1.5px/α.2 で全体が入る位置に） */
   .menu-card .ghost{
-    position:absolute; right:-14px; top:-58px; z-index:0;
+    position:absolute; right:6px; bottom:-46px; top:auto; z-index:0;
     font-family:var(--disp); font-style:italic; font-weight:700;
-    font-size:300px; line-height:1; color:transparent;
-    -webkit-text-stroke:1px rgba(236,236,235,.075);
-    pointer-events:none; user-select:none; transition:transform .5s var(--ease), -webkit-text-stroke-color .3s;
+    font-size:230px; line-height:1; color:transparent;
+    -webkit-text-stroke:1.5px rgba(236,236,235,.16);
+    pointer-events:none; user-select:none; transition:transform var(--t-slow) var(--ease), -webkit-text-stroke-color var(--t-base);
   }
-  .menu-card.a .ghost{-webkit-text-stroke:1px rgba(215,255,0,.12);}
-  .menu-card:hover .ghost{-webkit-text-stroke-color:rgba(215,255,0,.3); transform:translateX(-8px) scale(1.03);}
-  .menu-card.b:hover .ghost{-webkit-text-stroke-color:rgba(236,236,235,.24);}
+  .menu-card.a .ghost{-webkit-text-stroke:1.5px rgba(215,255,0,.2);}
+  .menu-card:hover .ghost{-webkit-text-stroke-color:rgba(215,255,0,.42); transform:translateY(-6px);}
+  .menu-card.b:hover .ghost{-webkit-text-stroke-color:rgba(236,236,235,.34);}
   .menu-card .tag{
     align-self:flex-start; position:relative; z-index:2;
     font-family:var(--disp); font-weight:700; font-style:italic;
@@ -344,7 +358,7 @@
   }
 
   /* ============ workout HUD (ready/record共通の上部バー) ============ */
-  .hud{display:none; max-width:700px; margin:0 auto 14px; padding:0 2px;}
+  .hud{display:none; max-width:1010px; margin:0 auto var(--s4); padding:0 2px;}
   body.in-workout .hud{display:block; animation:riseIn .3s var(--ease-hard) both;}
   .hud-top{display:flex; align-items:center; gap:12px; margin-bottom:9px;}
   .hud-badge{
@@ -371,7 +385,6 @@
     background-image:linear-gradient(90deg,rgba(0,0,0,.85) 0 1px,transparent 1px);}
 
   /* ============ ready screen ============ */
-  .ex-head{display:flex; align-items:flex-start; gap:14px;}
   .ex-name{font-family:var(--disp); font-style:italic; font-weight:700; font-size:42px; line-height:1.02; letter-spacing:.01em; margin:10px 0;}
   .setpips{display:flex; gap:7px; align-items:center; margin:2px 0 10px;}
   .setpips i{
@@ -407,14 +420,12 @@
     box-shadow:0 0 0 1px rgba(215,255,0,.4), 0 14px 34px rgba(215,255,0,.14);
   }
   #r-check svg{width:34px; height:34px;}
-  #r-check .kb{font-family:var(--cond); font-style:normal; font-size:11px; letter-spacing:.2em; opacity:.62; margin-left:6px;}
 
   /* ============ record / timer ============ */
   .timerwrap{position:relative; width:224px; height:224px; margin:4px auto 2px;}
   .timerwrap svg{position:absolute; inset:0; transform:rotate(-90deg);}
   .timerwrap .ringbg{fill:none; stroke:#16161e; stroke-width:8;}
   .timerwrap .ringfg{fill:none; stroke:var(--acc); stroke-width:8; stroke-linecap:butt; filter:drop-shadow(0 0 8px rgba(215,255,0,.45)); transition:stroke .2s;}
-  .timerwrap .ticks{fill:none; stroke:#22222c; stroke-width:1;}
   .timer{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     font-family:var(--disp); font-style:italic; font-weight:700;
@@ -508,10 +519,12 @@
   .toast button:active{transform:translateY(1px);}
 
   textarea{
-    width:100%; min-height:150px; background:#0a0a10; color:var(--txt);
-    border:1px solid var(--line2); padding:13px; font-size:13px; line-height:1.6;
-    font-family:ui-monospace,Consolas,monospace; -webkit-user-select:text; user-select:text;
+    width:100%; min-height:132px; background:#0a0a10; color:var(--txt2);
+    border:1px solid var(--line); padding:var(--s3); font-size:12.5px; line-height:1.65;
+    font-family:ui-monospace,Consolas,monospace; -webkit-user-select:text; user-select:text; resize:vertical;
   }
+  .card.memo{background:linear-gradient(168deg,#0f0f14,#0b0b10);}
+  .card.memo textarea:focus{color:var(--txt);}
   textarea:focus{outline:none; border-color:var(--acc);}
 
   /* ============ end screen ============ */
@@ -546,9 +559,10 @@
   .end-hero{font-family:var(--disp); font-style:italic; font-weight:700; font-size:22px; line-height:1.3; letter-spacing:.01em; margin:4px 0;}
   .end-next{font-family:var(--disp); font-style:italic; font-weight:700; font-size:18px; color:var(--acc); margin:10px 0 4px;}
   .stripe{height:9px; margin-top:26px; background:var(--hazard); opacity:.8;}
+  /* 休憩終了の合図。1回のトレで25回出るので控えめに（眼精疲労・光感受性への配慮） */
   .flash{position:fixed; inset:0; background:var(--acc); opacity:0; pointer-events:none; z-index:100;}
-  .flash.go{animation:flashAnim .5s ease;}
-  @keyframes flashAnim{0%{opacity:0;}16%{opacity:.6;}100%{opacity:0;}}
+  .flash.go{animation:flashAnim 220ms ease;}
+  @keyframes flashAnim{0%{opacity:0;}30%{opacity:.18;}100%{opacity:0;}}
 
   /* ============ ANALYZE TAB ============ */
   .ana-sec{margin:18px 0;}
@@ -708,14 +722,21 @@
   .detail .d-exrow .n{color:var(--txt);}
   .detail .d-exrow .m{font-family:var(--cond); color:var(--txt3); letter-spacing:.04em; white-space:nowrap;}
 
-  .hist-item,.hist-row{
-    display:flex; justify-content:space-between; align-items:center; gap:12px;
-    padding:13px 10px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .14s, padding-left .14s;
+  .hist-row{
+    display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:var(--s4);
+    padding:13px 10px; border-bottom:1px solid var(--line); cursor:pointer;
+    transition:background var(--t-fast), transform var(--t-fast);
   }
-  .hist-item b,.hist-row .hl b{font-family:var(--disp); font-style:italic; font-size:16px; letter-spacing:.04em;}
-  .hist-item:hover,.hist-row:hover{background:#14141a; padding-left:15px;}
+  .hist-row .hl b{font-family:var(--disp); font-style:italic; font-size:16px; letter-spacing:.04em;}
+  .hist-row:hover{background:#14141a; transform:translateX(4px);}
   .hist-row:active{background:var(--panel2);}
   .hist-row .hl{display:flex; align-items:center; gap:10px; min-width:0;}
+  /* 中央＝そのセッションの総重量を最大比で見せる帯（空白を情報で埋める） */
+  .hist-row .hbar{position:relative; height:8px; background:#101017; border:1px solid var(--line);}
+  .hist-row .hbar i{position:absolute; left:0; top:0; bottom:0; background:var(--acc2); transform:skewX(var(--skew)); transform-origin:left;}
+  .hist-row:hover .hbar i{background:var(--acc);}
+  .hist-row .hbar.B i{background:#7a7a76;}
+  .hist-row:hover .hbar.B i{background:var(--white);}
   .hist-row .badge{
     display:inline-flex; align-items:center; justify-content:center; flex:none;
     font-family:var(--disp); font-style:italic; font-weight:700; font-size:14px;
@@ -747,11 +768,6 @@
   .set-btn.ghost{background:linear-gradient(180deg,var(--panel2),#101016); color:var(--txt2); border:1px solid var(--line2);}
   .set-btn.ghost:hover{color:var(--acc); border-color:var(--acc); filter:none;}
   .set-btn.warn{background:var(--red); color:#0a0a0c;}
-  .tgt-row{display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:11px 4px; border-bottom:1px solid var(--line); transition:background .14s;}
-  .tgt-row:hover{background:#131319;}
-  .tgt-row:last-child{border-bottom:none;}
-  .tgt-row .tname{font-size:13px; min-width:0;}
-  .tgt-row .tbw{font-family:var(--cond); font-size:12px; color:var(--txt3); letter-spacing:.08em;}
   .tgt-step{display:flex; gap:6px; align-items:stretch;}
   .tgt-step button{
     width:44px; font-family:var(--disp); font-size:21px; font-weight:700; cursor:pointer;
@@ -835,6 +851,33 @@
   .globaldef{display:grid; grid-template-columns:repeat(2,minmax(0,220px)) auto; gap:14px; align-items:end; margin-top:4px;}
 
   /* ============ misc ============ */
+  /* ============================================================
+     日本語は「直立の極太」／斜体は欧文・数字だけ
+     （Bahnschrift/Yu Gothicにイタリック字形が無く、合成斜体は和文の骨格を崩すため。
+      数字は合成斜体でも崩れないので、数値表示だけ斜体を残す）
+     ============================================================ */
+  .brand .t1,h1,.menu-card h2,.ex-name,.card-head,.pill,.side-tag,
+  .mex-row .mn b,.detail h3,.end-hero,.end-next,.stall-tag,
+  .big-btn,.set-btn,.startbtn,.toast button,.resume .rz-txt b,
+  .set-form .sf-title,.figbox .fig-lab,.hud-label{
+    font-style:normal; letter-spacing:var(--ls1);
+  }
+  h1{letter-spacing:.005em;}
+  .big-btn,.set-btn,.startbtn{letter-spacing:var(--ls3);}
+  .card-head,.ex-name,.menu-card h2,.detail h3{letter-spacing:.015em;}
+  .pill,.stall-tag{letter-spacing:var(--ls2);}
+  /* 数値・欧文（斜体を残す側）は等幅数字で桁を揺らさない */
+  .timer,.stat .s-val,.rstat b,.chip b,.hud-metrics b,.wsrow .wval,.detail .d-row .v,
+  .prtable td.v,.calside .cs-num,.info-row .v,.rank em{font-variant-numeric:tabular-nums;}
+
+  /* 状態表現の統一（:active＝1px沈む・disabled＝1種類） */
+  .big-btn:active,.set-btn:active,.startbtn:active,.icon-btn:active,
+  .small-row button:active,.stepper button:active,.tgt-step button:active,.calbtn:active{
+    transform:translateY(1px);
+  }
+  button:disabled,.icon-btn:disabled,.set-in:disabled,input:disabled{
+    opacity:.3; filter:grayscale(1); pointer-events:none;
+  }
   /* キーボード操作時だけ出るフォーカスリング（マウス操作では出さない） */
   button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.navitem:focus-visible{
     outline:2px solid var(--acc); outline-offset:2px;
@@ -843,6 +886,11 @@
     display:inline-block; font-family:var(--cond); font-size:10px; letter-spacing:.1em; color:var(--txt3);
     border:1px solid var(--line2); padding:1px 6px; margin-left:6px; background:#0d0d12;
   }
+  /* ボタン内のキー表示（SPACE / S / + など）＝どのボタンでも同じ見た目に */
+  .kb{
+    font-family:var(--cond); font-style:normal; font-weight:600; font-size:var(--fs1);
+    letter-spacing:var(--ls3); opacity:.55; margin-left:var(--s2);
+  }
   .hint{font-family:var(--cond); font-size:11px; letter-spacing:.1em; color:var(--txt3); margin-top:10px; display:flex; gap:14px; flex-wrap:wrap;}
   .hint b{color:var(--txt2); font-weight:600;}
 
@@ -850,7 +898,10 @@
     *,*::before,*::after{animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.05s !important;}
     .fx-grain{animation:none;}
   }
-  @media (max-width:980px){
+  /* 880px以下で1カラム化。※PC(1180窓)で表示スケール125%＝944CSS pxになっても
+     携帯レイアウトに落ちないよう、980→880へ下げている（2026-07-29） */
+  @media (max-width:880px){
+    .rec-grid{grid-template-columns:1fr;}
     .menu-row{grid-template-columns:1fr;}
     .navitem{padding:0 16px;}
     .brand{padding:0 14px;}
@@ -863,8 +914,6 @@
     .wsrow{grid-template-columns:86px 1fr 58px;}
     .hist-row .hr-stats{gap:10px; font-size:11px;}
     .sf-grid{grid-template-columns:1fr 1fr;}
-    .tgt-row{grid-template-columns:1fr auto; gap:8px;}
-    .tgt-row .set-btn{grid-column:2; justify-self:end;}
     .chkline{padding-top:0;}
     .timerwrap{width:210px; height:210px;}
     .timer{font-size:78px;}
@@ -906,18 +955,18 @@
     </div>
   </div>
   <div class="navitems">
-    <div class="navitem on" data-tab="train" onclick="showTab('train')">
+    <button type="button" class="navitem on" data-tab="train" aria-current="page" onclick="showTab('train')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>
       トレーニング
-    </div>
-    <div class="navitem" data-tab="analyze" onclick="showTab('analyze')">
+    </button>
+    <button type="button" class="navitem" data-tab="analyze" onclick="showTab('analyze')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 20V10M10 20V4M16 20v-9M22 20H2"/></svg>
       分析
-    </div>
-    <div class="navitem" data-tab="settings" onclick="showTab('settings')">
+    </button>
+    <button type="button" class="navitem" data-tab="settings" onclick="showTab('settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
       設定
-    </div>
+    </button>
   </div>
 </nav>
 
@@ -944,7 +993,7 @@
   <div class="kicker">TODAY'S SESSION</div>
   <h1>今日も、積む。<small>A / B を選んで開始 — 1セットずつ記録＆休憩タイマー</small></h1>
   <div id="resumeBox"></div>
-  <div class="menu-row">
+  <div class="menu-row stagger">
     <div class="menu-card a">
       <div class="ghost">A</div>
       <div class="tag">MENU A</div>
@@ -1017,35 +1066,41 @@
   <div class="progress" style="display:none;"><span id="rec-prog"></span><span id="rec-menu"></span></div>
   <div class="ex-name center" id="rec-name" style="font-size:26px;"></div>
   <div class="sub center" id="rec-set" style="margin-bottom:2px;"></div>
-  <div class="timerwrap" id="timerwrap">
-    <svg viewBox="0 0 300 300" aria-hidden="true">
-      <circle class="ringbg" cx="150" cy="150" r="136"></circle>
-      <circle class="ringfg" id="ring" cx="150" cy="150" r="136" stroke-dasharray="854.5" stroke-dashoffset="0"></circle>
-    </svg>
-    <div class="timer" id="rec-timer">--</div>
-    <div class="restlab">REST</div>
-  </div>
-  <div class="small-row" id="rest-row">
-    <button onclick="extendRest(-10)">−10秒<span class="kb">-</span></button>
-    <button onclick="extendRest(10)">＋10秒<span class="kb">+</span></button>
-    <button onclick="skipRest()">スキップ<span class="kb">S</span></button>
-  </div>
-  <div class="nextup" id="rec-next-box"><span class="nlab">NEXT</span><span id="rec-next"></span></div>
-
-  <div class="card">
-    <div class="card-head">このセットの記録<span class="en">LOG&nbsp;THIS&nbsp;SET</span></div>
-    <div id="rec-side-block"></div>
-    <p class="note" style="margin-top:4px;">初期値＝設定の「デフォルト（負荷・回数）」／前セットの値。実際にやった数に直して入力。</p>
-  </div>
-  <button class="big-btn" onclick="nextManually()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M3.5 12.5l6 6L20.5 6"/></svg>
-    記録OK → 次へ<span class="kb">SPACE</span>
-  </button>
-  <div class="small-row">
-    <button onclick="goBack()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
-      戻る
-    </button>
+  <!-- 2カラム＝休憩(左)／記録入力＋CTA(右)。スーパーセットでも1画面に収める -->
+  <div class="rec-grid">
+    <div class="rec-left">
+      <div class="timerwrap" id="timerwrap">
+        <svg viewBox="0 0 300 300" aria-hidden="true">
+          <circle class="ringbg" cx="150" cy="150" r="136"></circle>
+          <circle class="ringfg" id="ring" cx="150" cy="150" r="136" stroke-dasharray="854.5" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="timer" id="rec-timer">--</div>
+        <div class="restlab">REST</div>
+      </div>
+      <div class="small-row" id="rest-row">
+        <button onclick="extendRest(-10)">−10秒<span class="kb">-</span></button>
+        <button onclick="extendRest(10)">＋10秒<span class="kb">+</span></button>
+        <button onclick="skipRest()">スキップ<span class="kb">S</span></button>
+      </div>
+      <div class="nextup" id="rec-next-box"><span class="nlab">NEXT</span><span id="rec-next"></span></div>
+    </div>
+    <div class="rec-right">
+      <div class="card">
+        <div class="card-head">このセットの記録<span class="en">LOG&nbsp;THIS&nbsp;SET</span></div>
+        <div id="rec-side-block"></div>
+        <p class="note" style="margin-top:4px;">初期値＝設定の「デフォルト（負荷・回数）」／前セットの値。実際にやった数に直して入力。</p>
+      </div>
+      <button class="big-btn" onclick="nextManually()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M3.5 12.5l6 6L20.5 6"/></svg>
+        記録OK → 次へ<span class="kb">SPACE</span>
+      </button>
+      <div class="small-row">
+        <button onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M15 5l-7 7 7 7"/></svg>
+          戻る
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1057,19 +1112,25 @@
     <div class="rank" id="end-rank" style="display:none;"><em>—</em><span>rank</span></div>
     <p class="rsub" id="end-summary-sub"></p>
   </div>
-  <div class="rstats" id="end-stats"></div>
+  <div class="rstats stagger" id="end-stats"></div>
   <div class="card">
     <div class="card-head">次回の重量<span class="en">NEXT&nbsp;LOAD</span></div>
     <p class="end-next" id="end-next-kg"></p>
     <p class="muted" id="end-sync"></p>
   </div>
-  <button class="big-btn" onclick="copyText(document.getElementById('end-text').value, this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/></svg>
-    まとめを全部コピー
+  <button class="big-btn" onclick="show('home'); renderResume();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg>
+    ホームに戻る
   </button>
-  <textarea id="end-text" readonly></textarea>
-  <p class="note">PC版はKB（hometraining.json＋トレーニングログ_2026.md）へ自動保存・git pushまで実行します。このテキストは手貼り用の控え。</p>
-  <button class="big-btn ghost" onclick="show('home'); renderResume();">ホームに戻る</button>
+  <div class="card memo">
+    <div class="card-head">手貼り用の控え<span class="en">PLAIN&nbsp;TEXT&nbsp;COPY</span>
+      <button class="set-btn ghost" style="margin-left:auto;" onclick="copyText(document.getElementById('end-text').value, this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/></svg>
+        コピー</button>
+    </div>
+    <textarea id="end-text" readonly></textarea>
+    <p class="note">記録はKB（hometraining.json＋トレーニングログ_2026.md）へ自動保存され、gitへpushされます。ここは手で貼りたい時用の控えです。</p>
+  </div>
   <div class="stripe"></div>
 </div>
 
@@ -1080,7 +1141,7 @@
   <div class="ana-head"><h1>分析</h1><span class="subk" id="ana-range">PERFORMANCE</span></div>
 
   <!-- 1. stat cards -->
-  <div class="stats" id="ana-stats"></div>
+  <div class="stats stagger" id="ana-stats"></div>
 
   <!-- 2. volume trend -->
   <div class="card ana-sec">
@@ -1392,7 +1453,11 @@ function show(id){
 }
 /* タブ切替（トレーニング/分析/設定）— 分析はrenderAnalyze()を毎回呼ぶ（オンデマンド計算） */
 function showTab(tab){
-  document.querySelectorAll(".navitem[data-tab]").forEach(n=>n.classList.toggle("on", n.getAttribute("data-tab")===tab));
+  document.querySelectorAll(".navitem[data-tab]").forEach(n=>{
+    const on = n.getAttribute("data-tab")===tab;
+    n.classList.toggle("on", on);
+    if(on) n.setAttribute("aria-current","page"); else n.removeAttribute("aria-current");
+  });
   document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
   const pane = document.getElementById("tab-"+tab);
   if(pane) pane.classList.add("active");
@@ -1443,7 +1508,12 @@ function updateHud(){
 }
 /* HUDの「中断」＝進行中セッションを保存したままホームへ（再開ボックスから戻れる） */
 function quitWorkout(){
-  if(!confirm("トレを中断してホームに戻る？（途中までの記録は残り、ホームから再開できます）")) return;
+  // 入力途中のセットは確定していない＝残らない。文言で明示する（2026-07-29レビュー指摘）
+  const onRec = document.getElementById("record").classList.contains("active");
+  const msg = onRec
+    ? "トレを中断してホームに戻る？（確定済みのセットは残ります。いま入力中のセットは記録されません）"
+    : "トレを中断してホームに戻る？（ここまでの記録は残り、ホームから再開できます）";
+  if(!confirm(msg)) return;
   sfx("back"); cancelAutoNext(); stopTimer(); releaseWake();
   saveCurrent(); show("home"); renderResume();
 }
@@ -2017,6 +2087,8 @@ function rollUp(id, to, unit){
   const el = document.getElementById(id); if(!el) return;
   const dur = 700, t0 = performance.now();
   const suffix = unit ? `<small>${unit}</small>` : "";
+  // 先に最終値を入れる＝ウィンドウが非表示でrAFが回らない時も正しい数字が残る（レビュー指摘）
+  el.innerHTML = Math.round(to).toLocaleString("ja-JP") + suffix;
   function frame(t){
     const p = Math.min(1, (t-t0)/dur);
     const e = 1-Math.pow(1-p, 3);
@@ -2031,7 +2103,8 @@ function renderRank(volKg){
   if(!box) return;
   const h = loadHistory().filter(s=>s.finished && s.menuKey===S.menuKey && s.startedAt!==S.startedAt);
   const past = h.slice(-5).map(s=>sessionVolume(s).volKg).filter(v=>v>0);
-  if(!past.length || !volKg){ box.style.display="none"; return; }
+  // 比較対象が2回未満なら出さない（1回だけの外れ値で「S 2000%」等が出るのを防ぐ・レビュー指摘）
+  if(past.length<2 || !volKg){ box.style.display="none"; box.innerHTML=""; return; }
   const avg = past.reduce((a,b)=>a+b,0)/past.length;
   const r = volKg/avg;
   const g = r>=1.10 ? "S" : r>=1.00 ? "A" : r>=0.90 ? "B" : "C";
@@ -2128,6 +2201,7 @@ function renderHistory(){
   document.getElementById("hist-detail").innerHTML="";
   if(!h.length){ list.innerHTML='<p class="sub">まだ履歴がありません。</p>'; return; }
   list.innerHTML="";
+  const volMax = Math.max.apply(null, h.map(s=>sessionVolume(s).volKg||0)) || 1;
   for(let i=h.length-1;i>=0;i--){
     const s=h[i];
     const vol = sessionVolume(s).volKg;
@@ -2135,6 +2209,7 @@ function renderHistory(){
     const kcal = sessionKcal(s);
     const div=document.createElement("div"); div.className="hist-row";
     div.innerHTML=`<div class="hl"><span class="badge ${s.menuKey==="A"?"A":"B"}">${s.menuKey||"?"}</span><b>${s.date}</b></div>
+      <div class="hbar ${s.menuKey==="A"?"A":"B"}" title="総重量 ${vol.toLocaleString("ja-JP")}kg（全期間の最大 ${volMax.toLocaleString("ja-JP")}kg 比）"><i style="width:${Math.max(1,Math.round(vol/volMax*100))}%"></i></div>
       <div class="hr-stats"><span><b>${vol.toLocaleString("ja-JP")}</b> kg</span><span><b>${min!=null?min:"—"}</b> 分</span><span><b>${kcal!=null?kcal:"—"}</b> kcal</span></div>`;
     div.onclick=()=>showHistDetail(i);
     list.appendChild(div);
@@ -2598,6 +2673,14 @@ function anaHeatData(){
   const growth = growthData();
   return {ws:ws, totals:totals, growth:growth};
 }
+/* 5段カラーランプ（0=消灯→4=ボルト）。opacityの連続階調より部位差が読める */
+/* 消灯→琥珀→ボルト。緑寄りに振るとオリーブ（カビ色）に見えるため暖色を経由させる */
+const HEAT_RAMP = ["#23232c","#55411a","#9c7f00","#ccc200","#d7ff00"];
+function anaHeatColor(k, D){
+  const p = anaHeatOpacity(k, D);            // 0..1（既存の強度計算を流用）
+  const i = p<=0.08 ? 0 : p<0.30 ? 1 : p<0.55 ? 2 : p<0.80 ? 3 : 4;
+  return HEAT_RAMP[i];
+}
 function anaHeatOpacity(k, D){
   if(anaMode===1){
     const v=D.ws[k]||0;
@@ -2633,9 +2716,10 @@ function anaHeat(){
     let g="";
     HEAT_SHAPES[side].forEach(pair=>{
       const k=pair[0];
-      g+=`<g class="muscle${anaSel===k?" sel":""}" data-m="${k}" fill-opacity="${anaHeatOpacity(k,D).toFixed(2)}">${pair[1]}<title>${anaHeatTitle(k,D)}</title></g>`;
+      // 明度1軸だと中間がオリーブに沈むため、5段の「色」で表す（2026-07-29）
+      g+=`<g class="muscle${anaSel===k?" sel":""}" data-m="${k}" fill="${anaHeatColor(k,D)}">${pair[1]}<title>${anaHeatTitle(k,D)}</title></g>`;
     });
-    return `<svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">${HEAT_SIL}<g fill="#d7ff00" stroke="rgba(215,255,0,.35)" stroke-width="1">${g}</g></svg>`;
+    return `<svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">${HEAT_SIL}<g fill="${HEAT_RAMP[0]}" stroke="rgba(255,255,255,.13)" stroke-width="1">${g}</g></svg>`;
   };
   document.getElementById("ana-fig-front").innerHTML = build("front");
   document.getElementById("ana-fig-back").innerHTML  = build("back");
@@ -2647,19 +2731,27 @@ function anaHeat(){
   [1,2,3].forEach(m=>document.getElementById("ana-mode-"+m).classList.toggle("on", anaMode===m));
   // 凡例
   const leg = document.getElementById("ana-heat-legend");
+  const scale = '<span class="scale">' + HEAT_RAMP.map(c=>`<i style="background:${c}"></i>`).join("") + '</span>';
   if(anaMode===1){
-    leg.innerHTML = '少 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 多　筋肥大の目安＝週10-20セット/部位（0=消灯・1-9=薄・10-20=適正・21+=濃）';
+    leg.innerHTML = '少 ' + scale + ' 多　筋肥大の目安＝週10-20セット/部位（0=消灯・1-9=薄・10-20=適正・21+=最濃）';
   }else if(anaMode===2){
-    leg.innerHTML = '少 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 多　全期間の累計総重量（対数濃淡・主働1.0/副次0.5・自重腹は回数）';
+    leg.innerHTML = '少 ' + scale + ' 多　全期間の累計総重量（対数スケール・主働1.0/副次0.5・自重腹は回数）';
   }else{
-    leg.innerHTML = '低 <span class="scale"><i style="opacity:.15"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:.8"></i><i style="opacity:1"></i></span> 高　成長度（重量ベース）＝初回kg→最新kgの伸び率（自重は回数）。筋肉量そのものではありません';
+    leg.innerHTML = '低 ' + scale + ' 高　成長度（重量ベース）＝初回kg→最新kgの伸び率（自重は回数）。筋肉量そのものではありません';
   }
   anaDetail(D);
 }
 function anaDetail(D){
   const box = document.getElementById("ana-detail");
   if(!anaSel){
-    box.innerHTML = '<div class="d-kick">Selected Muscle</div><h3 style="color:var(--txt3);">部位を選択<small>CLICK A MUSCLE</small></h3><p class="sub" style="margin-top:14px;">人型の部位をクリックすると、今週セット数・累計重量・担当種目・成長度を表示します。</p>';
+    // 未選択でも空にしない＝今週の上位3部位を出す（右カラムの空白を情報で埋める）
+    const top = MUSCLE_ORDER.map(k=>({k:k, v:D.ws[k]||0})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,3);
+    const rows = top.length
+      ? top.map(x=>`<div class="d-row"><span class="k">${MUSCLES[x.k].jp}</span><span class="v">${fmtSets(x.v)}<small> セット</small></span></div>`).join("")
+      : '<div class="d-row"><span class="k">今週の記録</span><span class="v">—</span></div>';
+    box.innerHTML = '<div class="d-kick">This Week — Top 3</div><h3 style="color:var(--txt2);">今週よく効かせた部位<small>CLICK A MUSCLE FOR DETAIL</small></h3>'
+      + '<div class="d-rows">' + rows + '</div>'
+      + '<p class="sub" style="margin-top:12px; font-size:11.5px;">人型の部位をクリックすると、今週セット数・累計重量・担当種目・成長度を表示します。</p>';
     return;
   }
   const k = anaSel, mi = MUSCLES[k];
@@ -2728,8 +2820,12 @@ function setRenderTargets(){
   list.innerHTML = _tgtRows.map((e,i)=>{
     const hip = (e.name==="ヒップスラスト")
       ? '<span class="linkbadge" title="ワンハンドロウと同じダンベルを付け替え無しで使う設定のため、トレ終了時の自動漸進でワンハンドロウの目安kgに再同期されます（ここで手で変えても次回のトレ終了時に上書き）">ワンハンドロウ連動</span>' : "";
-    const marks = (ov[e.name]!=null ? '<span class="ovmark">負荷 変更中</span>' : "")
-                + (rd[e.name]!=null ? '<span class="ovmark">回数 変更中</span>' : "");
+    // バッジは「メニュー定義と違う値になっている時」だけ出す
+    // （漸進エンジンは据置の種目にもtargetsを書くので、"存在するか"で判定すると全種目に付いてしまう）
+    const kgDiff = !e.bodyweight && ov[e.name]!=null && ov[e.name]!==e.targetKg;
+    const repDiff = rd[e.name]!=null && rd[e.name]!==e.repMin;
+    const marks = (kgDiff ? '<span class="ovmark">負荷 変更</span>' : "")
+                + (repDiff ? '<span class="ovmark">回数 変更</span>' : "");
     const band = `${e.repMin}${(e.repMax!=null && e.repMax!==e.repMin) ? ("-"+e.repMax) : ""}回帯・${e.sets}セット`;
     const kgCell = e.bodyweight
       ? `<span class="dnone">自重（負荷なし）</span>`
@@ -3045,6 +3141,12 @@ document.addEventListener("pointerdown", (e)=>{
   if(t.id==="r-check" || t.classList.contains("startbtn")) return; // 専用音があるので二重に鳴らさない
   sfx("click");
 }, true);
+/* マウスで押したボタンからフォーカスを外す（e.detail>0＝ポインタ由来のクリックのみ）。
+   キーボード操作（detail===0）ではフォーカスを保つのでタブ移動は壊さない。 */
+document.addEventListener("click", (e)=>{
+  const b = e.target.closest("button");
+  if(b && e.detail>0 && document.activeElement===b) b.blur();
+});
 let _lastHover = null, _lastHoverAt = 0;
 document.addEventListener("pointerover", (e)=>{
   const t = e.target.closest("button,.navitem,.menu-card,.hist-row,.stat,.muscle");
@@ -3063,7 +3165,10 @@ document.addEventListener("keydown", (e)=>{
   const onRec = document.getElementById("record").classList.contains("active");
   if(!onReady && !onRec) return;
   if(e.code==="Space"){
-    if(typing && document.activeElement.tagName!=="INPUT") return;
+    // 入力欄にフォーカス中は無視。ボタンにフォーカスがある時はそのボタンを押す（ブラウザ既定に任せる）
+    // ＝マウスで「＋」を押した直後のSpaceで勝手に次へ進まないようにする（2026-07-29レビュー指摘）
+    if(typing) return;
+    if(document.activeElement && document.activeElement.tagName==="BUTTON") return;
     e.preventDefault();
     if(onReady) finishSet(); else nextManually();
     return;
