@@ -173,7 +173,7 @@
   .screen.active{display:block;}
   #ready{max-width:760px; margin:0 auto;}
   #record{max-width:1010px; margin:0 auto;}
-  #end{max-width:860px; margin:0 auto;}
+  #end{max-width:1000px; margin:0 auto;}
   /* 休憩画面は2カラム（左＝タイマー／右＝記録入力とCTA）＝CTAが画面外に出ないため */
   .rec-grid{display:grid; grid-template-columns:minmax(0,1fr) 430px; gap:var(--s5); align-items:start; margin-top:var(--s3);}
   .rec-left{display:flex; flex-direction:column; align-items:center;}
@@ -296,6 +296,78 @@
   .menu-card.a .startbtn{background:var(--acc); color:#000;}
   .menu-card.b .startbtn{background:var(--white); color:#000;}
   .menu-row.one{grid-template-columns:1fr;}
+
+  /* ============ v5.1 完了画面（見本パターン4：ハイライト先頭） ============ */
+  #end .card{margin:12px 0;}
+  #end svg{flex:none;}
+  #end-sync{margin:10px 0 0; text-align:center;}
+  .xd{display:inline-flex; align-items:center; gap:3px; font-family:var(--disp); font-style:italic; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .xd svg{width:15px; height:15px;}
+  .xd b{font-size:17px;} .xd small{font-size:11px; color:var(--txt2); margin-left:1px;}
+  .xd.up{color:var(--acc);} .xd.down{color:var(--red);} .xd.flat{color:var(--txt3);}
+  .xpr{display:inline-flex; align-items:center; gap:3px; margin-left:8px; padding:2px 7px 2px 5px; background:var(--acc); color:#000;
+    font-family:var(--disp); font-style:italic; font-weight:700; font-size:11px; letter-spacing:.06em; vertical-align:2px;
+    clip-path:polygon(0 0,100% 0,100% 70%,calc(100% - 5px) 100%,0 100%);}
+  .xpr svg{width:12px; height:12px;}
+  .xn{display:inline-flex; align-items:center; gap:5px; font-family:var(--disp); font-style:italic; font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .xn svg{width:14px; height:14px; color:var(--txt3);}
+  .xn b{font-size:19px;} .xn b small{font-size:11px; color:var(--txt2); margin-left:1px;}
+  .xn s{color:var(--txt3); font-size:14px; text-decoration-thickness:1.5px;}
+  .xn i{display:inline-flex; align-items:center; gap:1px; font-style:italic; font-size:12px; padding:1px 6px 1px 3px; background:var(--acc); color:#000;}
+  .xn i svg{width:11px; height:11px; color:#000;}
+  .xn.up b{color:var(--acc);}
+  .xn i.h{background:transparent; color:var(--txt3); padding:0;} .xn i.h svg{color:var(--txt3);}
+  .xn.bw b{color:var(--txt2); font-size:15px;}
+  .xtab{width:100%; border-collapse:collapse;}
+  .xtab th{text-align:left; font-family:var(--cond); font-weight:600; font-size:10px; letter-spacing:.22em; color:var(--txt3); padding:0 10px 8px; border-bottom:1px solid var(--line2);}
+  .xtab td{padding:10px 10px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:middle;}
+  .xtab td.nm{font-weight:700; font-size:14px; white-space:nowrap;}
+  .xtab td.pv{color:var(--txt3); font-family:var(--disp); font-style:italic; font-size:15px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .xtab td.tv{font-family:var(--disp); font-style:italic; font-weight:700; font-size:18px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .xtab small{font-size:11px; color:var(--txt2); margin-left:1px;}
+  .xtab tr.ispr{background:linear-gradient(90deg,rgba(215,255,0,.08),transparent 75%);}
+  .xtab tr.ispr td.nm{box-shadow:inset 3px 0 0 var(--acc);}
+  .xcont{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .xcont.row{margin:12px 0;}
+  .xc{background:var(--panel2); border:1px solid var(--line); padding:11px 14px; clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);}
+  .xc em{display:flex; align-items:center; gap:6px; font-style:normal; font-size:11.5px; font-weight:700; color:var(--txt2);}
+  .xc em svg{width:14px; height:14px; color:var(--acc);}
+  .xc b{display:block; font-family:var(--disp); font-style:italic; font-weight:700; font-size:30px; line-height:1.1; margin-top:5px; font-variant-numeric:tabular-nums;}
+  .xc b small{font-size:12px; color:var(--txt2); margin-left:2px;}
+  .xworld{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px;}
+  .xw{position:relative; border:1px solid var(--line2); padding:10px 12px; background:var(--panel2);}
+  .xw-k{font-size:12px; font-weight:700; color:var(--txt2); line-height:1.3;}
+  .xw-k span{display:block; font-size:10.5px; font-weight:600; color:var(--txt3);}
+  .xw-v{display:flex; align-items:center; gap:8px; margin-top:4px;}
+  .xw-v b{font-family:var(--disp); font-style:italic; font-weight:700; font-size:26px; color:var(--txt); font-variant-numeric:tabular-nums;}
+  .xw-v b small{font-size:11px; margin-left:2px; color:var(--txt2);}
+  .xw-src{display:flex; align-items:center; gap:5px; margin-top:6px; font-size:10px; color:var(--txt3); font-family:var(--cond); letter-spacing:.06em;}
+  .xw-src svg{width:12px; height:12px;}
+  .xw-src a{color:var(--txt2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .xgrid2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start;}
+  .xgrid2.ban{margin:12px 0;}
+  .xgrid2.ban.one{grid-template-columns:minmax(0,1fr);}
+  .xgrid2.ban:empty{display:none;}
+  .xban{border:1px solid var(--line2); background:var(--panel); clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+  .xban-h{display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--acc); color:#000;}
+  .xban.up .xban-h{background:var(--white);}
+  .xban-h svg{width:18px; height:18px;}
+  .xban-h b{font-family:var(--disp); font-style:italic; font-size:18px; letter-spacing:.1em;}
+  .xban-h span{margin-left:auto; font-family:var(--disp); font-style:italic; font-weight:700; font-size:22px;}
+  .xban-b{padding:6px 14px 10px;}
+  .xbi{display:flex; align-items:baseline; gap:10px; padding:6px 0; border-bottom:1px solid var(--line);}
+  .xbi:last-child{border-bottom:none;}
+  .xbi em{font-style:normal; font-weight:700; font-size:13.5px; flex:1;}
+  .xbi b{font-family:var(--disp); font-style:italic; font-size:22px; color:var(--acc); font-variant-numeric:tabular-nums;}
+  .xban.up .xbi b{color:var(--white);}
+  .xbi b small{font-size:12px; color:var(--txt2);}
+  .xbi s{font-family:var(--disp); font-style:italic; font-size:14px; color:var(--txt3);}
+  .xbi i{font-style:italic; font-family:var(--disp); font-weight:700; font-size:12px; background:var(--acc); color:#000; padding:0 6px;}
+  @media (max-width:880px){
+    .xgrid2{grid-template-columns:minmax(0,1fr);}
+    .xcont{grid-template-columns:1fr 1fr;}
+    #end-table{overflow-x:auto;}
+  }
   .menu-card.m .ghost{-webkit-text-stroke:1.5px rgba(215,255,0,.2);}
   .menu-card.m .tag{background:var(--acc); color:#000;}
   .menu-card.m .startbtn{background:var(--acc); color:#000;}
@@ -535,8 +607,6 @@
     border:1px solid var(--line); padding:var(--s3); font-size:12.5px; line-height:1.65;
     font-family:ui-monospace,Consolas,monospace; -webkit-user-select:text; user-select:text; resize:vertical;
   }
-  .card.memo{background:linear-gradient(168deg,#0f0f14,#0b0b10);}
-  .card.memo textarea:focus{color:var(--txt);}
   textarea:focus{outline:none; border-color:var(--acc);}
 
   /* ============ end screen ============ */
@@ -1119,25 +1189,22 @@
     <div class="rank" id="end-rank" style="display:none;"><em>—</em><span>rank</span></div>
     <p class="rsub" id="end-summary-sub"></p>
   </div>
+  <div class="xgrid2 ban" id="end-ban"></div>
   <div class="rstats stagger" id="end-stats"></div>
+  <div class="xcont row" id="end-cont"></div>
   <div class="card">
-    <div class="card-head">次回の重量<span class="en">NEXT&nbsp;LOAD</span></div>
-    <p class="end-next" id="end-next-kg"></p>
-    <p class="muted" id="end-sync"></p>
+    <div class="card-head">種目別<span class="en">VS&nbsp;LAST</span></div>
+    <div id="end-table"></div>
+  </div>
+  <div class="card" id="end-world-card" style="display:none;">
+    <div class="card-head">世間との比較<span class="en">WORLD</span></div>
+    <div id="end-world"></div>
   </div>
   <button class="big-btn" onclick="show('home'); renderResume();">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg>
     ホームに戻る
   </button>
-  <div class="card memo">
-    <div class="card-head">手貼り用の控え<span class="en">PLAIN&nbsp;TEXT&nbsp;COPY</span>
-      <button class="set-btn ghost" style="margin-left:auto;" onclick="copyText(document.getElementById('end-text').value, this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/></svg>
-        コピー</button>
-    </div>
-    <textarea id="end-text" readonly></textarea>
-    <p class="note">記録はKB（hometraining.json＋トレーニングログ_2026.md）へ自動保存され、gitへpushされます。ここは手で貼りたい時用の控えです。</p>
-  </div>
+  <p class="muted" id="end-sync"></p>
   <div class="stripe"></div>
 </div>
 
@@ -1336,9 +1403,9 @@ const MENU_KEYS = Object.keys(MENUS);
 function menuCls(k){ return (k==="A"||k==="B"||k==="M") ? k : "M"; }
 const KG_MIN=2, KG_MAX=32, KG_STEP=1; // v5: サイドレイズ初期2kg（本人決定）のため下限2kg・1kg刻み
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v5.0 (2026-11-16) 1メニュー5種目・目標回数1本の漸進・携帯へ自動反映";
-const APP_VER_SHORT = "v5.0", APP_VER_DATE = "2026-11-16";
-const WHATS_NEW = ["1メニュー 5種目", "シーテッドDBショルダープレス", "休憩 90秒", "WUセット 廃止", "目標回数×3セットで +1kg", "携帯へ自動反映"];
+const APP_VERSION = "v5.1 (2026-11-16) 完了画面の作り直し＋1メニュー5種目・目標回数1本の漸進・携帯へ自動反映";
+const APP_VER_SHORT = "v5.1", APP_VER_DATE = "2026-11-16";
+const WHATS_NEW = ["完了画面 自己ベスト・次回の重量・前回比・継続", "1メニュー 5種目", "シーテッドDBショルダープレス", "休憩 90秒", "WUセット 廃止", "目標回数×3セットで +1kg", "携帯へ自動反映"];
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -2183,11 +2250,7 @@ function finishWorkout(){
   rollUp("rs-kcal", sum.kcal, ""); rollUp("rs-sets", doneSets, "");
   // ランク＝直近5セッション（同メニュー）の総重量平均との比。履歴が無ければ非表示（でっち上げない）
   renderRank(sum.volKg);
-  const ups = progs.filter(p=>p.to>p.kg);
-  document.getElementById("end-next-kg").textContent =
-    ups.length ? "次回：" + ups.map(p=>`${p.name} ${p.to}kg`).join("・") + "（目安kgを自動更新済み）"
-               : "次回：全種目 現在の重量を継続（目標回数×全セットで+1kg）";
-  document.getElementById("end-text").value = sessionToText(S) + "\n" + summaryLine(sum);
+  renderEndV5(progs);
   const syncEl = document.getElementById("end-sync");
   if(PYW && window.pywebview){
     syncEl.textContent = "KBへ保存中…";
@@ -2211,6 +2274,111 @@ function pubText(p){
   if(!p.ok) return "・携帯へ反映失敗（次回持越し）";
   if(p.skipped) return "";
   return p.pushed ? "・携帯へ反映済み" : "・携帯へ反映（push失敗=次回持越し）";
+}
+
+/* ===================== 完了画面 v5.1（見本パターン4：ハイライト先頭） ===================== */
+/* PR＝推定1RM（Epley: kg×(1+回数/30)）・懸垂など自重は回数。「前回」＝同じ種目名の直近（旧A/B履歴も含む）。
+   次回の重量＝computeProgression の結果をそのまま使う。世間との比較は WORLD_ON=false の間は出さない。 */
+const WORLD_ON = false;
+const WORLD_DATA = [];   // {k, sub, v, u, src, url} — 調査担当の根拠つきデータのみ
+const XSV = (inner, opt)=>`<svg viewBox="0 0 24 24" ${opt||'fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"'}>${inner}</svg>`;
+const XIC = {
+  up:   XSV('<path d="M12 19V6M6 11l6-6 6 6"/>'),
+  down: XSV('<path d="M12 5v13M6 13l6 6 6-6"/>'),
+  flat: XSV('<path d="M5 12h14"/>'),
+  pr:   XSV('<path d="M3 8l4.6 4L12 4.5 16.4 12 21 8l-2 11H5z"/>', 'fill="currentColor"'),
+  plus: XSV('<path d="M12 5v14M5 12h14"/>'),
+  hold: XSV('<path d="M5 9h14M5 15h14"/>'),
+  next: XSV('<path d="M4 12h14M13 6l6 6-6 6"/>'),
+  cal:  XSV('<rect x="3.5" y="5" width="17" height="15"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"'),
+  bolt: XSV('<path d="M13.5 2L4 14h7l-1.5 8L20 10h-7z"/>', 'fill="currentColor"'),
+  sum:  XSV('<path d="M18 5H6l6 7-6 7h12"/>'),
+  seed: XSV('<path d="M12 21V11M12 11c0-4 3-7 8-7 0 5-3 7-8 7zM12 14c0-3-2-5-7-5 0 4 2 5 7 5z"/>', 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"'),
+  doc:  XSV('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>', 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"')
+};
+function est1rm(kg, r){ return kg*(1+r/30); }
+function endExInfo(ex){
+  const recs=(ex.records||[]).filter(r=>r);
+  const reps=[], kgs=[]; let vol=0, best=0, bestTxt="";
+  const bw = !!ex.bodyweight || isChinup(ex.name);
+  recs.forEach(r=>(r.entries||[]).forEach(en=>{
+    const rp=en.reps||0; reps.push(rp); kgs.push(en.kg);
+    if(bw || en.kg==null){ vol+=rp; if(rp>best){ best=rp; bestTxt=rp+"回"; } }
+    else { vol+=en.kg*rp; const m=est1rm(en.kg,rp); if(m>best){ best=m; bestTxt=en.kg+"kg×"+rp; } }
+  }));
+  return {n:recs.length, reps, kgs, vol, best, bestTxt, bw};
+}
+function endSetsTxt(i){
+  if(!i.n) return "—";
+  if(i.bw) return i.reps.join("・")+"<small>回</small>";
+  const k=i.kgs[0], allSame=i.kgs.every(x=>x===k);
+  return allSame ? k+"<small>kg</small> × "+i.reps.join("・") : i.kgs.map((x,j)=>x+"×"+i.reps[j]).join(" ");
+}
+function endBuild(progs){
+  const hist = loadHistory().filter(s=>s.finished);
+  const past = hist.filter(s=>s.startedAt!==S.startedAt);
+  const rows = S.exercises.filter(e=>!e.wu).map(ex=>{
+    const t=endExInfo(ex); let prev=null, allBest=0;
+    past.forEach(s=>(s.exercises||[]).forEach(pe=>{
+      if(pe.wu || pe.name!==ex.name) return;
+      const pi=endExInfo(pe); if(!pi.n) return;
+      prev=pi; if(pi.best>allBest) allBest=pi.best;
+    }));
+    const pg = progs.find(p=>p.name===ex.name);
+    return {name:ex.name, bw:t.bw, t, prev, d: prev ? t.vol-prev.vol : 0,
+      pr: !!prev && t.n>0 && t.best>allBest+1e-9, next: pg ? {kg:pg.kg, to:pg.to} : null};
+  });
+  const wk={}; hist.forEach(s=>{ const w=weekStartOf(sessTime(s)); wk[w]=(wk[w]||0)+1; });
+  const W7=7*86400000, ws=weekStartOf(sessTime(S));
+  let w0 = (wk[ws]||0)>=2 ? ws : ws-W7, streak=0;
+  while((wk[w0]||0)>=2){ streak++; w0-=W7; }
+  const yr = (S.date||todayStr()).slice(0,4);
+  const year = hist.filter(s=>(s.date||"").indexOf(yr)===0).length;
+  const first = hist.length ? Math.min.apply(null, hist.map(sessTime)) : sessTime(S);
+  const days = Math.floor((sessTime(S)-first)/86400000)+1;
+  return {rows, cont:{total:hist.length, streak, yr, year, days}};
+}
+function endDelta(r){
+  if(!r.prev) return `<span class="xd flat">${XIC.flat}</span>`;
+  const cls = r.d>0 ? "up" : r.d<0 ? "down" : "flat";
+  const v = (r.d>0?"+":r.d<0?"−":"±")+Math.abs(Math.round(r.d)).toLocaleString("ja-JP");
+  return `<span class="xd ${cls}">${XIC[cls]}<b>${v}</b><small>${r.bw?"回":"kg"}</small></span>`;
+}
+function endNext(r){
+  if(r.bw) return `<span class="xn bw">${XIC.next}<b>自重</b></span>`;
+  if(!r.next) return "—";
+  if(r.next.to>r.next.kg) return `<span class="xn up"><s>${r.next.kg}</s>${XIC.next}<b>${r.next.to}<small>kg</small></b><i>${XIC.plus}1</i></span>`;
+  return `<span class="xn hold"><b>${r.next.kg}<small>kg</small></b><i class="h">${XIC.hold}</i></span>`;
+}
+function renderEndV5(progs){
+  const D = endBuild(progs), C = D.cont;
+  const prs = D.rows.filter(r=>r.pr), ups = D.rows.filter(r=>r.next && r.next.to>r.next.kg);
+  const ban = [];
+  if(prs.length) ban.push(`<div class="xban pr"><div class="xban-h">${XIC.pr}<b>NEW RECORD</b><span>${prs.length}</span></div><div class="xban-b">`+
+    prs.map(r=>`<div class="xbi"><em>${esc(r.name)}</em><b>${r.t.bestTxt}</b><s>${r.prev.bestTxt}</s></div>`).join("")+`</div></div>`);
+  if(ups.length) ban.push(`<div class="xban up"><div class="xban-h">${XIC.plus}<b>NEXT LOAD</b><span>${ups.length}</span></div><div class="xban-b">`+
+    ups.map(r=>`<div class="xbi"><em>${esc(r.name)}</em><b>${r.next.to}<small>kg</small></b><s>${r.next.kg}kg</s><i>+1</i></div>`).join("")+`</div></div>`);
+  const bEl = document.getElementById("end-ban");
+  bEl.innerHTML = ban.join(""); bEl.classList.toggle("one", ban.length===1);
+  document.getElementById("end-cont").innerHTML =
+    `<div class="xc"><em>${XIC.sum}通算</em><b>${C.total}<small>回</small></b></div>`+
+    `<div class="xc"><em>${XIC.bolt}週2回 連続</em><b>${C.streak}<small>週</small></b></div>`+
+    `<div class="xc"><em>${XIC.cal}${C.yr}年</em><b>${C.year}<small>/100回</small></b></div>`+
+    `<div class="xc"><em>${XIC.seed}開始から</em><b>${C.days}<small>日</small></b></div>`;
+  document.getElementById("end-table").innerHTML =
+    `<table class="xtab"><thead><tr><th>種目</th><th>前回</th><th>今回</th><th>差</th><th>次回</th></tr></thead><tbody>`+
+    D.rows.map(r=>`<tr class="${r.pr?"ispr":""}"><td class="nm">${esc(r.name)}${r.pr?`<span class="xpr">${XIC.pr}PR</span>`:""}</td>`+
+      `<td class="pv">${r.prev?endSetsTxt(r.prev):"—"}</td><td class="tv">${endSetsTxt(r.t)}</td><td>${endDelta(r)}</td><td>${endNext(r)}</td></tr>`).join("")+
+    `</tbody></table>`;
+  const wc = document.getElementById("end-world-card");
+  if(WORLD_ON && WORLD_DATA.length){
+    document.getElementById("end-world").innerHTML = `<div class="xworld">`+WORLD_DATA.map(w=>
+      `<div class="xw"><div class="xw-k">${esc(w.k)}<span>${esc(w.sub||"")}</span></div>`+
+      `<div class="xw-v"><b>${esc(w.v)}<small>${esc(w.u||"")}</small></b></div>`+
+      `<div class="xw-src">${XIC.doc}${w.url?`<a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.src||w.url)}</a>`:`<span>${esc(w.src||"")}</span>`}</div></div>`).join("")+`</div>`;
+    wc.style.display = "";
+  }else{ wc.style.display = "none"; }
+  return D;
 }
 
 /* ===================== TEXT FORMAT (Notion貼り付け用・1行1種目) ===================== */
