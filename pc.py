@@ -2,11 +2,11 @@
 # 自宅トレアプリのPC版（pywebview）
 # v3: js_api を追加。記録の正本＝KB（private）の hometraining.json。
 #     トレ終了時に ①json保存 ②トレーニングログ_2026.md へ日付ブロック追記 ③git add/commit/push を自動実行。
-# - private_mode=False ＝ localStorage（進行中のトレ）を保持する。
+# - private_mode=False ＝ localStorage（KB保存失敗時の端末ミラー）を保持する。v5.3で途中再開は廃止。
 # - 🚨 記録の正本は KB（private）のみ。public リポジトリ（このフォルダ）へは mobile_data.json だけを書く。
 #   v5（2026-11-16 本人決定）：トレ終了時に KB への記録の後で publish_mobile も自動実行する
 #   （8/14の「ボタンを押した時だけ」を上書き。履歴・目安kg・体重が毎回公開されることを本人が了承済み）。
-#   設定タブの「スマホへ反映」ボタンも残す。
+#   v5.3（2026-11-16）：設定タブは廃止＝反映はトレ終了時の自動だけ。
 import io
 import json
 import os
@@ -147,7 +147,7 @@ class Api:
         """KBの正本 → 公開リポジトリの mobile_data.json を書き出して push。
 
         スマホ（GitHub Pages）はこのファイルを起動時に読んで履歴を表示する。
-        ⚠️公開リポジトリ＝誰でも閲覧可。トレ終了時（自動・v5）と設定タブのボタンで実行される。
+        ⚠️公開リポジトリ＝誰でも閲覧可。トレ終了時に自動で実行される（v5.3：設定タブのボタンは廃止）。
         """
         try:
             data = self.load_data()
@@ -205,7 +205,7 @@ class Api:
         """トレ終了時にJSから1回呼ぶ：json保存＋md追記＋git同期＋携帯への反映（v5）。
 
         携帯への反映は KB への記録の後に行う＝失敗してもトレ記録は失われない。
-        失敗分は次回の publish_mobile（自動・手動どちらでも）で commit/push される。
+        失敗分は次回の publish_mobile で commit/push される。
         """
         res_save = self.save_data(data)
         res_md = self.append_md_block(md_block)
