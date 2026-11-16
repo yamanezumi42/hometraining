@@ -142,26 +142,6 @@
   .brand .mark svg{width:21px; height:21px;}
   .brand .t1{font-family:var(--disp); font-weight:700; font-style:italic; font-size:21px; letter-spacing:.03em; line-height:1;}
   .brand .t2{font-family:var(--cond); font-size:9px; letter-spacing:.34em; color:var(--txt3); text-transform:uppercase; margin-top:4px;}
-  .navitems{display:flex; align-items:stretch;}
-  .navitem{
-    display:flex; align-items:center; gap:9px; padding:0 25px;
-    font-family:var(--cond); font-weight:600; font-size:14px; letter-spacing:.15em;
-    color:var(--txt2); cursor:pointer; position:relative; overflow:hidden;
-    border-right:1px solid var(--line);
-    transition:color .16s var(--ease), background .16s, opacity .16s;
-  }
-  .navitem svg{width:17px; height:17px;}
-  .navitem::before{ /* hover sweep */
-    content:""; position:absolute; inset:0; transform:translateX(-101%);
-    background:linear-gradient(100deg,transparent,rgba(215,255,0,.13),transparent);
-    transition:transform .45s var(--ease);
-  }
-  .navitem:hover{color:var(--txt); background:#121218;}
-  .navitem:hover::before{transform:translateX(101%);}
-  .navitem.on{color:#000; background:var(--acc);}
-  .navitem.on svg{color:#000;}
-  .navitem.on{ clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%); }
-  body.in-workout .navitem{pointer-events:none; opacity:.22; filter:grayscale(1);}
   body.in-workout{padding-bottom:10px;}
 
   /* ============ panes / screens ============ */
@@ -213,9 +193,6 @@
     letter-spacing:.01em; margin-bottom:16px; position:relative;
   }
   h1 small{display:block; font-size:14px; font-weight:600; color:var(--txt2); letter-spacing:.12em; margin-top:11px; font-style:normal; text-shadow:none;}
-  .ana-head{display:flex; align-items:baseline; gap:16px;}
-  .ana-head h1{font-size:34px; margin-bottom:14px;}
-  .ana-head .subk{font-family:var(--cond); font-size:12px; letter-spacing:.24em; color:var(--txt3); text-transform:uppercase;}
   .sub{color:var(--txt2); font-size:13px; line-height:1.75;}
   .muted{color:var(--txt3); font-size:12px; font-family:var(--cond); letter-spacing:.08em;}
   .center{text-align:center;}
@@ -591,7 +568,33 @@
   .flash.go{animation:flashAnim 220ms ease;}
   @keyframes flashAnim{0%{opacity:0;}30%{opacity:.18;}100%{opacity:0;}}
 
-  /* ============ ANALYZE TAB ============ */
+  /* ============ HOME（v5.4：分析を集約・見本パターン3） ============ */
+  .hx-main{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:stretch; margin:20px 0 18px;}
+  .hx-main > *{margin:0 !important;}
+  .hx-main .menu-row{display:block;}
+  .hx-main .menu-card{height:100%;}
+  .hx-pair{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:stretch;}
+  .hx-pair > .ana-sec{margin:18px 0; min-width:0;}
+  .hx-pair .calwrap{grid-template-columns:1fr 132px; gap:14px;}
+  .hx-pair .card{padding:20px 20px;}
+  .hx-last .hx-date{margin-left:auto; font-family:var(--cond); font-style:normal; font-weight:600; font-size:13px; letter-spacing:.12em; color:var(--txt2);}
+  .hx-sum{display:flex; gap:22px; margin:2px 0 12px; flex-wrap:wrap;}
+  .hx-sum span{display:flex; align-items:baseline; gap:6px;}
+  .hx-sum svg{width:15px; height:15px; color:var(--acc); align-self:center;}
+  .hx-sum b{font-family:var(--disp); font-style:italic; font-weight:700; font-size:24px; font-variant-numeric:tabular-nums;}
+  .hx-sum small{font-size:12px; color:var(--txt2);}
+  .hx-tab{width:100%; border-collapse:collapse;}
+  .hx-tab td{padding:7px 4px; border-top:1px solid var(--line); vertical-align:middle;}
+  .hx-tab .hx-n{font-size:13.5px; color:var(--txt);}
+  .hx-tab .hx-k{text-align:right; white-space:nowrap; width:62px;}
+  .hx-tab .hx-k b{font-family:var(--disp); font-style:italic; font-size:18px;}
+  .hx-tab .hx-k small{font-size:11px; color:var(--txt2); margin-left:1px;}
+  .hx-tab .hx-bw{font-size:12px; color:var(--txt2);}
+  .hx-tab .hx-r{text-align:right; white-space:nowrap; width:100px;}
+  .hx-tab .hx-r i{display:inline-block; min-width:26px; text-align:center; margin-left:3px; padding:2px 0; font-family:var(--disp); font-style:italic; font-weight:700; font-size:15px; background:#16161d; border:1px solid var(--line);}
+  .hx-none{color:var(--txt3);}
+
+  /* ============ 分析カード ============ */
   .ana-sec{margin:18px 0;}
   .card-head .legend{margin-left:auto; display:flex; align-items:center; gap:16px; font-size:11px; font-style:normal; font-weight:600; letter-spacing:.14em; color:var(--txt2); font-family:var(--cond);}
   .card-head .legend i{display:inline-block; width:12px; height:12px; transform:skewX(var(--skew)); margin-right:6px; vertical-align:-1px;}
@@ -752,7 +755,7 @@
     opacity:.3; filter:grayscale(1); pointer-events:none;
   }
   /* キーボード操作時だけ出るフォーカスリング（マウス操作では出さない） */
-  button:focus-visible,input:focus-visible,select:focus-visible,.navitem:focus-visible{
+  button:focus-visible,input:focus-visible,select:focus-visible{
     outline:2px solid var(--acc); outline-offset:2px;
   }
 
@@ -765,12 +768,14 @@
   @media (max-width:880px){
     .rec-grid{grid-template-columns:1fr;}
     .menu-row{grid-template-columns:1fr;}
-    .navitem{padding:0 16px;}
     .brand{padding:0 14px;}
     h1{font-size:32px;}
     .tabpane{padding:22px 14px 36px;}
     .stats,.rstats{grid-template-columns:1fr 1fr;}
-    .calwrap{grid-template-columns:1fr;}
+    .calwrap,.hx-pair .calwrap{grid-template-columns:1fr;}
+    .hx-main,.hx-pair{grid-template-columns:1fr;}
+    .hx-main{gap:15px;}
+    .hx-pair > .ana-sec{margin:9px 0;}
     .wsrow{grid-template-columns:86px 1fr 58px;}
     .hist-row .hr-stats{gap:10px; font-size:11px;}
     .timerwrap{width:210px; height:210px;}
@@ -797,7 +802,7 @@
 <div class="fx-vig"></div>
 <div id="wipe"><i></i></div>
 
-<!-- ===== TOP NAV（タブバー） ===== -->
+<!-- ===== TOP NAV（v5.4：タブは無し＝ブランドだけ） ===== -->
 <nav class="topnav" id="tabbar">
   <div class="brand">
     <div class="mark">
@@ -809,19 +814,9 @@
       <div class="t2">HOME&nbsp;STRENGTH&nbsp;LOG</div>
     </div>
   </div>
-  <div class="navitems">
-    <button type="button" class="navitem on" data-tab="train" aria-current="page" onclick="showTab('train')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>
-      トレーニング
-    </button>
-    <button type="button" class="navitem" data-tab="analyze" onclick="showTab('analyze')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 20V10M10 20V4M16 20v-9M22 20H2"/></svg>
-      分析
-    </button>
-  </div>
 </nav>
 
-<!-- ===== TAB: トレーニング ===== -->
+<!-- ===== 本体（v5.4：ホームに分析を集約） ===== -->
 <div id="tab-train" class="tabpane active">
 
 <!-- ===== WORKOUT HUD（トレ進行中のみ表示） ===== -->
@@ -847,20 +842,76 @@
     <span class="wn-h">新しくなった所</span>
     <ul id="wn-list"></ul>
   </div>
-  <div class="menu-row one stagger">
-    <div class="menu-card m">
-      <div class="ghost">5</div>
-      <div class="tag">MENU</div>
-      <h2>全身<span id="menu-sub-M">FULL BODY — 5種目</span></h2>
-      <ul id="menu-ul-M">
-        <li>ゴブレットスクワット</li><li>フラットDBプレス</li><li>懸垂/チンアップ</li><li>シーテッドDBショルダープレス</li><li>サイドレイズ</li>
-      </ul>
-      <button class="startbtn" onclick="startWorkout('M')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>
-        開始
-      </button>
+  <!-- 上段：開始＋前回 -->
+  <div class="hx-main">
+    <div class="menu-row one stagger">
+      <div class="menu-card m">
+        <div class="ghost">5</div>
+        <div class="tag">MENU</div>
+        <h2>全身<span id="menu-sub-M">FULL BODY — 5種目</span></h2>
+        <ul id="menu-ul-M">
+          <li>ゴブレットスクワット</li><li>フラットDBプレス</li><li>懸垂/チンアップ</li><li>シーテッドDBショルダープレス</li><li>サイドレイズ</li>
+        </ul>
+        <button class="startbtn" onclick="startWorkout('M')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>
+          開始
+        </button>
+      </div>
+    </div>
+    <div class="card hx-last" id="hx-last"></div>
+  </div>
+
+  <!-- 統計 -->
+  <div class="stats stagger" id="ana-stats"></div>
+
+  <!-- 2. volume trend -->
+  <div class="card ana-sec">
+    <div class="card-head">総重量の推移<span class="en">Total Volume / Session</span>
+      <span class="legend"><span class="la"><i></i>M 全身</span><span class="lb"><i></i>A/B 旧</span></span>
+    </div>
+    <div class="chart-scroll" id="ana-vol-scroll"><div class="chart" id="ana-vol-chart"></div><div style="display:flex; width:max-content; min-width:100%; padding:0 8px;" id="ana-vol-xlabs"></div></div>
+  </div>
+
+  <div class="hx-pair">
+    <!-- 3. exercise trend -->
+    <div class="card ana-sec">
+      <div class="card-head">種目別推移<span class="en">Exercise Progress</span></div>
+      <div class="ex-sel-row">
+        <select class="ana-select" id="ana-ex-sel" onchange="anaExChange()"></select>
+        <span id="ana-ex-stall"></span>
+      </div>
+      <div class="exchart-wrap" id="ana-ex-chart"></div>
+    </div>
+    <!-- 4. PR list -->
+    <div class="card ana-sec">
+      <div class="card-head">自己ベスト<span class="en">Personal Records</span></div>
+      <div style="overflow-x:auto;"><table class="prtable" id="ana-pr"></table></div>
     </div>
   </div>
+
+  <div class="hx-pair">
+    <!-- 5. weekly sets per muscle -->
+    <div class="card ana-sec">
+      <div class="card-head">部位別・今週セット数<span class="en">Weekly Sets / Muscle</span></div>
+      <div id="ana-ws-bars"></div>
+    </div>
+    <!-- 6. monthly calendar -->
+    <div class="card ana-sec">
+      <div class="card-head"><span id="ana-cal-title">カレンダー</span><span class="en">Training Calendar</span></div>
+      <div class="calwrap">
+        <table class="cal" id="ana-cal"></table>
+        <div class="calside" id="ana-cal-side"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 記録の一覧 -->
+  <div class="card ana-sec">
+    <div class="card-head">セッション履歴<span class="en">History</span></div>
+    <div id="hist-list"></div>
+    <div id="hist-detail"></div>
+  </div>
+
   <p class="muted center" id="verline"></p>
   <div class="stripe"></div>
 </div>
@@ -958,60 +1009,6 @@
 
 </div><!-- /tab-train -->
 
-<!-- ===== TAB: 分析（Phase B） ===== -->
-<div id="tab-analyze" class="tabpane">
-  <div class="ana-head"><h1>分析</h1><span class="subk" id="ana-range">PERFORMANCE</span></div>
-
-  <!-- 1. stat cards -->
-  <div class="stats stagger" id="ana-stats"></div>
-
-  <!-- 2. volume trend -->
-  <div class="card ana-sec">
-    <div class="card-head">総重量の推移<span class="en">Total Volume / Session</span>
-      <span class="legend"><span class="la"><i></i>M 全身</span><span class="lb"><i></i>A/B 旧</span></span>
-    </div>
-    <div class="chart-scroll" id="ana-vol-scroll"><div class="chart" id="ana-vol-chart"></div><div style="display:flex; width:max-content; min-width:100%; padding:0 8px;" id="ana-vol-xlabs"></div></div>
-  </div>
-
-  <!-- 3. exercise trend -->
-  <div class="card ana-sec">
-    <div class="card-head">種目別推移<span class="en">Exercise Progress</span></div>
-    <div class="ex-sel-row">
-      <select class="ana-select" id="ana-ex-sel" onchange="anaExChange()"></select>
-      <span id="ana-ex-stall"></span>
-    </div>
-    <div class="exchart-wrap" id="ana-ex-chart"></div>
-  </div>
-
-  <!-- 4. PR list -->
-  <div class="card ana-sec">
-    <div class="card-head">自己ベスト<span class="en">Personal Records</span></div>
-    <div style="overflow-x:auto;"><table class="prtable" id="ana-pr"></table></div>
-  </div>
-
-  <!-- 5. weekly sets per muscle -->
-  <div class="card ana-sec">
-    <div class="card-head">部位別・今週セット数<span class="en">Weekly Sets / Muscle</span></div>
-    <div id="ana-ws-bars"></div>
-  </div>
-
-  <!-- 6. monthly calendar -->
-  <div class="card ana-sec">
-    <div class="card-head"><span id="ana-cal-title">カレンダー</span><span class="en">Training Calendar</span></div>
-    <div class="calwrap">
-      <table class="cal" id="ana-cal"></table>
-      <div class="calside" id="ana-cal-side"></div>
-    </div>
-  </div>
-
-
-  <!-- 8. session history (旧トレ履歴を吸収) -->
-  <div class="card ana-sec">
-    <div class="card-head">セッション履歴<span class="en">History</span></div>
-    <div id="hist-list"></div>
-    <div id="hist-detail"></div>
-  </div>
-</div>
 
 
 
@@ -1042,9 +1039,9 @@ const MENU_KEYS = Object.keys(MENUS);
 function menuCls(k){ return (k==="A"||k==="B"||k==="M") ? k : "M"; }
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み（KB「自宅トレ環境・器具」）
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v5.3 (2026-11-16)";
-const APP_VER_SHORT = "v5.3", APP_VER_DATE = "2026-11-16";
-const WHATS_NEW = ["設定タブ 廃止", "ヒートマップ 廃止", "キーボード操作 廃止", "途中再開 廃止", "セットを飛ばす 廃止", "履歴のコピー・削除 廃止", "カレンダー 今月のみ", "説明文 削除"];
+const APP_VERSION = "v5.4 (2026-11-16)";
+const APP_VER_SHORT = "v5.4", APP_VER_DATE = "2026-11-16";
+const WHATS_NEW = ["ホームに分析を集約", "タブ 廃止", "前回の実績", "設定タブ 廃止", "ヒートマップ 廃止", "キーボード操作 廃止", "途中再開 廃止", "説明文 削除"];
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -1113,7 +1110,7 @@ function _tone(freq, dur, vol, type, when, slideTo){
   o.connect(g); g.connect(actx.destination);
   o.start(t); o.stop(t+dur+0.02);
 }
-/* kind: hover/click/confirm/back/tab/error/start/complete/step */
+/* kind: hover/click/confirm/back/error/start/complete/step */
 function sfx(kind){
   if(!sfxOn) return;
   if(!actx){ try{ unlockAudio(); }catch(e){} }
@@ -1126,7 +1123,6 @@ function sfx(kind){
       case "step":    _tone(1050,0.035,0.07,"square"); break;
       case "confirm": _noise(0.06,0.13,"highpass",1800); _tone(760,0.07,0.13,"square"); _tone(1180,0.10,0.11,"square",0.055); break;
       case "back":    _tone(700,0.09,0.10,"square",0,420); break;
-      case "tab":     _noise(0.16,0.10,"bandpass",1200,1.1); _tone(320,0.12,0.06,"sawtooth",0,180); break;
       case "error":   _tone(200,0.16,0.16,"square"); _tone(150,0.20,0.13,"square",0.09); break;
       case "start":   _noise(0.3,0.14,"bandpass",900,.8); _tone(160,0.32,0.14,"sawtooth",0,540); _tone(900,0.16,0.09,"square",0.16); break;
       case "complete":[0,0.09,0.18,0.30].forEach((w,i)=>_tone([523,659,784,1046][i],0.34,0.11,"square",w)); _noise(0.5,0.10,"highpass",1200); break;
@@ -1150,21 +1146,8 @@ function show(id){
   el.classList.add("active");
   // トレ進行中(ready/record)はタブバーを無効化して誤タップ防止（表示のみ・ロジック不変）
   document.body.classList.toggle("in-workout", id==="ready"||id==="record");
+  if(id==="home") renderHome();
   reanimate(el); fireWipe(); updateHud();
-  window.scrollTo(0,0);
-}
-/* タブ切替（トレーニング/分析）— 分析はrenderAnalyze()を毎回呼ぶ（オンデマンド計算） */
-function showTab(tab){
-  document.querySelectorAll(".navitem[data-tab]").forEach(n=>{
-    const on = n.getAttribute("data-tab")===tab;
-    n.classList.toggle("on", on);
-    if(on) n.setAttribute("aria-current","page"); else n.removeAttribute("aria-current");
-  });
-  document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
-  const pane = document.getElementById("tab-"+tab);
-  if(pane) pane.classList.add("active");
-  if(tab==="analyze") renderAnalyze();
-  sfx("tab"); reanimate(pane); fireWipe();
   window.scrollTo(0,0);
 }
 
@@ -1375,7 +1358,7 @@ function applyPublished(){
   }).then(function(info){
     if(!info) return;
     renderMenuCards();
-    if(document.getElementById("tab-analyze").classList.contains("active")) renderAnalyze();
+    renderHome();
   });
 }
 
@@ -2074,7 +2057,7 @@ function sessionToText(sess){
 }
 
 
-/* ===================== HISTORY（分析タブ・表示のみ／削除は監督官がデータを直す） ===================== */
+/* ===================== HISTORY（ホームの記録一覧・表示のみ／削除は監督官がデータを直す） ===================== */
 function renderHistory(){
   const h = loadHistory();
   const list = document.getElementById("hist-list");
@@ -2103,7 +2086,7 @@ function showHistDetail(i){
   d.querySelector("pre").textContent = txt;                       // textContentで安全に表示(インジェクション無し)
 }
 
-/* ===================== ANALYZE TAB (Phase B・新規関数のみ／既存ロジックは読み取り専用) ===================== */
+/* ===================== 分析（v5.4：ホームに集約） ===================== */
 /* --- 部位マッピング（主働=1.0・副次=0.5セット換算） --- */
 const MUSCLES = {
   chest:      {jp:"胸",       en:"PECTORALIS"},
@@ -2280,13 +2263,28 @@ function renderAnalyze(){
   anaWeekBars();
   anaCalendar();
   renderHistory();
-  const h = loadHistory();
-  const rangeEl = document.getElementById("ana-range");
-  if(h.length){
-    rangeEl.textContent = "PERFORMANCE ／ " + h[0].date.replace(/-/g,".") + " – " + h[h.length-1].date.replace(/-/g,".");
-  }else{
-    rangeEl.textContent = "PERFORMANCE";
-  }
+}
+/* ホーム＝前回の実績＋分析（v5.4）。ホームを出すたび・データ読込後に作り直す */
+function renderHome(){ renderLast(); renderAnalyze(); }
+const HX_SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">';
+function renderLast(){
+  const box = document.getElementById("hx-last"); if(!box) return;
+  const h = loadHistory(), s = h[h.length-1];
+  const head = '<div class="card-head">前回<span class="en">Last Session</span>' + (s ? '<span class="hx-date">'+esc(s.date.replace(/-/g,"."))+'</span>' : "") + '</div>';
+  if(!s){ box.innerHTML = head + '<div class="hx-none">—</div>'; return; }
+  const vol = sessionVolume(s).volKg, min = sessionDuration(s), kcal = sessionKcal(s);
+  const rows = (s.exercises||[]).filter(e=>!e.wu && (e.records||[]).some(r=>r)).map(ex=>{
+    const reps = []; let kg = null;
+    (ex.records||[]).forEach(r=>{ if(r) (r.entries||[]).forEach(en=>{ reps.push(en.reps||0); if(en.kg!=null) kg = en.kg; }); });
+    const w = (ex.bodyweight || kg==null) ? '<span class="hx-bw">自重</span>' : '<b>'+kg+'</b><small>kg</small>';
+    return '<tr><td class="hx-n">'+esc(ex.name)+'</td><td class="hx-k">'+w+'</td><td class="hx-r">'+reps.map(x=>'<i>'+x+'</i>').join("")+'</td></tr>';
+  }).join("");
+  box.innerHTML = head +
+    '<div class="hx-sum">'+
+      '<span>'+HX_SV+'<path d="M2 12h2M20 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg><b>'+vol.toLocaleString("ja-JP")+'</b><small>kg</small></span>'+
+      '<span>'+HX_SV+'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.5"/></svg><b>'+(min!=null?min:"—")+'</b><small>分</small></span>'+
+      '<span>'+HX_SV+'<path d="M12 2c1 4-4 6-4 10a4 4 0 0 0 8 0c0-2-1-3-1-3s3 1 3 5a7 7 0 0 1-14 0c0-6 7-8 8-12z"/></svg><b>'+(kcal!=null?kcal:"—")+'</b><small>kcal</small></span>'+
+    '</div><table class="hx-tab">'+rows+'</table>';
 }
 
 /* 1. 統計カード */
@@ -2508,14 +2506,14 @@ document.addEventListener("visibilitychange", ()=>{
 /* ===================== UI FEEL（SFX委譲・起動演出） ===================== */
 /* クリック/ホバー音は委譲で一括（個別のonclickは触らない） */
 document.addEventListener("pointerdown", (e)=>{
-  const t = e.target.closest("button,.navitem,.hist-row,.startbtn");
+  const t = e.target.closest("button,.hist-row,.startbtn");
   if(!t) return;
   if(t.id==="r-check" || t.classList.contains("startbtn")) return; // 専用音があるので二重に鳴らさない
   sfx("click");
 }, true);
 let _lastHover = null, _lastHoverAt = 0;
 document.addEventListener("pointerover", (e)=>{
-  const t = e.target.closest("button,.navitem,.menu-card,.hist-row,.stat");
+  const t = e.target.closest("button,.menu-card,.hist-row,.stat");
   if(!t || t===_lastHover) return;
   _lastHover = t;
   const now = performance.now();
@@ -2538,6 +2536,7 @@ purgeCurrent();     // v5.3：途中再開は廃止＝旧版が残した進行�
 applyPublished();   // スマホ/ブラウザ：公開データ（mobile_data.json）を取り込む（PCでは何もしない）
 renderMenuCards();
 renderWhatsNew();
+renderHome();
 reanimate(document.getElementById("home"));
 // PYW時：STORE（menus上書き）ロード完了後にホームのメニュープレビューを更新（initPyStorageは不変のまま別リスナで待つ）
 window.addEventListener("pywebviewready", ()=>{
@@ -2546,6 +2545,7 @@ window.addEventListener("pywebviewready", ()=>{
     if(PYW || ++n>20){
       clearInterval(iv);
       renderMenuCards();
+      if(document.getElementById("home").classList.contains("active")) renderHome();
     }
   }, 150);
 });

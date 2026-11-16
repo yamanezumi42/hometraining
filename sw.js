@@ -1,7 +1,7 @@
 /* v4.1: index.html と mobile_data.json は network-first（更新が即届く）。
    それ以外（アイコン等）は cache-first。オフライン時は常にキャッシュへフォールバック。
    ※旧v4-0は全部cache-firstで、更新が届かず「アプリを1〜2回開き直す」必要があった。 */
-const CACHE = "ht-v5-3";
+const CACHE = "ht-v5-4";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./mobile_data.json"];
 
 self.addEventListener("install", e => {
