@@ -3,9 +3,10 @@
 # v3: js_api を追加。記録の正本＝KB（private）の hometraining.json。
 #     トレ終了時に ①json保存 ②トレーニングログ_2026.md へ日付ブロック追記 ③git add/commit/push を自動実行。
 # - private_mode=False ＝ localStorage（進行中のトレ）を保持する。
-# - 🚨 記録の正本は KB（private）のみ。public リポジトリ（このフォルダ）に自動では書かない。
-#   例外＝設定タブの「スマホへ反映」を本人が押した時だけ mobile_data.json を書き出して公開する
-#   （2026-08-14 本人合意：スマホは人に見せる用のビューア。履歴・目安kg・体重が公開される）。
+# - 🚨 記録の正本は KB（private）のみ。public リポジトリ（このフォルダ）へは mobile_data.json だけを書く。
+#   v5（2026-11-16 本人決定）：トレ終了時に KB への記録の後で publish_mobile も自動実行する
+#   （8/14の「ボタンを押した時だけ」を上書き。履歴・目安kg・体重が毎回公開されることを本人が了承済み）。
+#   設定タブの「スマホへ反映」ボタンも残す。
 import io
 import json
 import os
@@ -146,7 +147,7 @@ class Api:
         """KBの正本 → 公開リポジトリの mobile_data.json を書き出して push。
 
         スマホ（GitHub Pages）はこのファイルを起動時に読んで履歴を表示する。
-        ⚠️公開リポジトリ＝誰でも閲覧可。本人が設定タブのボタンを押した時だけ実行される。
+        ⚠️公開リポジトリ＝誰でも閲覧可。トレ終了時（自動・v5）と設定タブのボタンで実行される。
         """
         try:
             data = self.load_data()
@@ -156,44 +157,41 @@ class Api:
             hist = data.get("history") or []
             latest = hist[-1].get("date") if hist else None
             # 中身が前回と同じなら書き出さない（押すたびに時刻だけ違うcommitが積まれるのを防ぐ）。
-            # ただしpushだけは試す＝前回pushに失敗して溜まったcommitをここで流す。
-            if self._same_as_published(data):
-                res = {"ok": True, "sessions": len(hist), "latest": latest, "path": self._pub_path,
-                       "committed": False, "pushed": False, "note": "変更なし"}
-                if self._do_git:
-                    rc, out = self._git(["push"], timeout=120, repo=self._app_repo)
-                    res["pushed"] = (rc == 0)
-                    if rc != 0:
-                        res["error"] = out[-400:]
-                else:
-                    res["skipped"] = True
-                return res
-            payload = {"publishedAt": time.strftime("%Y-%m-%d %H:%M:%S"),
-                       "publishedAtMs": int(time.time() * 1000)}
-            payload.update(self._pub_content(data))
-            with self._lock:
-                tmp = self._pub_path + ".tmp"
-                with io.open(tmp, "w", encoding="utf-8") as f:
-                    json.dump(payload, f, ensure_ascii=False)
-                os.replace(tmp, self._pub_path)
+            # git側は毎回「未commitがあればcommit → push」を試す＝前回のcommit/push失敗分はここで流れる（次回持ち越し）。
+            same = self._same_as_published(data)
             res = {"ok": True, "sessions": len(hist), "latest": latest, "path": self._pub_path}
+            if not same:
+                payload = {"publishedAt": time.strftime("%Y-%m-%d %H:%M:%S"),
+                           "publishedAtMs": int(time.time() * 1000)}
+                payload.update(self._pub_content(data))
+                with self._lock:
+                    tmp = self._pub_path + ".tmp"
+                    with io.open(tmp, "w", encoding="utf-8") as f:
+                        json.dump(payload, f, ensure_ascii=False)
+                    os.replace(tmp, self._pub_path)
             if not self._do_git:
                 res["skipped"] = True
+                if same:
+                    res["note"] = "変更なし"
                 return res
             rel = os.path.relpath(self._pub_path, self._app_repo)
-            self._git(["add", "--", rel], repo=self._app_repo)
+            rc, out = self._git(["add", "--", rel], repo=self._app_repo)
+            if rc != 0:
+                res.update({"ok": False, "stage": "add", "committed": False, "pushed": False,
+                            "error": out[-400:]})
+                return res
             rc, out = self._git(["diff", "--cached", "--quiet", "--", rel], repo=self._app_repo)
             if rc == 0:
                 res["committed"] = False
-                res["pushed"] = False
                 res["note"] = "変更なし"
-                return res
-            msg = "スマホへ反映: 履歴%d件（最新 %s）" % (len(hist), latest or "-")
-            rc, out = self._git(["commit", "-m", msg, "--", rel], repo=self._app_repo)
-            if rc != 0:
-                res.update({"ok": False, "stage": "commit", "error": out[-400:]})
-                return res
-            res["committed"] = True
+            else:
+                msg = "スマホへ反映: 履歴%d件（最新 %s）" % (len(hist), latest or "-")
+                rc, out = self._git(["commit", "-m", msg, "--", rel], repo=self._app_repo)
+                if rc != 0:
+                    res.update({"ok": False, "stage": "commit", "committed": False, "pushed": False,
+                                "error": out[-400:]})
+                    return res
+                res["committed"] = True
             rc, out = self._git(["push"], timeout=120, repo=self._app_repo)
             res["pushed"] = (rc == 0)
             if rc != 0:
@@ -204,11 +202,21 @@ class Api:
 
     # ---------- one-shot: トレ終了 ----------
     def finish_session(self, data, md_block, commit_message):
-        """トレ終了時にJSから1回呼ぶ：json保存＋md追記＋git同期。"""
+        """トレ終了時にJSから1回呼ぶ：json保存＋md追記＋git同期＋携帯への反映（v5）。
+
+        携帯への反映は KB への記録の後に行う＝失敗してもトレ記録は失われない。
+        失敗分は次回の publish_mobile（自動・手動どちらでも）で commit/push される。
+        """
         res_save = self.save_data(data)
         res_md = self.append_md_block(md_block)
         res_git = self.git_sync(commit_message)
-        return {"save": res_save, "md": res_md, "git": res_git}
+        res_pub = None
+        if res_save.get("ok"):
+            try:
+                res_pub = self.publish_mobile()
+            except Exception as e:
+                res_pub = {"ok": False, "error": repr(e)}
+        return {"save": res_save, "md": res_md, "git": res_git, "pub": res_pub}
 
     def ping(self):
         return {"ok": True, "storage": "kb", "data_path": self._data_path}
