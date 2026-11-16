@@ -702,19 +702,14 @@
 
   .hist-row{
     display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:var(--s4);
-    padding:13px 10px; border-bottom:1px solid var(--line); cursor:pointer;
-    transition:background var(--t-fast), transform var(--t-fast);
+    padding:13px 10px; border-bottom:1px solid var(--line);
   }
   .hist-row .hl b{font-family:var(--disp); font-style:italic; font-size:16px; letter-spacing:.04em;}
-  .hist-row:hover{background:#14141a; transform:translateX(4px);}
-  .hist-row:active{background:var(--panel2);}
   .hist-row .hl{display:flex; align-items:center; gap:10px; min-width:0;}
   /* 中央＝そのセッションの総重量を最大比で見せる帯（空白を情報で埋める） */
   .hist-row .hbar{position:relative; height:8px; background:#101017; border:1px solid var(--line);}
   .hist-row .hbar i{position:absolute; left:0; top:0; bottom:0; background:var(--acc2); transform:skewX(var(--skew)); transform-origin:left;}
-  .hist-row:hover .hbar i{background:var(--acc);}
   .hist-row .hbar.A i,.hist-row .hbar.B i{background:#7a7a76;}
-  .hist-row:hover .hbar.A i,.hist-row:hover .hbar.B i{background:var(--white);}
   .hist-row .badge{
     display:inline-flex; align-items:center; justify-content:center; flex:none;
     font-family:var(--disp); font-style:italic; font-weight:700; font-size:14px;
@@ -909,7 +904,6 @@
   <div class="card ana-sec">
     <div class="card-head">セッション履歴<span class="en">History</span></div>
     <div id="hist-list"></div>
-    <div id="hist-detail"></div>
   </div>
 
   <p class="muted center" id="verline"></p>
@@ -1039,9 +1033,9 @@ const MENU_KEYS = Object.keys(MENUS);
 function menuCls(k){ return (k==="A"||k==="B"||k==="M") ? k : "M"; }
 const KG_MIN=3, KG_MAX=32, KG_STEP=1; // ダンベル3-32kg・1kg刻み（KB「自宅トレ環境・器具」）
 function clampKg(v){ if(isNaN(v)) return v; return Math.min(KG_MAX, Math.max(KG_MIN, Math.round(v))); }
-const APP_VERSION = "v5.4 (2026-11-16)";
-const APP_VER_SHORT = "v5.4", APP_VER_DATE = "2026-11-16";
-const WHATS_NEW = ["ホームに分析を集約", "タブ 廃止", "前回の実績", "設定タブ 廃止", "ヒートマップ 廃止", "キーボード操作 廃止", "途中再開 廃止", "説明文 削除"];
+const APP_VERSION = "v5.5 (2026-11-16)";
+const APP_VER_SHORT = "v5.5", APP_VER_DATE = "2026-11-16";
+const WHATS_NEW = ["自己ベスト 今のメニューだけ", "記録の文字の枠 廃止"];
 
 /* ===================== STATE ===================== */
 let S = null;            // current session
@@ -1809,7 +1803,7 @@ function renderRank(volKg){
 function finishWorkout(){
   stopTimer(); releaseWake();
   S.finished=true; S.endedAt=Date.now();
-  // save full session to history (sessionToText が表示時に未実施種目をフィルタ)
+  // save full session to history
   const hist = loadHistory();
   hist.push(JSON.parse(JSON.stringify(S)));
   saveHistory(hist);
@@ -2044,24 +2038,12 @@ function fmtEntries(entries, compact){
     return sidep + w + "×" + (e.reps||0);
   }).join(" ");
 }
-function sessionToText(sess){
-  let out = `${sess.date} ${sess.label}\n`;
-  sess.exercises.forEach(ex=>{
-    if(ex.wu) return;
-    const recs = (ex.records||[]).filter(r=>r);
-    if(!recs.length){ out += `${ex.name}: （未実施）\n`; return; }
-    const sets = recs.map(r=>fmtEntries(r.entries)).join(" / ");
-    out += `${ex.name}: ${sets}\n`;
-  });
-  return out.trim();
-}
 
 
 /* ===================== HISTORY（ホームの記録一覧・表示のみ／削除は監督官がデータを直す） ===================== */
 function renderHistory(){
   const h = loadHistory();
   const list = document.getElementById("hist-list");
-  document.getElementById("hist-detail").innerHTML="";
   if(!h.length){ list.innerHTML=""; return; }
   list.innerHTML="";
   const volMax = Math.max.apply(null, h.map(s=>sessionVolume(s).volKg||0)) || 1;
@@ -2074,16 +2056,8 @@ function renderHistory(){
     div.innerHTML=`<div class="hl"><span class="badge ${menuCls(s.menuKey)}">${s.menuKey||"?"}</span><b>${s.date}</b></div>
       <div class="hbar ${menuCls(s.menuKey)}" title="総重量 ${vol.toLocaleString("ja-JP")}kg（全期間の最大 ${volMax.toLocaleString("ja-JP")}kg 比）"><i style="width:${Math.max(1,Math.round(vol/volMax*100))}%"></i></div>
       <div class="hr-stats"><span><b>${vol.toLocaleString("ja-JP")}</b> kg</span><span><b>${min!=null?min:"—"}</b> 分</span><span><b>${kcal!=null?kcal:"—"}</b> kcal</span></div>`;
-    div.onclick=()=>showHistDetail(i);
     list.appendChild(div);
   }
-}
-function showHistDetail(i){
-  const s=loadHistory()[i];
-  const txt=sessionToText(s);
-  const d=document.getElementById("hist-detail");
-  d.innerHTML=`<div class="card"><pre style="white-space:pre-wrap; font-size:13px; margin:0;"></pre></div>`;
-  d.querySelector("pre").textContent = txt;                       // textContentで安全に表示(インジェクション無し)
 }
 
 /* ===================== 分析（v5.4：ホームに集約） ===================== */
@@ -2210,9 +2184,10 @@ function stallInfo(name){ // 直近3セッション同じ最大kg＆回数上限
   if(l3.some(p=>p.maxKg==null)) return false;
   return l3.every(p=>p.maxKg===l3[0].maxKg) && !last.allTop;
 }
-function prTable(){ // 種目ごとの自己ベスト
+function prTable(){ // 種目ごとの自己ベスト（v5.5：今のメニューMの種目だけ）
   const rows=[];
-  allExerciseNames().forEach(n=>{
+  const M=effectiveMenus().M, cur=M ? M.exercises.filter(e=>!e.wu).map(e=>e.name) : [];
+  cur.forEach(n=>{
     let best=null; const chin=isChinup(n);
     loadHistory().forEach(s=>{
       const ex=(s.exercises||[]).find(e=>e.name===n && !e.wu); if(!ex) return;
@@ -2506,14 +2481,14 @@ document.addEventListener("visibilitychange", ()=>{
 /* ===================== UI FEEL（SFX委譲・起動演出） ===================== */
 /* クリック/ホバー音は委譲で一括（個別のonclickは触らない） */
 document.addEventListener("pointerdown", (e)=>{
-  const t = e.target.closest("button,.hist-row,.startbtn");
+  const t = e.target.closest("button,.startbtn");
   if(!t) return;
   if(t.id==="r-check" || t.classList.contains("startbtn")) return; // 専用音があるので二重に鳴らさない
   sfx("click");
 }, true);
 let _lastHover = null, _lastHoverAt = 0;
 document.addEventListener("pointerover", (e)=>{
-  const t = e.target.closest("button,.menu-card,.hist-row,.stat");
+  const t = e.target.closest("button,.menu-card,.stat");
   if(!t || t===_lastHover) return;
   _lastHover = t;
   const now = performance.now();
